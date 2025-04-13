@@ -1,0 +1,15 @@
+<h2>Prognoza pogody</h2>
+<table>
+  <tr>
+    <th>Data</th>
+    <th>Temperatura (°C)</th>
+    <th>Temperatura (°F)</th>
+    <th>Opis</th>
+  </tr>
+  <tr *ngFor="let weather of weatherData">
+    <td>{{ weather.date }}</td>
+    <td>{{ weather.temperatureC }}</td>
+    <td>{{ weather.temperatureF }}</td>
+    <td>{{ weather.summary }}</td>
+  </tr>
+</table>
