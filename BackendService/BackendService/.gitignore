@@ -1,0 +1,41 @@
+﻿# Pliki binarne i kompilacyjne
+bin/
+obj/
+*.dll
+*.pdb
+*.exe
+
+# Konfiguracje IDE
+.idea/
+.vscode/
+*.suo
+*.user
+*.psess
+*.pyc
+*.vspscc
+*.vssscc
+
+# Pliki tymczasowe
+*.tmp
+*.log
+*.nupkg
+*.snupkg
+
+# Build Ridera
+project.lock.json
+
+# Pliki generowane przez system operacyjny
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+# Kluczowe ustawienia dotnet
+**/.vs
+**/TestResults
+coverage/
+
+# Pliki SQLite
+*.db
+*.sqlite
+*.sqlite3
