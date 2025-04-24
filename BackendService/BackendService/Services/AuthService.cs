@@ -47,7 +47,7 @@ public class AuthService : IAuthService
     {
         try
         {
-            return Task.FromResult(BCrypt.Net.BCrypt.Verify(password, user.PasswordHash, true));
+            return Task.FromResult(BCrypt.Net.BCrypt.Verify(password, user.PasswordHash));
         }
         catch (Exception)
         {

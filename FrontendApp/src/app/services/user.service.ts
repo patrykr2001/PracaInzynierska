@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { AuthService } from './auth.service';
 
 export interface User {
   id: string;
@@ -9,11 +10,10 @@ export interface User {
 }
 
 export interface UpdateUserDto {
-  username: string;
-  email: string;
+  username?: string;
+  email?: string;
   currentPassword?: string;
   newPassword?: string;
-  confirmPassword?: string;
 }
 
 @Injectable({
@@ -24,11 +24,14 @@ export class UserService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   currentUser$ = this.currentUserSubject.asObservable();
 
-  constructor(private http: HttpClient) {
-    const savedUser = localStorage.getItem('currentUser');
-    if (savedUser) {
-      this.currentUserSubject.next(JSON.parse(savedUser));
-    }
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService
+  ) {
+    // Synchronizacja stanu użytkownika z AuthService
+    this.authService.currentUser$.subscribe(user => {
+      this.currentUserSubject.next(user);
+    });
   }
 
   getCurrentUser(): User | null {

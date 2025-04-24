@@ -1,0 +1,50 @@
+# Pliki tymczasowe bazy danych
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+*.db-shm
+*.db-wal
+
+# Pliki tymczasowe
+*.tmp
+*.temp
+*.swp
+*~
+
+# Pliki IDE
+.idea/
+.vscode/
+*.sln.iml
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Pliki kompilacji
+bin/
+obj/
+dist/
+build/
+*.dll
+*.pdb
+*.exe
+
+# Pliki logów
+*.log
+logs/
+
+# Pliki środowiskowe
+.env
+.env.local
+.env.*.local
+
+# Pliki npm
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Pliki Angular
+.angular/
+.cache/ 
