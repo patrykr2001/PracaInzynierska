@@ -1,0 +1,81 @@
+<div class="settings-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Ustawienia konta</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      @if (isLoading) {
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      }
+      
+      <form [formGroup]="settingsForm" (ngSubmit)="onSubmit()">
+        <mat-form-field appearance="outline">
+          <mat-label>Nazwa użytkownika</mat-label>
+          <input matInput formControlName="username" placeholder="Twoja nazwa użytkownika">
+          @if (settingsForm.get('username')?.invalid && (submitted || settingsForm.get('username')?.touched)) {
+            <mat-error>{{ getErrorMessage('username') }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Email</mat-label>
+          <input matInput formControlName="email" placeholder="Twój email" type="email">
+          @if (settingsForm.get('email')?.invalid && (submitted || settingsForm.get('email')?.touched)) {
+            <mat-error>{{ getErrorMessage('email') }}</mat-error>
+          }
+        </mat-form-field>
+
+        <div class="button-container">
+          <button mat-raised-button color="primary" type="submit" [disabled]="isLoading">
+            @if (isLoading) {
+              <mat-spinner diameter="20"></mat-spinner>
+            }
+            Zapisz zmiany
+          </button>
+          <button mat-button type="button" (click)="resetForm()" [disabled]="isLoading">
+            Resetuj zmiany
+          </button>
+        </div>
+      </form>
+
+      <mat-divider class="divider"></mat-divider>
+
+      <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()">
+        <h3>Zmiana hasła</h3>
+        
+        <mat-form-field appearance="outline">
+          <mat-label>Aktualne hasło</mat-label>
+          <input matInput formControlName="currentPassword" type="password" placeholder="Wprowadź aktualne hasło">
+          @if (passwordForm.get('currentPassword')?.invalid && (passwordSubmitted || passwordForm.get('currentPassword')?.touched)) {
+            <mat-error>{{ getPasswordErrorMessage('currentPassword') }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Nowe hasło</mat-label>
+          <input matInput formControlName="newPassword" type="password" placeholder="Wprowadź nowe hasło">
+          @if (passwordForm.get('newPassword')?.invalid && (passwordSubmitted || passwordForm.get('newPassword')?.touched)) {
+            <mat-error>{{ getPasswordErrorMessage('newPassword') }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Potwierdź nowe hasło</mat-label>
+          <input matInput formControlName="confirmPassword" type="password" placeholder="Potwierdź nowe hasło">
+          @if (passwordForm.get('confirmPassword')?.invalid && (passwordSubmitted || passwordForm.get('confirmPassword')?.touched)) {
+            <mat-error>{{ getPasswordErrorMessage('confirmPassword') }}</mat-error>
+          }
+        </mat-form-field>
+
+        <div class="button-container">
+          <button mat-raised-button color="primary" type="submit" [disabled]="isLoading">
+            @if (isLoading) {
+              <mat-spinner diameter="20"></mat-spinner>
+            }
+            Zmień hasło
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>
