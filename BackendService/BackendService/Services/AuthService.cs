@@ -34,13 +34,13 @@ public class AuthService : IAuthService
     public async Task<User?> GetUserByUsernameAsync(string username)
     {
         return await _context.Users
-            .FirstOrDefaultAsync(u => u.Username == username);
+            .FirstOrDefaultAsync(u => u.Username.ToLower() == username.ToLower());
     }
 
     public async Task<User?> GetUserByEmailAsync(string email)
     {
         return await _context.Users
-            .FirstOrDefaultAsync(u => u.Email == email);
+            .FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
     }
 
     public Task<bool> ValidatePasswordAsync(User user, string password)

@@ -1,40 +1,72 @@
 <div class="container">
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>Rejestracja</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Nazwa użytkownika</mat-label>
-          <input matInput name="username" [(ngModel)]="registerDto.username" required minlength="3">
-        </mat-form-field>
+  <div class="register-content">
+    <mat-card class="register-form">
+      <mat-card-header>
+        <mat-card-title>Rejestracja</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Nazwa użytkownika</mat-label>
+            <input matInput formControlName="username" placeholder="Wprowadź nazwę użytkownika">
+            @if (registerForm.get('username')?.invalid && (submitted || registerForm.get('username')?.touched)) {
+              <mat-error>{{ getErrorMessage('username') }}</mat-error>
+            }
+          </mat-form-field>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Email</mat-label>
-          <input matInput type="email" name="email" [(ngModel)]="registerDto.email" required>
-        </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Email</mat-label>
+            <input matInput type="email" formControlName="email" placeholder="Wprowadź adres email">
+            @if (registerForm.get('email')?.invalid && (submitted || registerForm.get('email')?.touched)) {
+              <mat-error>{{ getErrorMessage('email') }}</mat-error>
+            }
+          </mat-form-field>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Hasło</mat-label>
-          <input matInput type="password" name="password" [(ngModel)]="registerDto.password" required minlength="6">
-        </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Hasło</mat-label>
+            <input matInput type="password" formControlName="password" placeholder="Wprowadź hasło">
+            @if (registerForm.get('password')?.invalid && (submitted || registerForm.get('password')?.touched)) {
+              <mat-error>{{ getErrorMessage('password') }}</mat-error>
+            }
+            @if (registerForm.get('password')?.value) {
+              <mat-hint>Siła hasła: {{ getPasswordStrength() }}</mat-hint>
+            }
+          </mat-form-field>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Potwierdź hasło</mat-label>
-          <input matInput type="password" name="confirmPassword" [(ngModel)]="registerDto.confirmPassword" required>
-        </mat-form-field>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Potwierdź hasło</mat-label>
+            <input matInput type="password" formControlName="confirmPassword" placeholder="Potwierdź hasło">
+            @if (registerForm.get('confirmPassword')?.invalid && (submitted || registerForm.get('confirmPassword')?.touched)) {
+              <mat-error>{{ getErrorMessage('confirmPassword') }}</mat-error>
+            }
+          </mat-form-field>
 
-        @if (errorMessage) {
-          <div class="error-message">
-            {{ errorMessage }}
-          </div>
-        }
+          @if (errorMessage) {
+            <div class="error-message">
+              {{ errorMessage }}
+            </div>
+          }
 
-        <button mat-raised-button color="primary" type="submit" [disabled]="!registerForm.form.valid">
-          Zarejestruj się
-        </button>
-      </form>
-    </mat-card-content>
-  </mat-card>
+          <button mat-raised-button color="primary" type="submit" [disabled]="registerForm.invalid">
+            Zarejestruj się
+          </button>
+        </form>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="password-info">
+      <mat-card-header>
+        <mat-card-title>Wymagania dotyczące hasła</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <ul>
+          <li>Minimum 8 znaków</li>
+          <li>Co najmniej jedna wielka litera</li>
+          <li>Co najmniej jedna mała litera</li>
+          <li>Co najmniej jedna cyfra</li>
+          <li>Co najmniej jeden znak specjalny (&#64;$!%*?&)</li>
+        </ul>
+      </mat-card-content>
+    </mat-card>
+  </div>
 </div>

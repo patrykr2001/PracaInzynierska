@@ -13,32 +13,31 @@ export class MapComponent implements AfterViewInit {
   private map: L.Map | undefined;
   private markers: L.Marker[] = [];
 
+  // Granice Polski z 10% marginesem
+  private readonly POLAND_BOUNDS = L.latLngBounds(
+    L.latLng(48.1, 12.6), // Południowo-zachodni róg (49.0 - 10% = 48.1, 14.0 - 10% = 12.6)
+    L.latLng(55.0, 25.4)  // Północno-wschodni róg (54.5 + 10% = 55.0, 24.0 + 10% = 25.4)
+  );
+
   ngAfterViewInit(): void {
     this.initMap();
   }
 
   private initMap(): void {
     // Inicjalizacja mapy
-    this.map = L.map('map').setView([52.2297, 21.0122], 6); // Warszawa jako punkt startowy
+    this.map = L.map('map', {
+      maxBounds: this.POLAND_BOUNDS,
+      maxBoundsViscosity: 1.0, // Pełne ograniczenie poza granicami
+      minZoom: 6, // Minimalny zoom dla Polski
+      maxZoom: 18
+    }).setView([51.9194, 19.1451], 6); // Centrum Polski
 
     // Dodanie warstwy OpenStreetMap
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
     }).addTo(this.map);
 
-    // Obsługa kliknięcia na mapę
-    this.map.on('click', (e: L.LeafletMouseEvent) => {
-      this.addMarker(e.latlng);
-    });
-  }
-
-  private addMarker(latlng: L.LatLng): void {
-    if (!this.map) return;
-
-    const marker = L.marker(latlng).addTo(this.map);
-    this.markers.push(marker);
-
-    // Dodanie popupu do markera
-    marker.bindPopup('Nowa obserwacja ptaka').openPopup();
+    // Ograniczenie widoku do granic Polski
+    this.map.setMaxBounds(this.POLAND_BOUNDS);
   }
 }
