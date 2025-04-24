@@ -24,12 +24,11 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Add CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend", policy =>
-    {
-        policy.WithOrigins("http://localhost:4200")
+    options.AddPolicy("AllowAngularDevServer",
+        builder => builder
+            .WithOrigins("http://localhost:4200")
             .AllowAnyMethod()
-            .AllowAnyHeader();
-    });
+            .AllowAnyHeader());
 });
 
 // Add Authentication
@@ -56,6 +55,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 // Add Services
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IBirdService, BirdService>();
 
 var app = builder.Build();
 
@@ -82,8 +82,22 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// Upewnij się, że katalog wwwroot istnieje
+var wwwrootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+if (!Directory.Exists(wwwrootPath))
+{
+    Directory.CreateDirectory(wwwrootPath);
+}
+// Upewnij się, że katalog uploads/birds istnieje
+var uploadsPath = Path.Combine(wwwrootPath, "uploads", "birds");
+if (!Directory.Exists(uploadsPath))
+{
+    Directory.CreateDirectory(uploadsPath);
+}
+
 app.UseHttpsRedirection();
-app.UseCors("AllowFrontend");
+app.UseStaticFiles(); // Dodaj obsługę statycznych plików
+app.UseCors("AllowAngularDevServer");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

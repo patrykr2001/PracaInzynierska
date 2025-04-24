@@ -1,0 +1,76 @@
+<h2 mat-dialog-title>Dodaj nowego ptaka</h2>
+
+<form [formGroup]="birdForm" (ngSubmit)="onSubmit()">
+  <mat-dialog-content>
+    <div class="image-upload">
+      @if (imagePreview) {
+        <div class="image-preview">
+          <img [src]="imagePreview" alt="Podgląd zdjęcia">
+          <button type="button" mat-icon-button class="remove-image" (click)="removeImage()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      } @else {
+        <div class="upload-placeholder" (click)="fileInput.click()">
+          <mat-icon>add_photo_alternate</mat-icon>
+          <span>Kliknij, aby dodać zdjęcie</span>
+        </div>
+      }
+      <input #fileInput type="file" accept="image/*" (change)="onFileSelected($event)" style="display: none">
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Nazwa naukowa</mat-label>
+      <input matInput formControlName="scientificName" placeholder="np. Parus major">
+      @if (birdForm.get('scientificName')?.invalid && birdForm.get('scientificName')?.touched) {
+        <mat-error>Nazwa naukowa jest wymagana</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Nazwa zwyczajowa</mat-label>
+      <input matInput formControlName="commonName" placeholder="np. Bogatka">
+      @if (birdForm.get('commonName')?.invalid && birdForm.get('commonName')?.touched) {
+        <mat-error>Nazwa zwyczajowa jest wymagana</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Rodzina</mat-label>
+      <input matInput formControlName="family" placeholder="np. Sikory">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Rząd</mat-label>
+      <input matInput formControlName="order" placeholder="np. Wróblowe">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Status ochrony</mat-label>
+      <input matInput formControlName="conservationStatus" placeholder="np. LC">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Opis</mat-label>
+      <textarea matInput formControlName="description" rows="4" placeholder="Opis ptaka..."></textarea>
+    </mat-form-field>
+
+    @if (errorMessage) {
+      <div class="error-message">
+        {{ errorMessage }}
+      </div>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="onCancel()" [disabled]="isLoading">
+      Anuluj
+    </button>
+    <button mat-raised-button color="primary" type="submit" [disabled]="birdForm.invalid || isLoading">
+      @if (isLoading) {
+        <mat-spinner diameter="20"></mat-spinner>
+      }
+      Dodaj ptaka
+    </button>
+  </mat-dialog-actions>
+</form> 

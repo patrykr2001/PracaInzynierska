@@ -1,0 +1,57 @@
+<div class="container">
+  @if (isLoading) {
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  } @else if (errorMessage) {
+    <div class="error-message">
+      {{ errorMessage }}
+    </div>
+  } @else if (bird) {
+    <div class="header">
+      <button mat-button (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+        Powrót do listy
+      </button>
+    </div>
+
+    <mat-card class="bird-details">
+      <div class="bird-image">
+        <img [src]="bird.imageUrl || 'assets/images/bird-placeholder.jpg'" [alt]="bird.commonName">
+      </div>
+
+      <mat-card-content>
+        <h1>{{ bird.commonName }}</h1>
+        <p class="scientific-name">{{ bird.scientificName }}</p>
+
+        <div class="details-grid">
+          @if (bird.family) {
+            <div class="detail-item">
+              <h3>Rodzina</h3>
+              <p>{{ bird.family }}</p>
+            </div>
+          }
+
+          @if (bird.order) {
+            <div class="detail-item">
+              <h3>Rząd</h3>
+              <p>{{ bird.order }}</p>
+            </div>
+          }
+
+          @if (bird.conservationStatus) {
+            <div class="detail-item">
+              <h3>Status ochrony</h3>
+              <p>{{ bird.conservationStatus }}</p>
+            </div>
+          }
+        </div>
+
+        @if (bird.description) {
+          <div class="description">
+            <h3>Opis</h3>
+            <p>{{ bird.description }}</p>
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+  }
+</div> 

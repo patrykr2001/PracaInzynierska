@@ -1,4 +1,31 @@
 <div class="container">
-  <h1>Lista ptaków</h1>
-  <p>Tu będzie lista obserwowanych ptaków</p>
+  <div class="header">
+    <h1>Lista ptaków</h1>
+    <button mat-raised-button color="primary" (click)="openAddBirdDialog()">
+      <mat-icon>add</mat-icon>
+      Dodaj nowego ptaka
+    </button>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading">
+      <mat-spinner></mat-spinner>
+    </div>
+  } @else if (errorMessage) {
+    <div class="error-message">
+      {{ errorMessage }}
+    </div>
+  } @else {
+    <div class="birds-grid">
+      @for (bird of birds; track bird.id) {
+        <mat-card class="bird-card" [routerLink]="['/birds', bird.id]">
+          <img mat-card-image [src]="bird.imageUrl || 'assets/images/bird-placeholder.jpg'" [alt]="bird.commonName">
+          <mat-card-content>
+            <h2>{{ bird.commonName }}</h2>
+            <p class="scientific-name">{{ bird.scientificName }}</p>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
 </div>
