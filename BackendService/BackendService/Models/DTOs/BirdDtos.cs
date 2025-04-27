@@ -24,6 +24,8 @@ namespace BackendService.Models.DTOs
         public string? Description { get; set; }
 
         public IFormFile? File { get; set; }
+
+        public bool IsVerified { get; set; } = false;
     }
 
     public class UpdateBirdDto
@@ -46,5 +48,7 @@ namespace BackendService.Models.DTOs
         public string? Description { get; set; }
 
         public IFormFile? File { get; set; }
+
+        public bool? IsVerified { get; set; }
     }
 } 

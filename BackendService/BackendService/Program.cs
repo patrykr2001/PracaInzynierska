@@ -5,6 +5,7 @@ using System.Text;
 using BackendService.Data;
 using BackendService.Interfaces;
 using BackendService.Services;
+using BackendService.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -67,6 +68,29 @@ using (var scope = app.Services.CreateScope())
     {
         var context = services.GetRequiredService<ApplicationDbContext>();
         context.Database.EnsureCreated();
+
+        // Dodaj domyślnego admina jeśli nie istnieje
+        if (!context.Users.Any(u => u.Username == "admin"))
+        {
+            var adminConfig = builder.Configuration.GetSection("DefaultAdmin");
+            var username = adminConfig["Username"] ?? throw new InvalidOperationException("DefaultAdmin:Username is not configured");
+            var email = adminConfig["Email"] ?? throw new InvalidOperationException("DefaultAdmin:Email is not configured");
+            var password = adminConfig["Password"] ?? throw new InvalidOperationException("DefaultAdmin:Password is not configured");
+
+            var adminUser = new User
+            {
+                Username = username,
+                Email = email,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
+                Role = UserRole.Admin,
+                CreatedAt = DateTime.UtcNow
+            };
+            context.Users.Add(adminUser);
+            context.SaveChanges();
+        }
+
+        // Dodaj domyślne dane ptaków
+        SeedData.SeedBirds(context);
     }
     catch (Exception ex)
     {

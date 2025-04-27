@@ -1,7 +1,6 @@
-using BackendService.Interfaces;
-using BackendService.Models.DTOs;
-using BackendService.Services;
 using Microsoft.AspNetCore.Mvc;
+using BackendService.Models.DTOs;
+using BackendService.Interfaces;
 
 namespace BackendService.Controllers
 {
@@ -16,22 +15,13 @@ namespace BackendService.Controllers
             _authService = authService;
         }
 
-        [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterDto registerDto)
+        [HttpPost("login")]
+        public async Task<ActionResult<AuthResponse>> Login([FromBody] LoginDto loginDto)
         {
             try
             {
-                var (user, token) = await _authService.RegisterAsync(registerDto);
-                return Ok(new
-                {
-                    token,
-                    user = new
-                    {
-                        id = user.Id,
-                        username = user.Username,
-                        email = user.Email
-                    }
-                });
+                var response = await _authService.LoginAsync(loginDto);
+                return Ok(response);
             }
             catch (Exception ex)
             {
@@ -39,22 +29,13 @@ namespace BackendService.Controllers
             }
         }
 
-        [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginDto loginDto)
+        [HttpPost("register")]
+        public async Task<ActionResult<AuthResponse>> Register([FromBody] RegisterDto registerDto)
         {
             try
             {
-                var (user, token) = await _authService.LoginAsync(loginDto);
-                return Ok(new
-                {
-                    token,
-                    user = new
-                    {
-                        id = user.Id,
-                        username = user.Username,
-                        email = user.Email
-                    }
-                });
+                var response = await _authService.RegisterAsync(registerDto);
+                return Ok(response);
             }
             catch (Exception ex)
             {

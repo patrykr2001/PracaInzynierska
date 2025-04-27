@@ -12,6 +12,6 @@ public interface IAuthService
     Task UpdatePasswordAsync(User user, string newPassword);
     Task UpdateUserAsync(User user);
     Task<string> GenerateJwtTokenAsync(User user);
-    Task<(User user, string token)> LoginAsync(LoginDto loginDto);
-    Task<(User user, string token)> RegisterAsync(RegisterDto registerDto);
+    Task<AuthResponse> LoginAsync(LoginDto loginDto);
+    Task<AuthResponse> RegisterAsync(RegisterDto registerDto);
 }

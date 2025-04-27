@@ -111,4 +111,8 @@ export default class BirdsComponent implements OnInit {
   isLoggedIn(): boolean {
     return this.authService.isLoggedIn();
   }
+
+  isAdmin(): boolean {
+    return this.authService.isAdmin();
+  }
 }

@@ -11,6 +11,10 @@
         <mat-icon>add</mat-icon>
         Dodaj nowego ptaka
       </button>
+      <button *ngIf="isAdmin()" mat-button color="primary" routerLink="/birds/unverified">
+        <mat-icon>pending_actions</mat-icon>
+        Oczekujące na weryfikację
+      </button>
     </div>
   </div>
 

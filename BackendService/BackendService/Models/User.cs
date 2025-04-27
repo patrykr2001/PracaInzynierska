@@ -1,7 +1,14 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace BackendService.Models
 {
+    public enum UserRole
+    {
+        User,
+        Admin
+    }
+
     public class User
     {
         public int Id { get; set; }
@@ -17,6 +24,8 @@ namespace BackendService.Models
 
         [Required]
         public required string PasswordHash { get; set; }
+
+        public UserRole Role { get; set; } = UserRole.User;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }

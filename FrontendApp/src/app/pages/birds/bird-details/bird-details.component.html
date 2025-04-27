@@ -1,57 +1,58 @@
-<div class="container">
-  @if (isLoading) {
-    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-  } @else if (errorMessage) {
-    <div class="error-message">
-      {{ errorMessage }}
+<div class="container" *ngIf="!isLoading && bird">
+  <div class="header">
+    <button mat-icon-button (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+  </div>
+
+  <div class="bird-image">
+    <img [src]="apiUrl + bird.imageUrl" [alt]="bird.commonName">
+  </div>
+
+  <div class="details-grid">
+    <div class="detail-item">
+      <h3>Nazwa naukowa</h3>
+      <p>{{ bird.scientificName }}</p>
     </div>
-  } @else if (bird) {
-    <div class="header">
-      <button mat-button (click)="goBack()">
-        <mat-icon>arrow_back</mat-icon>
-        Powrót do listy
-      </button>
+    <div class="detail-item">
+      <h3>Rodzina</h3>
+      <p>{{ bird.family }}</p>
     </div>
+    <div class="detail-item">
+      <h3>Rząd</h3>
+      <p>{{ bird.order }}</p>
+    </div>
+    <div class="detail-item">
+      <h3>Status ochrony</h3>
+      <p>{{ bird.conservationStatus }}</p>
+    </div>
+  </div>
 
-    <mat-card class="bird-details">
-      <div class="bird-image">
-        <img [src]="apiUrl + bird.imageUrl || 'assets/images/bird-placeholder.jpg'" [alt]="bird.commonName">
-      </div>
+  <div class="description">
+    <h3>Opis</h3>
+    <p>{{ bird.description }}</p>
+  </div>
 
-      <mat-card-content>
-        <h1>{{ bird.commonName }}</h1>
-        <p class="scientific-name">{{ bird.scientificName }}</p>
+  <div class="admin-actions" *ngIf="isAdmin() || !bird.isVerified">
+    <button mat-raised-button color="primary" (click)="openEditDialog()" *ngIf="canEdit()">
+      <mat-icon>edit</mat-icon>
+      Edytuj
+    </button>
+    <button mat-raised-button color="accent" (click)="verifyBird()" *ngIf="isAdmin() && !bird.isVerified">
+      <mat-icon>verified</mat-icon>
+      Weryfikuj
+    </button>
+    <button mat-raised-button color="warn" (click)="deleteBird()" *ngIf="isAdmin() && !bird.isVerified">
+      <mat-icon>delete</mat-icon>
+      Usuń
+    </button>
+  </div>
+</div>
 
-        <div class="details-grid">
-          @if (bird.family) {
-            <div class="detail-item">
-              <h3>Rodzina</h3>
-              <p>{{ bird.family }}</p>
-            </div>
-          }
+<div class="loading" *ngIf="isLoading">
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+</div>
 
-          @if (bird.order) {
-            <div class="detail-item">
-              <h3>Rząd</h3>
-              <p>{{ bird.order }}</p>
-            </div>
-          }
-
-          @if (bird.conservationStatus) {
-            <div class="detail-item">
-              <h3>Status ochrony</h3>
-              <p>{{ bird.conservationStatus }}</p>
-            </div>
-          }
-        </div>
-
-        @if (bird.description) {
-          <div class="description">
-            <h3>Opis</h3>
-            <p>{{ bird.description }}</p>
-          </div>
-        }
-      </mat-card-content>
-    </mat-card>
-  }
-</div> 
+<div class="error" *ngIf="errorMessage">
+  <p>{{ errorMessage }}</p>
+</div>

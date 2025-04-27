@@ -7,6 +7,7 @@ export interface Bird {
     conservationStatus?: string;
     description?: string;
     imageUrl?: string;
+    isVerified: boolean;
     createdAt: Date;
     updatedAt: Date;
 } 

@@ -8,6 +8,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/birds/birds.component').then(m => m.default)
   },
   { 
+    path: 'birds/unverified', 
+    loadComponent: () => import('./pages/birds/unverified-birds/unverified-birds.component').then(m => m.default)
+  },
+  { 
     path: 'birds/:id', 
     loadComponent: () => import('./pages/birds/bird-details/bird-details.component').then(m => m.default)
   },

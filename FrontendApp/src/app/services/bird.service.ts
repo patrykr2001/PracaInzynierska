@@ -16,6 +16,10 @@ export class BirdService {
     return this.http.get<Bird[]>(this.apiUrl);
   }
 
+  getUnverifiedBirds(): Observable<Bird[]> {
+    return this.http.get<Bird[]>(`${this.apiUrl}/unverified`);
+  }
+
   searchBirds(searchTerm: string): Observable<Bird[]> {
     return this.http.get<Bird[]>(`${this.apiUrl}/search`, {
       params: { searchTerm }
@@ -31,6 +35,12 @@ export class BirdService {
   }
 
   updateBird(id: number, formData: FormData): Observable<Bird> {
+    return this.http.put<Bird>(`${this.apiUrl}/${id}`, formData);
+  }
+
+  verifyBird(id: number): Observable<Bird> {
+    const formData = new FormData();
+    formData.append('isVerified', 'true');
     return this.http.put<Bird>(`${this.apiUrl}/${id}`, formData);
   }
 

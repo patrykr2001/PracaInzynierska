@@ -77,7 +77,8 @@ public class AuthService : IAuthService
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Email, user.Email)
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Role, user.Role.ToString())
             }),
             Expires = DateTime.UtcNow.AddDays(7),
             SigningCredentials = new SigningCredentials(
@@ -91,46 +92,47 @@ public class AuthService : IAuthService
         return Task.FromResult(tokenHandler.WriteToken(token));
     }
 
-    public async Task<(User user, string token)> LoginAsync(LoginDto loginDto)
+    public async Task<AuthResponse> LoginAsync(LoginDto loginDto)
     {
-        var user = await GetUserByUsernameAsync(loginDto.Username);
-        if (user == null)
-        {
-            throw new Exception("Nieprawidłowa nazwa użytkownika lub hasło");
-        }
-
-        var isPasswordValid = await ValidatePasswordAsync(user, loginDto.Password);
-        if (!isPasswordValid)
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == loginDto.Username);
+        if (user == null || !BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash))
         {
             throw new Exception("Nieprawidłowa nazwa użytkownika lub hasło");
         }
 
         var token = await GenerateJwtTokenAsync(user);
-        return (user, token);
+
+        return new AuthResponse
+        {
+            Token = token,
+            User = new UserDto
+            {
+                Id = user.Id,
+                Username = user.Username,
+                Email = user.Email,
+                Role = user.Role.ToString()
+            }
+        };
     }
 
-    public async Task<(User user, string token)> RegisterAsync(RegisterDto registerDto)
+    public async Task<AuthResponse> RegisterAsync(RegisterDto registerDto)
     {
-        // Sprawdź, czy nazwa użytkownika jest dostępna
-        var existingUsername = await GetUserByUsernameAsync(registerDto.Username);
-        if (existingUsername != null)
+        if (await _context.Users.AnyAsync(u => u.Username == registerDto.Username))
         {
             throw new Exception("Nazwa użytkownika jest już zajęta");
         }
 
-        // Sprawdź, czy email jest dostępny
-        var existingEmail = await GetUserByEmailAsync(registerDto.Email);
-        if (existingEmail != null)
+        if (await _context.Users.AnyAsync(u => u.Email == registerDto.Email))
         {
             throw new Exception("Email jest już zajęty");
         }
 
-        // Utwórz nowego użytkownika
         var user = new User
         {
             Username = registerDto.Username,
             Email = registerDto.Email,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerDto.Password, BCRYPT_WORK_FACTOR),
+            Role = Models.UserRole.User,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -138,6 +140,17 @@ public class AuthService : IAuthService
         await _context.SaveChangesAsync();
 
         var token = await GenerateJwtTokenAsync(user);
-        return (user, token);
+
+        return new AuthResponse
+        {
+            Token = token,
+            User = new UserDto
+            {
+                Id = user.Id,
+                Username = user.Username,
+                Email = user.Email,
+                Role = user.Role.ToString()
+            }
+        };
     }
 }

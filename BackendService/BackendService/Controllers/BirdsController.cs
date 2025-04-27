@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using BackendService.Services;
+using BackendService.Interfaces;
 using BackendService.Models;
 using BackendService.Models.DTOs;
+using BackendService.Authorization;
 
 namespace BackendService.Controllers
 {
@@ -21,6 +22,14 @@ namespace BackendService.Controllers
         public async Task<ActionResult<IEnumerable<Bird>>> GetBirds()
         {
             var birds = await _birdService.GetAllBirdsAsync();
+            return Ok(birds);
+        }
+
+        [HttpGet("unverified")]
+        [Authorize(Roles = AuthorizationConstants.AdminRole)]
+        public async Task<ActionResult<IEnumerable<Bird>>> GetUnverifiedBirds()
+        {
+            var birds = await _birdService.GetUnverifiedBirdsAsync();
             return Ok(birds);
         }
 
@@ -57,7 +66,7 @@ namespace BackendService.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = AuthorizationConstants.AdminRole)]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateBird(int id, [FromForm] UpdateBirdDto updateBirdDto)
         {
@@ -72,7 +81,7 @@ namespace BackendService.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = AuthorizationConstants.AdminRole)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBird(int id)
         {

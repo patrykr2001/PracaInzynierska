@@ -1,25 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
-import { User } from './user.service';
+import { User, UserRole } from '../models/user.model';
+import { LoginDto, RegisterDto, AuthResponse } from '../models/auth.model';
 import { environment } from '../../environments/environment';
-
-export interface LoginDto {
-  username: string;
-  password: string;
-}
-
-export interface RegisterDto {
-  username: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-}
-
-export interface AuthResponse {
-  token: string;
-  user: User;
-}
 
 @Injectable({
   providedIn: 'root'
@@ -70,5 +54,14 @@ export class AuthService {
 
   isLoggedIn(): boolean {
     return !!this.currentUserSubject.value;
+  }
+
+  isAdmin(): boolean {
+    const user = this.currentUserSubject.value;
+    return user?.role === UserRole.Admin;
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem('token');
   }
 } 

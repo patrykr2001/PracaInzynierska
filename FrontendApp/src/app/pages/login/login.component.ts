@@ -7,7 +7,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { AuthService, LoginDto } from '../../services/auth.service';
+import { AuthService } from '../../services/auth.service';
+import { LoginDto } from '../../models/auth.model';
 
 @Component({
   selector: 'app-login',

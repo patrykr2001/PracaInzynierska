@@ -1,4 +1,5 @@
 using BackendService.Data;
+using BackendService.Interfaces;
 using BackendService.Models;
 using BackendService.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
@@ -32,7 +33,12 @@ namespace BackendService.Services
 
         public async Task<IEnumerable<Bird>> GetAllBirdsAsync()
         {
-            return await _context.Birds.ToListAsync();
+            return await _context.Birds.Where(b => b.IsVerified).ToListAsync();
+        }
+
+        public async Task<IEnumerable<Bird>> GetUnverifiedBirdsAsync()
+        {
+            return await _context.Birds.Where(b => !b.IsVerified).ToListAsync();
         }
 
         public async Task<Bird?> GetBirdByIdAsync(int id)
@@ -50,6 +56,7 @@ namespace BackendService.Services
                 Order = createBirdDto.Order,
                 ConservationStatus = createBirdDto.ConservationStatus,
                 Description = createBirdDto.Description,
+                IsVerified = createBirdDto.IsVerified,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
@@ -85,6 +92,8 @@ namespace BackendService.Services
                 bird.ConservationStatus = updateBirdDto.ConservationStatus;
             if (updateBirdDto.Description != null)
                 bird.Description = updateBirdDto.Description;
+            if (updateBirdDto.IsVerified.HasValue)
+                bird.IsVerified = updateBirdDto.IsVerified.Value;
 
             if (updateBirdDto.File != null)
             {
