@@ -47,7 +47,12 @@
 
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Status ochrony</mat-label>
-      <input matInput formControlName="conservationStatus" placeholder="np. LC">
+      <mat-select formControlName="conservationStatus">
+        <mat-option [value]="''">Brak</mat-option>
+        @for (status of conservationStatuses; track status.value) {
+          <mat-option [value]="status.value">{{ status.label }}</mat-option>
+        }
+      </mat-select>
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full-width">

@@ -24,6 +24,13 @@ namespace BackendService.Controllers
             return Ok(birds);
         }
 
+        [HttpGet("search")]
+        public async Task<ActionResult<IEnumerable<Bird>>> SearchBirds([FromQuery] string searchTerm)
+        {
+            var birds = await _birdService.SearchBirdsAsync(searchTerm);
+            return Ok(birds);
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<Bird>> GetBird(int id)
         {

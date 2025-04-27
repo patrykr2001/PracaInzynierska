@@ -10,5 +10,6 @@ namespace BackendService.Services
         Task<Bird> CreateBirdAsync(CreateBirdDto createBirdDto);
         Task UpdateBirdAsync(int id, UpdateBirdDto updateBirdDto);
         Task DeleteBirdAsync(int id);
+        Task<IEnumerable<Bird>> SearchBirdsAsync(string searchTerm);
     }
 } 

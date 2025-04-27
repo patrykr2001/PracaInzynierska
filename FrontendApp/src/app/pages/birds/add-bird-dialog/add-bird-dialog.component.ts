@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import { BirdService } from '../../../services/bird.service';
 
 @Component({
@@ -20,7 +21,8 @@ import { BirdService } from '../../../services/bird.service';
     MatInputModule,
     MatButtonModule,
     MatIconModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatSelectModule
   ],
   templateUrl: './add-bird-dialog.component.html',
   styleUrl: './add-bird-dialog.component.scss'
@@ -32,6 +34,18 @@ export class AddBirdDialogComponent {
   selectedFile: File | null = null;
   imagePreview: string | null = null;
 
+  conservationStatuses = [
+    { value: 'EX', label: 'Wymarły (EX)' },
+    { value: 'EW', label: 'Wymarły na wolności (EW)' },
+    { value: 'CR', label: 'Krytycznie zagrożony (CR)' },
+    { value: 'EN', label: 'Zagrożony (EN)' },
+    { value: 'VU', label: 'Narażony (VU)' },
+    { value: 'NT', label: 'Bliski zagrożenia (NT)' },
+    { value: 'LC', label: 'Najmniejszej troski (LC)' },
+    { value: 'DD', label: 'Brak danych (DD)' },
+    { value: 'NE', label: 'Nieoceniony (NE)' }
+  ];
+
   constructor(
     private fb: FormBuilder,
     private birdService: BirdService,
@@ -42,7 +56,7 @@ export class AddBirdDialogComponent {
       commonName: ['', [Validators.required, Validators.maxLength(100)]],
       family: ['', Validators.maxLength(100)],
       order: ['', Validators.maxLength(100)],
-      conservationStatus: ['', Validators.maxLength(50)],
+      conservationStatus: [''],
       description: ['']
     });
   }

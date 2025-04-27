@@ -127,6 +127,20 @@ namespace BackendService.Services
             await _context.SaveChangesAsync();
         }
 
+        public async Task<IEnumerable<Bird>> SearchBirdsAsync(string searchTerm)
+        {
+            if (string.IsNullOrWhiteSpace(searchTerm))
+            {
+                return await GetAllBirdsAsync();
+            }
+
+            searchTerm = searchTerm.ToLower();
+            return await _context.Birds
+                .Where(b => b.ScientificName.ToLower().Contains(searchTerm) || 
+                           b.CommonName.ToLower().Contains(searchTerm))
+                .ToListAsync();
+        }
+
         private async Task<string> SaveImageAsync(IFormFile file)
         {
             if (file == null || file.Length == 0)

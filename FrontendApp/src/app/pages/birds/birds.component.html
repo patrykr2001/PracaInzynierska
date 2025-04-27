@@ -1,10 +1,17 @@
 <div class="container">
   <div class="header">
     <h1>Lista ptaków</h1>
-    <button mat-raised-button color="primary" (click)="openAddBirdDialog()">
-      <mat-icon>add</mat-icon>
-      Dodaj nowego ptaka
-    </button>
+    <div class="header-actions">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Szukaj ptaków</mat-label>
+        <input matInput [(ngModel)]="searchTerm" (ngModelChange)="onSearch()" placeholder="Wpisz nazwę naukową lub zwyczajową">
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+      <button *ngIf="isLoggedIn()" mat-raised-button color="primary" (click)="openAddBirdDialog()">
+        <mat-icon>add</mat-icon>
+        Dodaj nowego ptaka
+      </button>
+    </div>
   </div>
 
   @if (isLoading) {
@@ -14,6 +21,17 @@
   } @else if (errorMessage) {
     <div class="error-message">
       {{ errorMessage }}
+    </div>
+  } @else if (birds.length === 0) {
+    <div class="no-birds">
+      <mat-icon>pets</mat-icon>
+      <h2>Nie znaleziono ptaków</h2>
+      <p>Nie ma żadnych ptaków spełniających kryteria wyszukiwania.</p>
+      @if (searchTerm) {
+        <button mat-button color="primary" (click)="searchTerm = ''; loadBirds()">
+          Wyczyść wyszukiwanie
+        </button>
+      }
     </div>
   } @else {
     <div class="birds-grid">

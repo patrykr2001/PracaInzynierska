@@ -16,6 +16,12 @@ export class BirdService {
     return this.http.get<Bird[]>(this.apiUrl);
   }
 
+  searchBirds(searchTerm: string): Observable<Bird[]> {
+    return this.http.get<Bird[]>(`${this.apiUrl}/search`, {
+      params: { searchTerm }
+    });
+  }
+
   getBird(id: number): Observable<Bird> {
     return this.http.get<Bird>(`${this.apiUrl}/${id}`);
   }

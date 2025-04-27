@@ -5,11 +5,16 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { MatSpinner } from '@angular/material/progress-spinner';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { FormsModule } from '@angular/forms';
 import { BirdService } from '../../services/bird.service';
 import { Bird } from '../../models/bird.model';
 import { AddBirdDialogComponent } from './add-bird-dialog/add-bird-dialog.component';
 import { environment } from '../../../environments/environment';
+import { AuthService } from '../../services/auth.service';
+import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 
 @Component({
   selector: 'app-birds',
@@ -21,7 +26,10 @@ import { environment } from '../../../environments/environment';
     MatButtonModule,
     MatIconModule,
     MatDialogModule,
-    MatSpinner
+    MatProgressSpinnerModule,
+    MatInputModule,
+    MatFormFieldModule,
+    FormsModule
   ],
   templateUrl: './birds.component.html',
   styleUrl: './birds.component.scss'
@@ -31,11 +39,21 @@ export default class BirdsComponent implements OnInit {
   birds: Bird[] = [];
   isLoading = false;
   errorMessage = '';
+  searchTerm = '';
+  private searchSubject = new Subject<string>();
 
   constructor(
     private birdService: BirdService,
-    private dialog: MatDialog
-  ) {}
+    private dialog: MatDialog,
+    private authService: AuthService
+  ) {
+    this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ).subscribe(term => {
+      this.searchBirds(term);
+    });
+  }
 
   ngOnInit(): void {
     this.loadBirds();
@@ -55,6 +73,29 @@ export default class BirdsComponent implements OnInit {
     });
   }
 
+  onSearch(): void {
+    if(this.searchTerm.length > 2) {
+      this.searchSubject.next(this.searchTerm);
+    }
+    else if(this.searchTerm.length == 0) {
+      this.loadBirds();
+    }
+  }
+
+  searchBirds(term: string): void {
+    this.isLoading = true;
+    this.birdService.searchBirds(term).subscribe({
+      next: (birds) => {
+        this.birds = birds;
+        this.isLoading = false;
+      },
+      error: (error) => {
+        this.errorMessage = 'Wystąpił błąd podczas wyszukiwania ptaków';
+        this.isLoading = false;
+      }
+    });
+  }
+
   openAddBirdDialog(): void {
     const dialogRef = this.dialog.open(AddBirdDialogComponent, {
       width: '500px'
@@ -65,5 +106,9 @@ export default class BirdsComponent implements OnInit {
         this.loadBirds();
       }
     });
+  }
+
+  isLoggedIn(): boolean {
+    return this.authService.isLoggedIn();
   }
 }
