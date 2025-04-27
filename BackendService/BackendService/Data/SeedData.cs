@@ -22,10 +22,41 @@ namespace BackendService.Data
                         IsVerified = true,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
+                    },
+                    new Bird
+                    {
+                        ScientificName = "Parus major",
+                        CommonName = "Bogatka",
+                        Family = "Paridae",
+                        Order = "Passeriformes",
+                        ConservationStatus = "LC",
+                        Description = "Bogatka to największy przedstawiciel rodziny sikor w Polsce. Charakteryzuje się czarną głową z białymi policzkami, żółtym brzuchem z czarnym pasem pośrodku i zielonkawym grzbietem.",
+                        ImageUrl = "/uploads/birds/69f57822-c6dd-43ba-81e2-cffbedce9da9.jpg",
+                        IsVerified = false,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
                     }
                 };
 
                 context.Birds.AddRange(birds);
+                context.SaveChanges();
+            }
+        }
+
+        public static void SeedUsers(ApplicationDbContext context)
+        {
+            if (!context.Users.Any())
+            {
+                var user = new User
+                {
+                    Username = "test",
+                    Email = "test@example.com",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("Test123!", 12),
+                    Role = UserRole.User,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                context.Users.Add(user);
                 context.SaveChanges();
             }
         }

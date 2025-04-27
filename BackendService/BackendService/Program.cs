@@ -91,6 +91,8 @@ using (var scope = app.Services.CreateScope())
 
         // Dodaj domyślne dane ptaków
         SeedData.SeedBirds(context);
+        // Dodaj domyślnego użytkownika testowego
+        SeedData.SeedUsers(context);
     }
     catch (Exception ex)
     {

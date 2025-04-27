@@ -1,7 +1,6 @@
 import { Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { HttpClientModule } from '@angular/common/http';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -17,7 +16,6 @@ import { Subscription } from 'rxjs';
   imports: [
     CommonModule,
     RouterModule,
-    HttpClientModule,
     MatToolbarModule,
     MatButtonModule,
     MatIconModule,
