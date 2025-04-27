@@ -5,9 +5,11 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { MatSpinner } from '@angular/material/progress-spinner';
 import { BirdService } from '../../services/bird.service';
 import { Bird } from '../../models/bird.model';
 import { AddBirdDialogComponent } from './add-bird-dialog/add-bird-dialog.component';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-birds',
@@ -18,12 +20,14 @@ import { AddBirdDialogComponent } from './add-bird-dialog/add-bird-dialog.compon
     MatCardModule,
     MatButtonModule,
     MatIconModule,
-    MatDialogModule
+    MatDialogModule,
+    MatSpinner
   ],
   templateUrl: './birds.component.html',
   styleUrl: './birds.component.scss'
 })
 export default class BirdsComponent implements OnInit {
+  apiUrl = environment.apiUrl;
   birds: Bird[] = [];
   isLoading = false;
   errorMessage = '';

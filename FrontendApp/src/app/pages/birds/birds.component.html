@@ -19,7 +19,7 @@
     <div class="birds-grid">
       @for (bird of birds; track bird.id) {
         <mat-card class="bird-card" [routerLink]="['/birds', bird.id]">
-          <img mat-card-image [src]="bird.imageUrl || 'assets/images/bird-placeholder.jpg'" [alt]="bird.commonName">
+          <img mat-card-image [src]="apiUrl + bird.imageUrl || 'assets/images/bird-placeholder.jpg'" [alt]="bird.commonName">
           <mat-card-content>
             <h2>{{ bird.commonName }}</h2>
             <p class="scientific-name">{{ bird.scientificName }}</p>

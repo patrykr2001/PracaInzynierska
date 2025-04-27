@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { BirdService } from '../../../services/bird.service';
 import { Bird } from '../../../models/bird.model';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-bird-details',
@@ -22,6 +23,7 @@ import { Bird } from '../../../models/bird.model';
   styleUrl: './bird-details.component.scss'
 })
 export default class BirdDetailsComponent implements OnInit {
+  apiUrl = environment.apiUrl;
   bird: Bird | null = null;
   isLoading = false;
   errorMessage = '';

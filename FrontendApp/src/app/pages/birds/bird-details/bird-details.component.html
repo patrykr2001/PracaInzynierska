@@ -15,7 +15,7 @@
 
     <mat-card class="bird-details">
       <div class="bird-image">
-        <img [src]="bird.imageUrl || 'assets/images/bird-placeholder.jpg'" [alt]="bird.commonName">
+        <img [src]="apiUrl + bird.imageUrl || 'assets/images/bird-placeholder.jpg'" [alt]="bird.commonName">
       </div>
 
       <mat-card-content>
