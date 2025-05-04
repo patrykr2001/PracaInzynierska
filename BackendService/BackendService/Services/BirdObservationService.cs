@@ -3,16 +3,33 @@ using BackendService.Interfaces;
 using BackendService.Models;
 using BackendService.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Hosting;
 
 namespace BackendService.Services
 {
     public class BirdObservationService : IBirdObservationService
     {
         private readonly ApplicationDbContext _context;
+        private readonly IWebHostEnvironment _environment;
+        private readonly string _uploadFolder;
 
-        public BirdObservationService(ApplicationDbContext context)
+        public BirdObservationService(ApplicationDbContext context, IWebHostEnvironment environment)
         {
             _context = context;
+            _environment = environment;
+
+            // Upewnij się, że katalog wwwroot istnieje
+            var wwwrootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+            if (!Directory.Exists(wwwrootPath))
+            {
+                Directory.CreateDirectory(wwwrootPath);
+            }
+
+            _uploadFolder = Path.Combine(wwwrootPath, "uploads", "observations");
+            if (!Directory.Exists(_uploadFolder))
+            {
+                Directory.CreateDirectory(_uploadFolder);
+            }
         }
 
         public async Task<PaginatedResponse<BirdObservationDto>> GetAllObservationsAsync(PaginationParams paginationParams)
@@ -49,14 +66,58 @@ namespace BackendService.Services
             return MapToDto(observation);
         }
 
+        private (bool isValid, double? value) ValidateAndParseCoordinate(string coordinate, bool isLatitude)
+        {
+            coordinate = coordinate.Replace(".", ",");
+            
+            if (string.IsNullOrWhiteSpace(coordinate))
+                return (false, null);
+
+            if (!double.TryParse(coordinate, out double value))
+                return (false, null);
+
+            if (isLatitude)
+            {
+                if (value < -90 || value > 90)
+                    return (false, null);
+            }
+            else
+            {
+                if (value < -180 || value > 180)
+                    return (false, null);
+            }
+
+            // Zaokrąglenie do 4 miejsc po przecinku
+            value = Math.Round(value, 4);
+            return (true, value);
+        }
+
         public async Task<BirdObservationDto> CreateObservationAsync(CreateBirdObservationDto observationDto, string userId)
         {
+            // Sprawdź czy ptak istnieje
+            var bird = await _context.Birds.FindAsync(observationDto.BirdId);
+            if (bird == null)
+                throw new ArgumentException($"Ptak o ID {observationDto.BirdId} nie istnieje.");
+
+            // Sprawdź czy użytkownik istnieje
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null)
+                throw new ArgumentException($"Użytkownik o ID {userId} nie istnieje.");
+
+            var (isLatitudeValid, latitude) = ValidateAndParseCoordinate(observationDto.Latitude, true);
+            if (!isLatitudeValid)
+                throw new ArgumentException("Nieprawidłowa szerokość geograficzna. Wartość musi być liczbą z zakresu -90 do 90.");
+
+            var (isLongitudeValid, longitude) = ValidateAndParseCoordinate(observationDto.Longitude, false);
+            if (!isLongitudeValid)
+                throw new ArgumentException("Nieprawidłowa długość geograficzna. Wartość musi być liczbą z zakresu -180 do 180.");
+
             var observation = new BirdObservation
             {
                 BirdId = observationDto.BirdId,
                 UserId = userId,
-                Latitude = observationDto.Latitude,
-                Longitude = observationDto.Longitude,
+                Latitude = latitude.Value,
+                Longitude = longitude.Value,
                 ObservationDate = observationDto.ObservationDate,
                 Description = observationDto.Description,
                 NumberOfBirds = observationDto.NumberOfBirds,
@@ -64,6 +125,15 @@ namespace BackendService.Services
                 Habitat = observationDto.Habitat,
                 IsVerified = false
             };
+
+            if (observationDto.Images != null && observationDto.Images.Any())
+            {
+                foreach (var image in observationDto.Images)
+                {
+                    var imageUrl = await SaveImageAsync(image);
+                    observation.ImageUrls.Add(imageUrl);
+                }
+            }
 
             _context.BirdObservations.Add(observation);
             await _context.SaveChangesAsync();
@@ -77,10 +147,22 @@ namespace BackendService.Services
             if (observation == null)
                 throw new KeyNotFoundException($"Observation with ID {id} not found");
 
-            if (observationDto.Latitude.HasValue)
-                observation.Latitude = observationDto.Latitude.Value;
-            if (observationDto.Longitude.HasValue)
-                observation.Longitude = observationDto.Longitude.Value;
+            if (observationDto.Latitude != null)
+            {
+                var (isLatitudeValid, latitude) = ValidateAndParseCoordinate(observationDto.Latitude, true);
+                if (!isLatitudeValid)
+                    throw new ArgumentException("Nieprawidłowa szerokość geograficzna. Wartość musi być liczbą z zakresu -90 do 90.");
+                observation.Latitude = latitude.Value;
+            }
+
+            if (observationDto.Longitude != null)
+            {
+                var (isLongitudeValid, longitude) = ValidateAndParseCoordinate(observationDto.Longitude, false);
+                if (!isLongitudeValid)
+                    throw new ArgumentException("Nieprawidłowa długość geograficzna. Wartość musi być liczbą z zakresu -180 do 180.");
+                observation.Longitude = longitude.Value;
+            }
+
             if (observationDto.ObservationDate.HasValue)
                 observation.ObservationDate = observationDto.ObservationDate.Value;
             if (observationDto.Description != null)
@@ -94,6 +176,15 @@ namespace BackendService.Services
             if (observationDto.IsVerified.HasValue)
                 observation.IsVerified = observationDto.IsVerified.Value;
 
+            if (observationDto.Images != null && observationDto.Images.Any())
+            {
+                foreach (var image in observationDto.Images)
+                {
+                    var imageUrl = await SaveImageAsync(image);
+                    observation.ImageUrls.Add(imageUrl);
+                }
+            }
+
             observation.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
         }
@@ -104,8 +195,36 @@ namespace BackendService.Services
             if (observation == null)
                 throw new KeyNotFoundException($"Observation with ID {id} not found");
 
+            // Usuń wszystkie obrazy
+            foreach (var imageUrl in observation.ImageUrls)
+            {
+                var imagePath = Path.Combine(_environment.WebRootPath, imageUrl.TrimStart('/'));
+                if (File.Exists(imagePath))
+                {
+                    File.Delete(imagePath);
+                }
+            }
+
             _context.BirdObservations.Remove(observation);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteObservationImageAsync(int id, string imageUrl)
+        {
+            var observation = await _context.BirdObservations.FindAsync(id);
+            if (observation == null)
+                throw new KeyNotFoundException($"Observation with ID {id} not found");
+
+            if (observation.ImageUrls.Contains(imageUrl))
+            {
+                observation.ImageUrls.Remove(imageUrl);
+                var imagePath = Path.Combine(_environment.WebRootPath, imageUrl.TrimStart('/'));
+                if (File.Exists(imagePath))
+                {
+                    File.Delete(imagePath);
+                }
+                await _context.SaveChangesAsync();
+            }
         }
 
         public async Task VerifyObservationAsync(int id)
@@ -161,8 +280,22 @@ namespace BackendService.Services
                 IsVerified = observation.IsVerified,
                 CreatedAt = observation.CreatedAt,
                 UserId = observation.UserId,
-                Username = observation.User.UserName ?? string.Empty
+                Username = observation.User.UserName ?? string.Empty,
+                ImageUrls = observation.ImageUrls
             };
+        }
+
+        private async Task<string> SaveImageAsync(IFormFile image)
+        {
+            var uniqueFileName = $"{Guid.NewGuid()}_{image.FileName}";
+            var filePath = Path.Combine(_uploadFolder, uniqueFileName);
+
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await image.CopyToAsync(fileStream);
+            }
+
+            return $"/uploads/observations/{uniqueFileName}";
         }
     }
 } 

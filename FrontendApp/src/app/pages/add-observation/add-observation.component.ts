@@ -49,6 +49,8 @@ export default class AddObservationComponent implements OnInit {
   selectedLocation: { lat: number; lng: number } | null = null;
   dateFormat: string;
   today = new Date();
+  selectedImages: File[] = [];
+  previewUrls: string[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -61,8 +63,8 @@ export default class AddObservationComponent implements OnInit {
     this.dateFormat = this.localeService.getDateTimeFormat();
     this.observationForm = this.fb.group({
       birdId: ['', Validators.required],
-      latitude: ['', [Validators.required, Validators.min(-90), Validators.max(90)]],
-      longitude: ['', [Validators.required, Validators.min(-180), Validators.max(180)]],
+      latitude: ['', Validators.required],
+      longitude: ['', Validators.required],
       observationDate: ['', Validators.required],
       description: ['', Validators.required],
       numberOfBirds: [1, [Validators.required, Validators.min(1)]],
@@ -73,6 +75,11 @@ export default class AddObservationComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadBirds();
+    console.log('Stan formularza po inicjalizacji:', {
+      valid: this.observationForm.valid,
+      values: this.observationForm.value,
+      errors: this.observationForm.errors
+    });
   }
 
   loadBirds(): void {
@@ -81,6 +88,12 @@ export default class AddObservationComponent implements OnInit {
       next: (response) => {
         this.birds = response.items;
         this.isLoading = false;
+        console.log('Stan formularza po załadowaniu ptaków:', {
+          valid: this.observationForm.valid,
+          values: this.observationForm.value,
+          errors: this.observationForm.errors,
+          birdsLoaded: this.birds.length
+        });
       },
       error: (error) => {
         console.error('Błąd podczas ładowania ptaków:', error);
@@ -93,19 +106,78 @@ export default class AddObservationComponent implements OnInit {
   }
 
   onLocationSelected(location: { lat: number; lng: number }): void {
-    this.selectedLocation = location;
+    // Formatowanie do 4 miejsc po przecinku
+    const lat = location.lat.toFixed(4);
+    const lng = location.lng.toFixed(4);
+    
+    this.selectedLocation = {
+      lat: parseFloat(lat),
+      lng: parseFloat(lng)
+    };
+    
+    this.observationForm.patchValue({
+      latitude: lat,
+      longitude: lng
+    });
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files) {
+      const files = Array.from(input.files);
+      this.selectedImages = [...this.selectedImages, ...files];
+      
+      // Generuj podglądy dla nowych obrazów
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (e: ProgressEvent<FileReader>) => {
+          if (e.target?.result) {
+            this.previewUrls.push(e.target.result as string);
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  }
+
+  removeImage(index: number): void {
+    this.selectedImages.splice(index, 1);
+    this.previewUrls.splice(index, 1);
   }
 
   onSubmit(): void {
     if (this.observationForm.valid && this.selectedLocation) {
       this.isSubmitting = true;
-      const observation: CreateBirdObservation = {
-        ...this.observationForm.value,
-        latitude: this.selectedLocation.lat,
-        longitude: this.selectedLocation.lng
-      };
+      
+      const formData = new FormData();
+      formData.append('birdId', this.observationForm.get('birdId')?.value);
+      
+      // Formatowanie współrzędnych do 4 miejsc po przecinku
+      const lat = this.selectedLocation.lat.toFixed(4);
+      const lng = this.selectedLocation.lng.toFixed(4);
+      
+      formData.append('latitude', lat);
+      formData.append('longitude', lng);
+      
+      formData.append('observationDate', this.observationForm.get('observationDate')?.value.toISOString());
+      formData.append('description', this.observationForm.get('description')?.value);
+      formData.append('numberOfBirds', this.observationForm.get('numberOfBirds')?.value);
+      
+      if (this.observationForm.get('weatherConditions')?.value) {
+        formData.append('weatherConditions', this.observationForm.get('weatherConditions')?.value);
+      }
+      
+      if (this.observationForm.get('habitat')?.value) {
+        formData.append('habitat', this.observationForm.get('habitat')?.value);
+      }
 
-      this.observationService.createObservation(observation).subscribe({
+      if (this.selectedImages.length > 0) {
+        this.selectedImages.forEach(image => {
+          formData.append('images', image);
+        });
+      }
+
+      this.observationService.createObservation(formData).subscribe({
         next: () => {
           this.snackBar.open('Obserwacja została dodana pomyślnie', 'Zamknij', {
             duration: 5000

@@ -15,6 +15,7 @@ export interface BirdObservation {
     createdAt: Date;
     userId: string;
     username: string;
+    imageUrls?: string[];
 }
 
 export interface CreateBirdObservation {
@@ -26,6 +27,7 @@ export interface CreateBirdObservation {
     numberOfBirds?: number;
     weatherConditions?: string;
     habitat?: string;
+    images?: File[];
 }
 
 export interface UpdateBirdObservation {
@@ -37,4 +39,5 @@ export interface UpdateBirdObservation {
     weatherConditions?: string;
     habitat?: string;
     isVerified?: boolean;
+    images?: File[];
 } 

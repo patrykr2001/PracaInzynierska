@@ -4,6 +4,7 @@ using BackendService.Interfaces;
 using BackendService.Models.DTOs;
 using BackendService.Constants;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 
 namespace BackendService.Controllers
 {
@@ -52,7 +53,7 @@ namespace BackendService.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<ActionResult<BirdObservationDto>> CreateObservation([FromBody] CreateBirdObservationDto observationDto)
+        public async Task<ActionResult<BirdObservationDto>> CreateObservation([FromForm] CreateBirdObservationDto observationDto)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
@@ -66,7 +67,7 @@ namespace BackendService.Controllers
 
         [HttpPut("{id}")]
         [Authorize]
-        public async Task<IActionResult> UpdateObservation(int id, [FromBody] UpdateBirdObservationDto observationDto)
+        public async Task<IActionResult> UpdateObservation(int id, [FromForm] UpdateBirdObservationDto observationDto)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
@@ -113,6 +114,21 @@ namespace BackendService.Controllers
             try
             {
                 await _observationService.VerifyObservationAsync(id);
+                return NoContent();
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpDelete("{id}/images")]
+        [Authorize]
+        public async Task<IActionResult> DeleteObservationImage(int id, [FromBody] string imageUrl)
+        {
+            try
+            {
+                await _observationService.DeleteObservationImageAsync(id, imageUrl);
                 return NoContent();
             }
             catch (KeyNotFoundException)

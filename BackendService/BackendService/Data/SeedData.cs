@@ -203,8 +203,8 @@ namespace BackendService.Data
                     {
                         BirdId = bogatka.Id,
                         UserId = adminUser.Id,
-                        Latitude = 52.2297m, // Warszawa
-                        Longitude = 21.0122m,
+                        Latitude = 52.2297, // Warszawa
+                        Longitude = 21.0122,
                         ObservationDate = DateTime.UtcNow.AddDays(-5),
                         Description = "Para bogatek w parku miejskim",
                         NumberOfBirds = 2,
@@ -217,8 +217,8 @@ namespace BackendService.Data
                     {
                         BirdId = bogatka.Id,
                         UserId = adminUser.Id,
-                        Latitude = 50.0647m, // Kraków
-                        Longitude = 19.9450m,
+                        Latitude = 50.0647, // Kraków
+                        Longitude = 19.9450,
                         ObservationDate = DateTime.UtcNow.AddDays(-3),
                         Description = "Bogatka przy karmniku",
                         NumberOfBirds = 1,
@@ -231,8 +231,8 @@ namespace BackendService.Data
                     {
                         BirdId = sikoraModra.Id,
                         UserId = adminUser.Id,
-                        Latitude = 51.1079m, // Wrocław
-                        Longitude = 17.0385m,
+                        Latitude = 51.1079, // Wrocław
+                        Longitude = 17.0385,
                         ObservationDate = DateTime.UtcNow.AddDays(-4),
                         Description = "Stado sikor modrych w lesie",
                         NumberOfBirds = 5,
@@ -245,8 +245,8 @@ namespace BackendService.Data
                     {
                         BirdId = sikoraModra.Id,
                         UserId = adminUser.Id,
-                        Latitude = 54.3520m, // Szczecin
-                        Longitude = 18.6466m,
+                        Latitude = 54.3520, // Szczecin
+                        Longitude = 18.6466,
                         ObservationDate = DateTime.UtcNow.AddDays(-2),
                         Description = "Sikora modra w dziupli",
                         NumberOfBirds = 1,

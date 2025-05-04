@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Collections.Generic;
 
 namespace BackendService.Models
 {
@@ -17,12 +18,10 @@ namespace BackendService.Models
         public ApplicationUser User { get; set; } = null!;
 
         [Required]
-        [Column(TypeName = "decimal(9,6)")]
-        public decimal Latitude { get; set; }
+        public double Latitude { get; set; }
 
         [Required]
-        [Column(TypeName = "decimal(9,6)")]
-        public decimal Longitude { get; set; }
+        public double Longitude { get; set; }
 
         [Required]
         public DateTime ObservationDate { get; set; }
@@ -41,5 +40,7 @@ namespace BackendService.Models
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+        public List<string> ImageUrls { get; set; } = new List<string>();
     }
 } 

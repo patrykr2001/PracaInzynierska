@@ -11,5 +11,6 @@ namespace BackendService.Interfaces
         Task UpdateObservationAsync(int id, UpdateBirdObservationDto observationDto);
         Task DeleteObservationAsync(int id);
         Task VerifyObservationAsync(int id);
+        Task DeleteObservationImageAsync(int id, string imageUrl);
     }
 } 

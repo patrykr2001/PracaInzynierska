@@ -64,8 +64,8 @@ namespace BackendService.Models.DTOs
         public string BirdCommonName { get; set; } = string.Empty;
         public string BirdScientificName { get; set; } = string.Empty;
         public string? BirdImageUrl { get; set; }
-        public decimal Latitude { get; set; }
-        public decimal Longitude { get; set; }
+        public double Latitude { get; set; }
+        public double Longitude { get; set; }
         public DateTime ObservationDate { get; set; }
         public string? Description { get; set; }
         public int? NumberOfBirds { get; set; }
@@ -75,6 +75,7 @@ namespace BackendService.Models.DTOs
         public DateTime CreatedAt { get; set; }
         public string UserId { get; set; } = string.Empty;
         public string Username { get; set; } = string.Empty;
+        public List<string> ImageUrls { get; set; } = new List<string>();
     }
 
     public class CreateBirdObservationDto
@@ -83,12 +84,10 @@ namespace BackendService.Models.DTOs
         public int BirdId { get; set; }
 
         [Required]
-        [Range(-90, 90)]
-        public decimal Latitude { get; set; }
+        public string Latitude { get; set; } = string.Empty;
 
         [Required]
-        [Range(-180, 180)]
-        public decimal Longitude { get; set; }
+        public string Longitude { get; set; } = string.Empty;
 
         [Required]
         public DateTime ObservationDate { get; set; }
@@ -103,15 +102,15 @@ namespace BackendService.Models.DTOs
 
         [MaxLength(100)]
         public string? Habitat { get; set; }
+
+        public List<IFormFile>? Images { get; set; }
     }
 
     public class UpdateBirdObservationDto
     {
-        [Range(-90, 90)]
-        public decimal? Latitude { get; set; }
+        public string? Latitude { get; set; }
 
-        [Range(-180, 180)]
-        public decimal? Longitude { get; set; }
+        public string? Longitude { get; set; }
 
         public DateTime? ObservationDate { get; set; }
 
@@ -127,5 +126,7 @@ namespace BackendService.Models.DTOs
         public string? Habitat { get; set; }
 
         public bool? IsVerified { get; set; }
+
+        public List<IFormFile>? Images { get; set; }
     }
 } 

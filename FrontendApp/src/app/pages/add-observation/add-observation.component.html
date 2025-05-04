@@ -65,6 +65,40 @@
           </mat-form-field>
         </div>
 
+        <div class="form-row">
+          <div class="image-upload-container">
+            <h3>Dodaj zdjęcia</h3>
+            <div class="image-upload-area">
+              <input type="file" 
+                     #fileInput 
+                     (change)="onFileSelected($event)" 
+                     accept="image/*" 
+                     multiple 
+                     style="display: none">
+              <button mat-raised-button 
+                      type="button" 
+                      (click)="fileInput.click()"
+                      [disabled]="isSubmitting">
+                <mat-icon>add_photo_alternate</mat-icon>
+                Wybierz zdjęcia
+              </button>
+              <p class="upload-hint">Możesz wybrać wiele zdjęć</p>
+            </div>
+
+            <div class="image-preview-container" *ngIf="previewUrls.length > 0">
+              <div class="image-preview-item" *ngFor="let url of previewUrls; let i = index">
+                <img [src]="url" alt="Podgląd zdjęcia">
+                <button mat-icon-button 
+                        class="remove-image" 
+                        (click)="removeImage(i)"
+                        [disabled]="isSubmitting">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="map-container">
           <h3>Wybierz lokalizację na mapie</h3>
           <app-map

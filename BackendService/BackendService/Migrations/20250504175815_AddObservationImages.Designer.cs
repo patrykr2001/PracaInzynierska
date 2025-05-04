@@ -3,6 +3,7 @@ using System;
 using BackendService.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BackendService.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250504175815_AddObservationImages")]
+    partial class AddObservationImages
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.15");
@@ -197,11 +200,11 @@ namespace BackendService.Migrations
                     b.Property<bool>("IsVerified")
                         .HasColumnType("INTEGER");
 
-                    b.Property<double>("Latitude")
-                        .HasColumnType("REAL");
+                    b.Property<decimal>("Latitude")
+                        .HasColumnType("decimal(9,6)");
 
-                    b.Property<double>("Longitude")
-                        .HasColumnType("REAL");
+                    b.Property<decimal>("Longitude")
+                        .HasColumnType("decimal(9,6)");
 
                     b.Property<int?>("NumberOfBirds")
                         .HasColumnType("INTEGER");
