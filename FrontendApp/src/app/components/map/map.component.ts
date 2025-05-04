@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import * as L from 'leaflet';
 
@@ -9,28 +9,47 @@ import * as L from 'leaflet';
   templateUrl: './map.component.html',
   styleUrl: './map.component.scss'
 })
-export class MapComponent implements AfterViewInit {
+export class MapComponent implements AfterViewInit, OnDestroy {
+  @Input() initialLocation: { lat: number; lng: number } = { lat: 51.9194, lng: 19.1451 };
+  @Input() initialZoom: number = 6;
+  @Output() locationSelected = new EventEmitter<{ lat: number; lng: number }>();
+
   private map: L.Map | undefined;
-  private markers: L.Marker[] = [];
+  private marker: L.Marker | undefined;
 
   // Granice Polski z 10% marginesem
   private readonly POLAND_BOUNDS = L.latLngBounds(
-    L.latLng(48.1, 12.6), // Południowo-zachodni róg (49.0 - 10% = 48.1, 14.0 - 10% = 12.6)
-    L.latLng(55.0, 25.4)  // Północno-wschodni róg (54.5 + 10% = 55.0, 24.0 + 10% = 25.4)
+    L.latLng(48.1, 12.6), // Południowo-zachodni róg
+    L.latLng(55.0, 25.4)  // Północno-wschodni róg
   );
 
   ngAfterViewInit(): void {
-    this.initMap();
+    // Opóźniamy inicjalizację mapy, aby upewnić się, że kontener jest widoczny
+    setTimeout(() => {
+      this.initMap();
+    }, 100);
+  }
+
+  ngOnDestroy(): void {
+    if (this.map) {
+      this.map.remove();
+      this.map = undefined;
+    }
   }
 
   private initMap(): void {
+    // Sprawdzamy, czy mapa już istnieje
+    if (this.map) {
+      this.map.remove();
+    }
+
     // Inicjalizacja mapy
     this.map = L.map('map', {
       maxBounds: this.POLAND_BOUNDS,
-      maxBoundsViscosity: 1.0, // Pełne ograniczenie poza granicami
-      minZoom: 6, // Minimalny zoom dla Polski
+      maxBoundsViscosity: 1.0,
+      minZoom: 6,
       maxZoom: 18
-    }).setView([51.9194, 19.1451], 6); // Centrum Polski
+    }).setView([this.initialLocation.lat, this.initialLocation.lng], this.initialZoom);
 
     // Dodanie warstwy OpenStreetMap
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -39,5 +58,27 @@ export class MapComponent implements AfterViewInit {
 
     // Ograniczenie widoku do granic Polski
     this.map.setMaxBounds(this.POLAND_BOUNDS);
+
+    // Dodanie obsługi kliknięcia na mapę
+    this.map.on('click', (e: L.LeafletMouseEvent) => {
+      const lat = e.latlng.lat;
+      const lng = e.latlng.lng;
+
+      // Usunięcie poprzedniego markera
+      if (this.marker) {
+        this.map?.removeLayer(this.marker);
+      }
+
+      // Dodanie nowego markera
+      this.marker = L.marker([lat, lng]).addTo(this.map!);
+
+      // Emisja wybranej lokalizacji
+      this.locationSelected.emit({ lat, lng });
+    });
+
+    // Odświeżenie mapy po załadowaniu
+    setTimeout(() => {
+      this.map?.invalidateSize();
+    }, 200);
   }
 }

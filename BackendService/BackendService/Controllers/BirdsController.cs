@@ -76,7 +76,7 @@ namespace BackendService.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Bird>> CreateBird([FromBody] CreateBirdDto birdDto)
+        public async Task<ActionResult<Bird>> CreateBird([FromForm] CreateBirdDto birdDto)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
@@ -150,6 +150,13 @@ namespace BackendService.Controllers
 
             await _birdService.VerifyBirdAsync(id);
             return NoContent();
+        }
+
+        [HttpGet("search")]
+        public async Task<ActionResult<PaginatedResponse<Bird>>> SearchBirds([FromQuery] string searchTerm, [FromQuery] PaginationParams paginationParams)
+        {
+            var birds = await _birdService.SearchBirdsAsync(searchTerm, paginationParams);
+            return Ok(birds);
         }
     }
 } 

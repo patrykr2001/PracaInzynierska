@@ -119,6 +119,7 @@ builder.Services.AddAuthentication(options =>
 // Add Services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IBirdService, BirdService>();
+builder.Services.AddScoped<IBirdObservationService, BirdObservationService>();
 
 var app = builder.Build();
 

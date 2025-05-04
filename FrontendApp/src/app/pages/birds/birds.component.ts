@@ -20,7 +20,9 @@ import { environment } from '../../../environments/environment';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { PaginatedResponse, PaginationParams } from '../../models/pagination';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { LocaleService } from '../../services/locale.service';
 
 @Component({
   selector: 'app-birds',
@@ -59,13 +61,32 @@ export default class BirdsComponent implements OnInit {
   showUnverifiedOnly = false;
   hasPreviousPage = false;
   hasNextPage = false;
+  private searchSubject = new Subject<string>();
+  readonly MIN_SEARCH_LENGTH = 3;
+  isLoading = true;
+  errorMessage = '';
+  pageSize = 12;
+  pageIndex = 0;
+  dateFormat: string;
 
   constructor(
     private birdService: BirdService,
     private dialog: MatDialog,
     private authService: AuthService,
-    private router: Router
-  ) { }
+    private router: Router,
+    private localeService: LocaleService
+  ) {
+    this.dateFormat = this.localeService.getDateTimeFormat();
+    // Konfiguracja debounce dla wyszukiwania
+    this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ).subscribe(term => {
+      if (term.length >= this.MIN_SEARCH_LENGTH || term.length === 0) {
+        this.onSearch();
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.loadBirds();
@@ -77,19 +98,21 @@ export default class BirdsComponent implements OnInit {
 
     let observable: Observable<PaginatedResponse<Bird>>;
 
-    if (this.showUnverifiedOnly && this.authService.isAdmin()) {
-      observable = this.birdService.getUnverifiedBirds(this.paginationParams);
-    } else if (this.authService.isAdmin()) {
-      observable = this.birdService.getAllBirdsForAdmin(this.paginationParams);
-    } else if (this.searchTerm) {
+    if (this.searchTerm.trim().length >= this.MIN_SEARCH_LENGTH) {
+      // Wyszukiwanie dla wszystkich użytkowników
       observable = this.birdService.searchBirds(this.searchTerm, this.paginationParams);
+    } else if (this.showUnverifiedOnly && this.isAdmin()) {
+      observable = this.birdService.getUnverifiedBirds(this.paginationParams);
+    } else if (this.isAdmin()) {
+      observable = this.birdService.getAllBirdsForAdmin(this.paginationParams);
     } else {
       observable = this.birdService.getAllBirds(this.paginationParams);
     }
 
     observable.subscribe({
       next: (response: PaginatedResponse<Bird>) => {
-        this.birds = response.items;
+        // Sortowanie wyników po nazwie ptaka
+        this.birds = response.items.sort((a, b) => a.commonName.localeCompare(b.commonName));
         this.totalPages = response.totalPages;
         this.totalItems = response.totalCount;
         this.hasPreviousPage = response.hasPreviousPage;
@@ -102,6 +125,10 @@ export default class BirdsComponent implements OnInit {
         console.error('Error loading birds:', err);
       }
     });
+  }
+
+  onSearchInput(term: string): void {
+    this.searchSubject.next(term);
   }
 
   onSearch(): void {

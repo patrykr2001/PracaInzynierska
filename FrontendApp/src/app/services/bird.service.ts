@@ -60,12 +60,20 @@ export class BirdService {
   }
 
   createBird(bird: FormData): Observable<Bird> {
-    return this.http.post<Bird>(this.apiUrl, bird)
+    return this.http.post<Bird>(this.apiUrl, bird, {
+      headers: {
+        'Accept': 'application/json'
+      }
+    })
       .pipe(catchError(this.handleError.bind(this)));
   }
 
   updateBird(id: number, bird: FormData): Observable<Bird> {
-    return this.http.put<Bird>(`${this.apiUrl}/${id}`, bird)
+    return this.http.put<Bird>(`${this.apiUrl}/${id}`, bird, {
+      headers: {
+        'Accept': 'application/json'
+      }
+    })
       .pipe(catchError(this.handleError.bind(this)));
   }
 

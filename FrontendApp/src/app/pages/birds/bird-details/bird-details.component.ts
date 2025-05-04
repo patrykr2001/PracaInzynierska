@@ -14,6 +14,7 @@ import { environment } from '../../../../environments/environment';
 import { AuthService } from '../../../services/auth.service';
 import { EditBirdDialogComponent } from '../edit-bird-dialog/edit-bird-dialog.component';
 import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confirm-dialog.component';
+import { LocaleService } from '../../../services/locale.service';
 
 @Component({
   selector: 'app-bird-details',
@@ -35,9 +36,10 @@ import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confi
 export default class BirdDetailsComponent implements OnInit {
   apiUrl = environment.apiUrl;
   bird: Bird | null = null;
-  isLoading = false;
-  errorMessage: string | null = null;
+  isLoading = true;
+  errorMessage = '';
   isAdmin = false;
+  dateFormat: string;
 
   constructor(
     private route: ActivatedRoute,
@@ -45,8 +47,11 @@ export default class BirdDetailsComponent implements OnInit {
     private birdService: BirdService,
     private authService: AuthService,
     private snackBar: MatSnackBar,
-    private dialog: MatDialog
-  ) {}
+    private dialog: MatDialog,
+    private localeService: LocaleService
+  ) {
+    this.dateFormat = this.localeService.getDateTimeFormat();
+  }
 
   ngOnInit(): void {
     this.isAdmin = this.authService.isAdmin();
@@ -107,7 +112,7 @@ export default class BirdDetailsComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.isLoading = true;
-        this.errorMessage = null;
+        this.errorMessage = '';
 
         this.birdService.verifyBird(this.bird!.id).subscribe({
           next: () => {
@@ -138,7 +143,7 @@ export default class BirdDetailsComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.isLoading = true;
-        this.errorMessage = null;
+        this.errorMessage = '';
 
         this.birdService.deleteBird(this.bird!.id).subscribe({
           next: () => {

@@ -56,4 +56,76 @@ namespace BackendService.Models.DTOs
             set => _pageSize = value > MaxPageSize ? MaxPageSize : value;
         }
     }
+
+    public class BirdObservationDto
+    {
+        public int Id { get; set; }
+        public int BirdId { get; set; }
+        public string BirdCommonName { get; set; } = string.Empty;
+        public string BirdScientificName { get; set; } = string.Empty;
+        public string? BirdImageUrl { get; set; }
+        public decimal Latitude { get; set; }
+        public decimal Longitude { get; set; }
+        public DateTime ObservationDate { get; set; }
+        public string? Description { get; set; }
+        public int? NumberOfBirds { get; set; }
+        public string? WeatherConditions { get; set; }
+        public string? Habitat { get; set; }
+        public bool IsVerified { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public string UserId { get; set; } = string.Empty;
+        public string Username { get; set; } = string.Empty;
+    }
+
+    public class CreateBirdObservationDto
+    {
+        [Required]
+        public int BirdId { get; set; }
+
+        [Required]
+        [Range(-90, 90)]
+        public decimal Latitude { get; set; }
+
+        [Required]
+        [Range(-180, 180)]
+        public decimal Longitude { get; set; }
+
+        [Required]
+        public DateTime ObservationDate { get; set; }
+
+        public string? Description { get; set; }
+
+        [Range(1, int.MaxValue)]
+        public int? NumberOfBirds { get; set; }
+
+        [MaxLength(100)]
+        public string? WeatherConditions { get; set; }
+
+        [MaxLength(100)]
+        public string? Habitat { get; set; }
+    }
+
+    public class UpdateBirdObservationDto
+    {
+        [Range(-90, 90)]
+        public decimal? Latitude { get; set; }
+
+        [Range(-180, 180)]
+        public decimal? Longitude { get; set; }
+
+        public DateTime? ObservationDate { get; set; }
+
+        public string? Description { get; set; }
+
+        [Range(1, int.MaxValue)]
+        public int? NumberOfBirds { get; set; }
+
+        [MaxLength(100)]
+        public string? WeatherConditions { get; set; }
+
+        [MaxLength(100)]
+        public string? Habitat { get; set; }
+
+        public bool? IsVerified { get; set; }
+    }
 } 

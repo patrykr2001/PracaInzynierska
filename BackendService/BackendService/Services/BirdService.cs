@@ -46,12 +46,18 @@ namespace BackendService.Services
 
         public async Task<PaginatedResponse<Bird>> SearchBirdsAsync(string searchTerm, PaginationParams paginationParams)
         {
+            if (string.IsNullOrWhiteSpace(searchTerm))
+            {
+                return await GetAllBirdsAsync(paginationParams);
+            }
+
+            searchTerm = searchTerm.ToLower();
             var query = _context.Birds.Where(b =>
                 b.IsVerified && (
-                    b.CommonName.Contains(searchTerm) ||
-                    b.ScientificName.Contains(searchTerm) ||
-                    b.Family.Contains(searchTerm) ||
-                    b.Description.Contains(searchTerm)
+                    b.CommonName.ToLower().Contains(searchTerm) ||
+                    b.ScientificName.ToLower().Contains(searchTerm) ||
+                    b.Family.ToLower().Contains(searchTerm) ||
+                    b.Description.ToLower().Contains(searchTerm)
                 )
             );
             return await GetPaginatedResponseAsync(query, paginationParams);

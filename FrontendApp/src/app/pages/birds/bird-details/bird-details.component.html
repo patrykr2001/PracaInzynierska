@@ -11,7 +11,7 @@
     <mat-card class="bird-card">
       <div class="bird-content">
         <div class="bird-image">
-          <img [src]="bird.imageUrl || 'assets/images/placeholder.jpg'" [alt]="bird.commonName">
+          <img [src]="bird.imageUrl ? apiUrl + bird.imageUrl : apiUrl + '/images/placeholder.jpg'" [alt]="bird.commonName">
         </div>
         <div class="bird-info">
           <h1>{{ bird.commonName }}</h1>
@@ -78,7 +78,7 @@
           }
 
           <div class="info-section">
-            <p class="created-at">Dodano: {{ bird.createdAt | date:'dd.MM.yyyy HH:mm' }}</p>
+            <p class="created-at">Dodano: {{ bird.createdAt | date:dateFormat }}</p>
           </div>
         </div>
       </div>

@@ -1,0 +1,58 @@
+<div class="observations-container">
+  <mat-toolbar class="toolbar">
+    <span>Obserwacje ptaków</span>
+    <span class="spacer"></span>
+    <div class="toolbar-buttons">
+      <button mat-button (click)="toggleUserOnly()" *ngIf="isLoggedIn()">
+        {{ showUserOnly ? 'Wszystkie obserwacje' : 'Moje obserwacje' }}
+      </button>
+      <button mat-button (click)="toggleUnverifiedOnly()" *ngIf="isAdmin()">
+        {{ showUnverifiedOnly ? 'Zweryfikowane obserwacje' : 'Niezweryfikowane obserwacje' }}
+      </button>
+      <button mat-raised-button color="primary" (click)="addNewObservation()" matTooltip="Dodaj nową obserwację">
+        <mat-icon>add</mat-icon>
+        Dodaj obserwację
+      </button>
+    </div>
+  </mat-toolbar>
+
+  <div class="content">
+    <div *ngIf="loading" class="loading">
+      <mat-spinner></mat-spinner>
+    </div>
+
+    <div *ngIf="error" class="error">
+      {{ error }}
+    </div>
+
+    <div *ngIf="!loading && !error" class="observations-grid">
+      <mat-card *ngFor="let observation of observations" class="observation-card" (click)="viewObservationDetails(observation.id)">
+        <img mat-card-image [src]="observation.birdImageUrl ? apiUrl + observation.birdImageUrl : apiUrl + '/images/placeholder.jpg'" [alt]="observation.birdCommonName">
+        <mat-card-content>
+          <h2>{{ observation.birdCommonName }}</h2>
+          <p class="scientific-name">{{ observation.birdScientificName }}</p>
+          <p class="date">{{ observation.observationDate | date:dateFormat }}</p>
+          <p class="location">Szerokość: {{ observation.latitude }}, Długość: {{ observation.longitude }}</p>
+          <p class="description" *ngIf="observation.description">{{ observation.description }}</p>
+          <div class="chips">
+            <mat-chip *ngIf="observation.numberOfBirds">Liczba ptaków: {{ observation.numberOfBirds }}</mat-chip>
+            <mat-chip *ngIf="observation.weatherConditions">Pogoda: {{ observation.weatherConditions }}</mat-chip>
+            <mat-chip *ngIf="observation.habitat">Siedlisko: {{ observation.habitat }}</mat-chip>
+          </div>
+          <p class="user">Dodane przez: {{ observation.username }}</p>
+          <mat-chip *ngIf="!observation.isVerified" color="warn">Niezweryfikowane</mat-chip>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="pagination-container" *ngIf="!loading && !error">
+      <mat-paginator
+        [length]="totalItems"
+        [pageSize]="paginationParams.pageSize"
+        [pageSizeOptions]="[5, 10, 25, 100]"
+        (page)="onPageChange($event)"
+        aria-label="Wybierz stronę">
+      </mat-paginator>
+    </div>
+  </div>
+</div> 

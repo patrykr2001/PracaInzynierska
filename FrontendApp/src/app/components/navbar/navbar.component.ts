@@ -27,7 +27,7 @@ import { Subscription } from 'rxjs';
 export class NavbarComponent implements OnDestroy {
   navItems = [
     { path: '/', label: 'Mapa', icon: 'map' },
-    { path: '/add-observation', label: 'Dodaj obserwację', icon: 'add_location' },
+    { path: '/observations', label: 'Obserwacje', icon: 'location_on' },
     { path: '/birds', label: 'Ptaki', icon: 'pets' },
     { path: '/statistics', label: 'Statystyki', icon: 'bar_chart' }
   ];

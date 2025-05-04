@@ -190,6 +190,76 @@ namespace BackendService.Data
                 await context.Birds.AddRangeAsync(birds);
                 await context.SaveChangesAsync();
             }
+
+            // Dodawanie przykładowych obserwacji
+            if (!context.BirdObservations.Any())
+            {
+                var bogatka = context.Birds.First(b => b.CommonName == "Bogatka");
+                var sikoraModra = context.Birds.First(b => b.CommonName == "Sikora modra");
+
+                var observations = new List<BirdObservation>
+                {
+                    new BirdObservation
+                    {
+                        BirdId = bogatka.Id,
+                        UserId = adminUser.Id,
+                        Latitude = 52.2297m, // Warszawa
+                        Longitude = 21.0122m,
+                        ObservationDate = DateTime.UtcNow.AddDays(-5),
+                        Description = "Para bogatek w parku miejskim",
+                        NumberOfBirds = 2,
+                        WeatherConditions = "Słonecznie, 20°C",
+                        Habitat = "Park miejski",
+                        IsVerified = true,
+                        CreatedAt = DateTime.UtcNow.AddDays(-5)
+                    },
+                    new BirdObservation
+                    {
+                        BirdId = bogatka.Id,
+                        UserId = adminUser.Id,
+                        Latitude = 50.0647m, // Kraków
+                        Longitude = 19.9450m,
+                        ObservationDate = DateTime.UtcNow.AddDays(-3),
+                        Description = "Bogatka przy karmniku",
+                        NumberOfBirds = 1,
+                        WeatherConditions = "Zachmurzenie, 15°C",
+                        Habitat = "Ogród miejski",
+                        IsVerified = true,
+                        CreatedAt = DateTime.UtcNow.AddDays(-3)
+                    },
+                    new BirdObservation
+                    {
+                        BirdId = sikoraModra.Id,
+                        UserId = adminUser.Id,
+                        Latitude = 51.1079m, // Wrocław
+                        Longitude = 17.0385m,
+                        ObservationDate = DateTime.UtcNow.AddDays(-4),
+                        Description = "Stado sikor modrych w lesie",
+                        NumberOfBirds = 5,
+                        WeatherConditions = "Deszczowo, 12°C",
+                        Habitat = "Las liściasty",
+                        IsVerified = true,
+                        CreatedAt = DateTime.UtcNow.AddDays(-4)
+                    },
+                    new BirdObservation
+                    {
+                        BirdId = sikoraModra.Id,
+                        UserId = adminUser.Id,
+                        Latitude = 54.3520m, // Szczecin
+                        Longitude = 18.6466m,
+                        ObservationDate = DateTime.UtcNow.AddDays(-2),
+                        Description = "Sikora modra w dziupli",
+                        NumberOfBirds = 1,
+                        WeatherConditions = "Pochmurno, 16°C",
+                        Habitat = "Park miejski",
+                        IsVerified = false,
+                        CreatedAt = DateTime.UtcNow.AddDays(-2)
+                    }
+                };
+
+                await context.BirdObservations.AddRangeAsync(observations);
+                await context.SaveChangesAsync();
+            }
         }
     }
 } 

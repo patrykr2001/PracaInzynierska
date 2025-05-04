@@ -8,6 +8,14 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/birds/birds.component').then(m => m.default)
   },
   { 
+    path: 'observations', 
+    loadComponent: () => import('./pages/observations/observations.component').then(m => m.default)
+  },
+  { 
+    path: 'observations/add', 
+    loadComponent: () => import('./pages/add-observation/add-observation.component').then(m => m.default)
+  },
+  { 
     path: 'birds/unverified', 
     loadComponent: () => import('./pages/birds/unverified-birds/unverified-birds.component').then(m => m.default)
   },
@@ -35,5 +43,5 @@ export const routes: Routes = [
     path: 'settings', 
     loadComponent: () => import('./pages/settings/settings.component').then(m => m.default)
   },
-  { path: '**', redirectTo: '' }
+  { path: '**', redirectTo: '/birds' }
 ];

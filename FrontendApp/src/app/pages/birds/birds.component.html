@@ -14,10 +14,13 @@
 
   <mat-form-field appearance="outline" class="full-width mb-4">
     <mat-label>Szukaj ptaków</mat-label>
-    <input matInput type="text" [(ngModel)]="searchTerm" (keyup.enter)="onSearch()">
+    <input matInput type="text" [(ngModel)]="searchTerm" (ngModelChange)="onSearchInput($event)" placeholder="Wpisz minimum 3 znaki aby rozpocząć wyszukiwanie">
     <button mat-icon-button matSuffix (click)="onSearch()">
       <mat-icon>search</mat-icon>
     </button>
+    @if (searchTerm && searchTerm.length < 3) {
+      <mat-hint>Wpisz minimum 3 znaki aby rozpocząć wyszukiwanie</mat-hint>
+    }
   </mat-form-field>
 
   <div *ngIf="loading" class="loading-container">
@@ -29,16 +32,21 @@
   </div>
 
   <div *ngIf="!loading && !error && birds.length === 0" class="no-data-message">
-    Nie znaleziono żadnych ptaków.
+    @if (searchTerm && searchTerm.length >= 3) {
+      Nie znaleziono ptaków pasujących do wyszukiwanej frazy "{{ searchTerm }}".
+    } @else {
+      Nie znaleziono żadnych ptaków.
+    }
   </div>
 
   <div class="birds-grid">
     <mat-card *ngFor="let bird of birds" class="bird-card">
-      <img mat-card-image [src]="bird.imageUrl || 'images/bird-placeholder.jpg'" [alt]="bird.commonName">
+      <img mat-card-image [src]="bird.imageUrl ? apiUrl + bird.imageUrl : apiUrl + '/images/placeholder.jpg'" [alt]="bird.commonName">
       <mat-card-content>
         <h2>{{ bird.commonName }}</h2>
         <p><strong>Rodzina:</strong> {{ bird.family }}</p>
         <p><strong>Status ochrony:</strong> {{ bird.conservationStatus }}</p>
+        <p class="created-at">Dodano: {{ bird.createdAt | date:dateFormat }}</p>
         <mat-chip *ngIf="!bird.isVerified" color="warn" selected>
           Oczekuje na weryfikację
         </mat-chip>

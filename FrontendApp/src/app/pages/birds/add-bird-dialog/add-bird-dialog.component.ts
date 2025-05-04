@@ -118,7 +118,7 @@ export class AddBirdDialogComponent {
     
     // Dodaj zdjęcie jeśli zostało wybrane
     if (this.selectedFile) {
-      formData.append('file', this.selectedFile);
+      formData.append('image', this.selectedFile);
     }
     
     // Dodaj pozostałe pola formularza
