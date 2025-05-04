@@ -23,6 +23,7 @@ import { PaginatedResponse, PaginationParams } from '../../models/pagination';
 import { Observable, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { LocaleService } from '../../services/locale.service';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-birds',
@@ -74,7 +75,8 @@ export default class BirdsComponent implements OnInit {
     private dialog: MatDialog,
     private authService: AuthService,
     private router: Router,
-    private localeService: LocaleService
+    private localeService: LocaleService,
+    private userService: UserService
   ) {
     this.dateFormat = this.localeService.getDateTimeFormat();
     // Konfiguracja debounce dla wyszukiwania
@@ -169,6 +171,6 @@ export default class BirdsComponent implements OnInit {
   }
 
   isAdmin(): boolean {
-    return this.authService.isAdmin();
+    return this.userService.isAdmin();
   }
 }

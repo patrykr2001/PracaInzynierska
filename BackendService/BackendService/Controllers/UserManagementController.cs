@@ -34,7 +34,7 @@ namespace BackendService.Controllers
                     Id = user.Id,
                     Username = user.UserName!,
                     Email = user.Email!,
-                    Role = roles.FirstOrDefault() ?? AuthorizationConstants.UserRole
+                    Roles = roles.ToArray()
                 });
             }
 
@@ -56,7 +56,7 @@ namespace BackendService.Controllers
                 Id = user.Id,
                 Username = user.UserName!,
                 Email = user.Email!,
-                Role = roles.FirstOrDefault() ?? AuthorizationConstants.UserRole,
+                Roles = roles.ToArray(),
                 CreatedAt = user.CreatedAt
             });
         }

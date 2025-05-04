@@ -105,7 +105,8 @@ export class AuthService {
         tap(response => {
           this.setTokens(response);
           this.setupTokenRefresh();
-        })
+        }),
+        catchError(this.handleError.bind(this))
       );
   }
 
@@ -115,23 +116,26 @@ export class AuthService {
         tap(response => {
           this.setTokens(response);
           this.setupTokenRefresh();
-        })
+        }),
+        catchError(this.handleError.bind(this))
       );
   }
 
-  logout(): Observable<any> {
-    return this.http.post(`${this.apiUrl}/logout`, {}).pipe(
-      finalize(() => {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('currentUser');
-        this.currentUserSubject.next(null);
-        this.refreshTokenSubject.next(null);
-        if (this.tokenRefreshTimeout) {
-          clearTimeout(this.tokenRefreshTimeout);
-        }
-      })
-    );
+  logout(): Observable<void> {
+    const refreshToken = localStorage.getItem('refreshToken');
+    if (refreshToken) {
+      return this.http.post<void>(`${this.apiUrl}/revoke-token`, { refreshToken })
+        .pipe(
+          finalize(() => {
+            this.clearAuthData();
+          })
+        );
+    }
+    this.clearAuthData();
+    return new Observable(subscriber => {
+      subscriber.next();
+      subscriber.complete();
+    });
   }
 
   getCurrentUser(): User | null {
@@ -144,10 +148,30 @@ export class AuthService {
 
   isAdmin(): boolean {
     const user = this.currentUserSubject.value;
-    return user?.role === UserRole.Admin;
+    return user?.roles?.includes(UserRole.Admin) ?? false;
   }
 
   getToken(): string | null {
     return localStorage.getItem('accessToken');
+  }
+
+  private handleError(error: HttpErrorResponse) {
+    let errorMessage = 'Wystąpił błąd podczas operacji';
+    if (error.error instanceof ErrorEvent) {
+      errorMessage = `Błąd: ${error.error.message}`;
+    } else {
+      errorMessage = `Kod błędu: ${error.status}, wiadomość: ${error.error.message || errorMessage}`;
+    }
+    return throwError(() => new Error(errorMessage));
+  }
+
+  private clearAuthData(): void {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('currentUser');
+    this.currentUserSubject.next(null);
+    if (this.tokenRefreshTimeout) {
+      clearTimeout(this.tokenRefreshTimeout);
+    }
   }
 } 

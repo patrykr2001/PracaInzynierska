@@ -10,6 +10,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { BirdObservationService } from '../../services/bird-observation.service';
 import { BirdObservation } from '../../models/bird-observation.model';
 import { environment } from '../../../environments/environment';
@@ -17,6 +18,7 @@ import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { PaginatedResponse, PaginationParams } from '../../models/pagination';
 import { LocaleService } from '../../services/locale.service';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-observations',
@@ -32,7 +34,8 @@ import { LocaleService } from '../../services/locale.service';
     MatPaginatorModule,
     MatToolbarModule,
     MatChipsModule,
-    MatButtonToggleModule
+    MatButtonToggleModule,
+    MatTooltipModule
   ],
   templateUrl: './observations.component.html',
   styleUrl: './observations.component.scss'
@@ -59,7 +62,8 @@ export default class ObservationsComponent implements OnInit {
     private dialog: MatDialog,
     private authService: AuthService,
     private router: Router,
-    private localeService: LocaleService
+    private localeService: LocaleService,
+    private userService: UserService
   ) {
     this.dateFormat = this.localeService.getDateTimeFormat();
   }
@@ -134,6 +138,6 @@ export default class ObservationsComponent implements OnInit {
   }
 
   isAdmin(): boolean {
-    return this.authService.isAdmin();
+    return this.userService.isAdmin();
   }
 } 

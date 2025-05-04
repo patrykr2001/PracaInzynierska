@@ -3,7 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { AuthService } from './auth.service';
-import { User, UpdateUserDto } from '../models/user.model';
+import { User, UpdateUserDto, UserRole } from '../models/user.model';
 import { environment } from '../../environments/environment';
 import { Router } from '@angular/router';
 
@@ -49,13 +49,19 @@ export class UserService {
     this.currentUserSubject.next(null);
   }
 
+  isAdmin(): boolean {
+    const user = this.getCurrentUser();
+    return user?.roles?.includes(UserRole.Admin) ?? false;
+  }
+
   private handleError(error: HttpErrorResponse) {
-    if (error.status === 401 || error.status === 403) {
-      this.router.navigate(['/login'], {
-        queryParams: { returnUrl: this.router.url }
-      });
+    let errorMessage = 'Wystąpił błąd podczas operacji';
+    if (error.error instanceof ErrorEvent) {
+      errorMessage = `Błąd: ${error.error.message}`;
+    } else {
+      errorMessage = `Kod błędu: ${error.status}, wiadomość: ${error.error.message || errorMessage}`;
     }
-    return throwError(() => error);
+    return throwError(() => new Error(errorMessage));
   }
 
   updateUserSettings(updateDto: UpdateUserDto): Observable<User> {

@@ -4,11 +4,11 @@ export enum UserRole {
 }
 
 export interface User {
-  id: number;
+  id: string;
   username: string;
   email: string;
-  role: UserRole;
-  createdAt: Date;
+  roles: UserRole[];
+  createdAt?: Date;
 }
 
 export interface UpdateUserDto {

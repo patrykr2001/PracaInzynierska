@@ -7,6 +7,7 @@ import { AuthService } from '../../../services/auth.service';
 import { Bird } from '../../../models/bird.model';
 import { PaginatedResponse, PaginationParams } from '../../../models/pagination';
 import { Router } from '@angular/router';
+import { UserService } from '../../../services/user.service';
 
 @Component({
   selector: 'app-unverified-birds',
@@ -27,18 +28,15 @@ export default class UnverifiedBirdsComponent implements OnInit {
   constructor(
     private birdService: BirdService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private userService: UserService
   ) {}
 
   ngOnInit(): void {
-    console.log('Current user:', this.authService.getCurrentUser());
-    console.log('Is admin:', this.authService.isAdmin());
-    
-    if (!this.authService.isAdmin()) {
-      this.router.navigate(['/']);
+    if (!this.userService.isAdmin()) {
+      this.router.navigate(['/birds']);
       return;
     }
-    
     this.loadBirds();
   }
 

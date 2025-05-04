@@ -118,7 +118,7 @@ public class AuthService : IAuthService
                 Id = user.Id,
                 Username = user.UserName!,
                 Email = user.Email!,
-                Role = roles.FirstOrDefault() ?? AuthorizationConstants.UserRole
+                Roles = roles.ToArray()
             }
         };
     }
@@ -170,7 +170,7 @@ public class AuthService : IAuthService
                 Id = user.Id,
                 Username = user.UserName!,
                 Email = user.Email!,
-                Role = AuthorizationConstants.UserRole
+                Roles = new[] { AuthorizationConstants.UserRole }
             }
         };
     }
@@ -200,7 +200,7 @@ public class AuthService : IAuthService
                 Id = user.Id,
                 Username = user.UserName!,
                 Email = user.Email!,
-                Role = roles.FirstOrDefault() ?? AuthorizationConstants.UserRole
+                Roles = roles.ToArray()
             }
         };
     }
