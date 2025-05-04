@@ -1,8 +1,13 @@
 <div class="container">
   <mat-card *ngIf="!isLoading && observation" class="observation-card">
     <mat-card-header>
-      <mat-card-title>{{ observation.birdCommonName }}</mat-card-title>
-      <mat-card-subtitle>{{ observation.birdScientificName }}</mat-card-subtitle>
+      <mat-card-title>
+        {{observation.birdCommonName}}
+        <span *ngIf="observation.isVerified" class="verified-badge" matTooltip="Zweryfikowana obserwacja">
+          <mat-icon>verified</mat-icon>
+        </span>
+      </mat-card-title>
+      <mat-card-subtitle>{{observation.birdScientificName}}</mat-card-subtitle>
     </mat-card-header>
 
     <div class="image-gallery" *ngIf="observation.imageUrls && observation.imageUrls.length > 0">
@@ -84,6 +89,10 @@
         <button mat-button color="warn" (click)="onDelete()" *ngIf="canDelete">
           <mat-icon>delete</mat-icon>
           Usuń
+        </button>
+        <button mat-button color="accent" (click)="onVerify()" *ngIf="canVerify && !observation.isVerified">
+          <mat-icon>verified</mat-icon>
+          Zweryfikuj
         </button>
       </div>
     </mat-card-actions>

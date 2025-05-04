@@ -10,8 +10,9 @@ import * as L from 'leaflet';
   styleUrl: './map.component.scss'
 })
 export class MapComponent implements AfterViewInit, OnDestroy {
-  @Input() initialLocation: { lat: number; lng: number } = { lat: 51.9194, lng: 19.1451 };
+  @Input() initialLocation?: { lat: number; lng: number };
   @Input() initialZoom: number = 6;
+  @Input() allowSelection: boolean = false;
   @Output() locationSelected = new EventEmitter<{ lat: number; lng: number }>();
 
   private map: L.Map | undefined;
@@ -55,13 +56,17 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       this.map.remove();
     }
 
+    // Domyślna lokalizacja (centrum Polski)
+    const defaultLocation = { lat: 51.9194, lng: 19.1451 };
+    const initialLocation = this.initialLocation || defaultLocation;
+
     // Inicjalizacja mapy
     this.map = L.map('map', {
       maxBounds: this.POLAND_BOUNDS,
       maxBoundsViscosity: 1.0,
       minZoom: 6,
       maxZoom: 18
-    }).setView([this.initialLocation.lat, this.initialLocation.lng], this.initialZoom);
+    }).setView([initialLocation.lat, initialLocation.lng], this.initialZoom);
 
     // Dodanie warstwy OpenStreetMap
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -71,25 +76,29 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     // Ograniczenie widoku do granic Polski
     this.map.setMaxBounds(this.POLAND_BOUNDS);
 
-    // Dodanie początkowego markera
-    this.marker = L.marker([this.initialLocation.lat, this.initialLocation.lng], { icon: this.defaultIcon }).addTo(this.map);
+    // Dodanie początkowego markera tylko jeśli przekazano initialLocation
+    if (this.initialLocation) {
+      this.marker = L.marker([this.initialLocation.lat, this.initialLocation.lng], { icon: this.defaultIcon }).addTo(this.map);
+    }
 
-    // Dodanie obsługi kliknięcia na mapę
-    this.map.on('click', (e: L.LeafletMouseEvent) => {
-      const lat = e.latlng.lat;
-      const lng = e.latlng.lng;
+    // Dodanie obsługi kliknięcia na mapę tylko jeśli allowSelection jest true
+    if (this.allowSelection) {
+      this.map.on('click', (e: L.LeafletMouseEvent) => {
+        const lat = e.latlng.lat;
+        const lng = e.latlng.lng;
 
-      // Usunięcie poprzedniego markera
-      if (this.marker) {
-        this.map?.removeLayer(this.marker);
-      }
+        // Usunięcie poprzedniego markera
+        if (this.marker) {
+          this.map?.removeLayer(this.marker);
+        }
 
-      // Dodanie nowego markera
-      this.marker = L.marker([lat, lng], { icon: this.defaultIcon }).addTo(this.map!);
+        // Dodanie nowego markera
+        this.marker = L.marker([lat, lng], { icon: this.defaultIcon }).addTo(this.map!);
 
-      // Emisja wybranej lokalizacji
-      this.locationSelected.emit({ lat, lng });
-    });
+        // Emisja wybranej lokalizacji
+        this.locationSelected.emit({ lat, lng });
+      });
+    }
 
     // Odświeżenie mapy po załadowaniu
     setTimeout(() => {

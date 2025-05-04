@@ -36,6 +36,7 @@ export default class ObservationDetailsComponent implements OnInit {
   currentImageIndex = 0;
   canEdit = false;
   canDelete = false;
+  canVerify = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -60,7 +61,7 @@ export default class ObservationDetailsComponent implements OnInit {
     this.observationService.getObservationById(id).subscribe({
       next: (observation) => {
         this.observation = observation;
-        this.checkPermissions();
+        this.checkPermissions(observation);
         this.isLoading = false;
       },
       error: (error) => {
@@ -74,28 +75,23 @@ export default class ObservationDetailsComponent implements OnInit {
     });
   }
 
-  checkPermissions(): void {
-    if (!this.observation) return;
-
+  checkPermissions(observation: BirdObservation): void {
     const currentUser = this.userService.getCurrentUser();
     const isAdmin = this.userService.isAdmin();
     
-    // Admin może edytować i usuwać wszystkie obserwacje
     if (isAdmin) {
       this.canEdit = true;
       this.canDelete = true;
+      this.canVerify = true;
       return;
     }
 
-    // Użytkownik może edytować i usuwać tylko swoje niezweryfikowane obserwacje
-    if (currentUser && currentUser.id === this.observation.userId && !this.observation.isVerified) {
+    if (currentUser && currentUser.id === observation.userId && !observation.isVerified) {
       this.canEdit = true;
       this.canDelete = true;
-      return;
     }
 
-    this.canEdit = false;
-    this.canDelete = false;
+    this.canVerify = false;
   }
 
   openImageGallery(index: number): void {
@@ -149,5 +145,32 @@ export default class ObservationDetailsComponent implements OnInit {
 
   onBack(): void {
     this.router.navigate(['/observations']);
+  }
+
+  onVerify(): void {
+    if (!this.canVerify) {
+      this.snackBar.open('Nie masz uprawnień do weryfikacji obserwacji', 'Zamknij', {
+        duration: 5000
+      });
+      return;
+    }
+
+    const id = this.route.snapshot.paramMap.get('id');
+    if (!id) return;
+
+    this.observationService.verifyObservation(parseInt(id)).subscribe({
+      next: () => {
+        this.snackBar.open('Obserwacja została zweryfikowana', 'Zamknij', {
+          duration: 5000
+        });
+        this.loadObservation(parseInt(id));
+      },
+      error: (error) => {
+        console.error('Błąd podczas weryfikacji obserwacji:', error);
+        this.snackBar.open('Wystąpił błąd podczas weryfikacji obserwacji', 'Zamknij', {
+          duration: 5000
+        });
+      }
+    });
   }
 }

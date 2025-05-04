@@ -46,7 +46,7 @@ export default class AddObservationComponent implements OnInit {
   birds: Bird[] = [];
   isLoading = true;
   isSubmitting = false;
-  selectedLocation: { lat: number; lng: number } | null = null;
+  selectedLocation: { lat: number; lng: number } | undefined = undefined;
   dateFormat: string;
   today = new Date();
   selectedImages: File[] = [];

@@ -70,7 +70,8 @@
         <div class="map-container">
           <h3>Lokalizacja</h3>
           <app-map
-            [initialLocation]="selectedLocation || { lat: 51.9194, lng: 19.1451 }"
+            [initialLocation]="selectedLocation"
+            [allowSelection]="true"
             (locationSelected)="onLocationSelected($event)">
           </app-map>
           <div class="coordinates" *ngIf="selectedLocation">
