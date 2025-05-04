@@ -23,6 +23,18 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     L.latLng(55.0, 25.4)  // Północno-wschodni róg
   );
 
+  // Domyślna ikona markera bez cienia
+  private readonly defaultIcon = L.icon({
+    iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
+    iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowUrl: undefined,
+    shadowSize: undefined,
+    shadowAnchor: undefined
+  });
+
   ngAfterViewInit(): void {
     // Opóźniamy inicjalizację mapy, aby upewnić się, że kontener jest widoczny
     setTimeout(() => {
@@ -59,6 +71,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     // Ograniczenie widoku do granic Polski
     this.map.setMaxBounds(this.POLAND_BOUNDS);
 
+    // Dodanie początkowego markera
+    this.marker = L.marker([this.initialLocation.lat, this.initialLocation.lng], { icon: this.defaultIcon }).addTo(this.map);
+
     // Dodanie obsługi kliknięcia na mapę
     this.map.on('click', (e: L.LeafletMouseEvent) => {
       const lat = e.latlng.lat;
@@ -70,7 +85,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       }
 
       // Dodanie nowego markera
-      this.marker = L.marker([lat, lng]).addTo(this.map!);
+      this.marker = L.marker([lat, lng], { icon: this.defaultIcon }).addTo(this.map!);
 
       // Emisja wybranej lokalizacji
       this.locationSelected.emit({ lat, lng });

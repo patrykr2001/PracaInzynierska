@@ -16,6 +16,14 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/add-observation/add-observation.component').then(m => m.default)
   },
   { 
+    path: 'observations/:id', 
+    loadComponent: () => import('./pages/observation-details/observation-details.component').then(m => m.default)
+  },
+  { 
+    path: 'observations/:id/edit',
+    loadComponent: () => import('./pages/edit-observation/edit-observation.component').then(m => m.default)
+  },
+  { 
     path: 'birds/unverified', 
     loadComponent: () => import('./pages/birds/unverified-birds/unverified-birds.component').then(m => m.default)
   },

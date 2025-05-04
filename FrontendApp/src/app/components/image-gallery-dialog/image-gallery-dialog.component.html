@@ -1,0 +1,26 @@
+<div class="gallery-container">
+  <div class="gallery-header">
+    <h2 mat-dialog-title>Galeria zdjęć</h2>
+    <button mat-icon-button (click)="close()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="gallery-content">
+    <button mat-icon-button class="nav-button prev" (click)="previousImage()" [disabled]="currentIndex === 0">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+
+    <div class="image-container">
+      <img [src]="data.images[currentIndex]" [alt]="'Zdjęcie ' + (currentIndex + 1)">
+    </div>
+
+    <button mat-icon-button class="nav-button next" (click)="nextImage()" [disabled]="currentIndex === data.images.length - 1">
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+  </div>
+
+  <div class="gallery-footer">
+    <span>{{ currentIndex + 1 }} / {{ data.images.length }}</span>
+  </div>
+</div>

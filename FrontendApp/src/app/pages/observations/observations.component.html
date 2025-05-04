@@ -53,6 +53,12 @@
           <p class="user">Dodane przez: {{ observation.username }}</p>
           <mat-chip *ngIf="!observation.isVerified" color="warn">Niezweryfikowane</mat-chip>
         </mat-card-content>
+        <mat-card-actions>
+          <button mat-button color="primary" (click)="viewObservationDetails(observation.id)">
+            <mat-icon>visibility</mat-icon>
+            Szczegóły
+          </button>
+        </mat-card-actions>
       </mat-card>
     </div>
 

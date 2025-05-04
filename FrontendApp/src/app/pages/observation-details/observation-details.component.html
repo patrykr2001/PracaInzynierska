@@ -1,0 +1,95 @@
+<div class="container">
+  <mat-card *ngIf="!isLoading && observation" class="observation-card">
+    <mat-card-header>
+      <mat-card-title>{{ observation.birdCommonName }}</mat-card-title>
+      <mat-card-subtitle>{{ observation.birdScientificName }}</mat-card-subtitle>
+    </mat-card-header>
+
+    <div class="image-gallery" *ngIf="observation.imageUrls && observation.imageUrls.length > 0">
+      <div class="main-image">
+        <img [src]="apiUrl + observation.imageUrls[0]" 
+             [alt]="observation.birdCommonName"
+             (click)="openImageGallery(0)">
+      </div>
+      <div class="thumbnail-container" *ngIf="observation.imageUrls.length > 1">
+        <div class="thumbnail" 
+             *ngFor="let imageUrl of observation.imageUrls.slice(1); let i = index"
+             (click)="openImageGallery(i + 1)">
+          <img [src]="apiUrl + imageUrl" [alt]="'Miniatura ' + (i + 2)">
+        </div>
+      </div>
+    </div>
+
+    <mat-card-content>
+      <div class="observation-details">
+        <div class="detail-row">
+          <span class="label">Data obserwacji:</span>
+          <span class="value">{{ observation.observationDate | date:'medium' }}</span>
+        </div>
+        
+        <div class="detail-row">
+          <span class="label">Liczba ptaków:</span>
+          <span class="value">{{ observation.numberOfBirds }}</span>
+        </div>
+
+        <div class="detail-row">
+          <span class="label">Lokalizacja:</span>
+          <span class="value">{{ observation.latitude }}, {{ observation.longitude }}</span>
+        </div>
+
+        <div class="detail-row" *ngIf="observation.weatherConditions">
+          <span class="label">Warunki pogodowe:</span>
+          <span class="value">{{ observation.weatherConditions }}</span>
+        </div>
+
+        <div class="detail-row" *ngIf="observation.habitat">
+          <span class="label">Siedlisko:</span>
+          <span class="value">{{ observation.habitat }}</span>
+        </div>
+
+        <div class="detail-row">
+          <span class="label">Opis:</span>
+          <span class="value description">{{ observation.description }}</span>
+        </div>
+
+        <div class="detail-row">
+          <span class="label">Status:</span>
+          <mat-chip [color]="observation.isVerified ? 'accent' : 'warn'" selected>
+            {{ observation.isVerified ? 'Zweryfikowana' : 'Oczekująca' }}
+          </mat-chip>
+        </div>
+
+        <div class="detail-row">
+          <span class="label">Dodana przez:</span>
+          <span class="value">{{ observation.username }}</span>
+        </div>
+
+        <div class="detail-row">
+          <span class="label">Data dodania:</span>
+          <span class="value">{{ observation.createdAt | date:'medium' }}</span>
+        </div>
+      </div>
+    </mat-card-content>
+
+    <mat-card-actions>
+      <button mat-button (click)="onBack()">
+        <mat-icon>arrow_back</mat-icon>
+        Powrót
+      </button>
+      <div class="action-buttons">
+        <button mat-button color="primary" (click)="onEdit()" *ngIf="canEdit">
+          <mat-icon>edit</mat-icon>
+          Edytuj
+        </button>
+        <button mat-button color="warn" (click)="onDelete()" *ngIf="canDelete">
+          <mat-icon>delete</mat-icon>
+          Usuń
+        </button>
+      </div>
+    </mat-card-actions>
+  </mat-card>
+
+  <div class="loading-container" *ngIf="isLoading">
+    <mat-spinner></mat-spinner>
+  </div>
+</div>
