@@ -15,6 +15,8 @@ public class AuthService : IAuthService
     private readonly ApplicationDbContext _context;
     private readonly IConfiguration _configuration;
     private const int BCRYPT_WORK_FACTOR = 12;
+    private const int ACCESS_TOKEN_EXPIRATION_MINUTES = 15; // 15 minut
+    private const int REFRESH_TOKEN_EXPIRATION_DAYS = 7; // 7 dni
 
     public AuthService(ApplicationDbContext context, IConfiguration configuration)
     {
@@ -80,7 +82,7 @@ public class AuthService : IAuthService
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Role, user.Role.ToString())
             }),
-            Expires = DateTime.UtcNow.AddDays(7),
+            Expires = DateTime.UtcNow.AddMinutes(ACCESS_TOKEN_EXPIRATION_MINUTES),
             SigningCredentials = new SigningCredentials(
                 new SymmetricSecurityKey(key),
                 SecurityAlgorithms.HmacSha256Signature),
@@ -92,6 +94,11 @@ public class AuthService : IAuthService
         return Task.FromResult(tokenHandler.WriteToken(token));
     }
 
+    private string GenerateRefreshToken()
+    {
+        return Guid.NewGuid().ToString();
+    }
+
     public async Task<AuthResponse> LoginAsync(LoginDto loginDto)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == loginDto.Username);
@@ -100,11 +107,48 @@ public class AuthService : IAuthService
             throw new Exception("Nieprawidłowa nazwa użytkownika lub hasło");
         }
 
-        var token = await GenerateJwtTokenAsync(user);
+        var accessToken = await GenerateJwtTokenAsync(user);
+        var refreshToken = GenerateRefreshToken();
+
+        // Zapisz refresh token w bazie danych
+        user.RefreshToken = refreshToken;
+        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(REFRESH_TOKEN_EXPIRATION_DAYS);
+        await _context.SaveChangesAsync();
 
         return new AuthResponse
         {
-            Token = token,
+            AccessToken = accessToken,
+            RefreshToken = refreshToken,
+            User = new UserDto
+            {
+                Id = user.Id,
+                Username = user.Username,
+                Email = user.Email,
+                Role = user.Role.ToString()
+            }
+        };
+    }
+
+    public async Task<AuthResponse> RefreshTokenAsync(string refreshToken)
+    {
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
+        
+        if (user == null || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+        {
+            throw new Exception("Nieprawidłowy lub wygasły refresh token");
+        }
+
+        var accessToken = await GenerateJwtTokenAsync(user);
+        var newRefreshToken = GenerateRefreshToken();
+
+        user.RefreshToken = newRefreshToken;
+        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(REFRESH_TOKEN_EXPIRATION_DAYS);
+        await _context.SaveChangesAsync();
+
+        return new AuthResponse
+        {
+            AccessToken = accessToken,
+            RefreshToken = newRefreshToken,
             User = new UserDto
             {
                 Id = user.Id,
@@ -139,11 +183,17 @@ public class AuthService : IAuthService
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
-        var token = await GenerateJwtTokenAsync(user);
+        var accessToken = await GenerateJwtTokenAsync(user);
+        var refreshToken = GenerateRefreshToken();
+
+        user.RefreshToken = refreshToken;
+        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(REFRESH_TOKEN_EXPIRATION_DAYS);
+        await _context.SaveChangesAsync();
 
         return new AuthResponse
         {
-            Token = token,
+            AccessToken = accessToken,
+            RefreshToken = refreshToken,
             User = new UserDto
             {
                 Id = user.Id,
@@ -152,5 +202,16 @@ public class AuthService : IAuthService
                 Role = user.Role.ToString()
             }
         };
+    }
+
+    public async Task RevokeRefreshTokenAsync(string userId)
+    {
+        var user = await _context.Users.FindAsync(int.Parse(userId));
+        if (user != null)
+        {
+            user.RefreshToken = null;
+            user.RefreshTokenExpiryTime = null;
+            await _context.SaveChangesAsync();
+        }
     }
 }

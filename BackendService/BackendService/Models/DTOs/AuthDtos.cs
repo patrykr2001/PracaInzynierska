@@ -33,7 +33,14 @@ namespace BackendService.Models.DTOs
 
     public class AuthResponse
     {
-        public required string Token { get; set; }
+        public required string AccessToken { get; set; }
+        public required string RefreshToken { get; set; }
         public required UserDto User { get; set; }
+    }
+
+    public class RefreshTokenDto
+    {
+        [Required]
+        public required string RefreshToken { get; set; }
     }
 } 

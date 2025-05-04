@@ -14,4 +14,6 @@ public interface IAuthService
     Task<string> GenerateJwtTokenAsync(User user);
     Task<AuthResponse> LoginAsync(LoginDto loginDto);
     Task<AuthResponse> RegisterAsync(RegisterDto registerDto);
+    Task<AuthResponse> RefreshTokenAsync(string refreshToken);
+    Task RevokeRefreshTokenAsync(string userId);
 }

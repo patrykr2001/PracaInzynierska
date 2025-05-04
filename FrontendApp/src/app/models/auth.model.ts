@@ -13,6 +13,11 @@ export interface RegisterDto {
 }
 
 export interface AuthResponse {
-  token: string;
+  accessToken: string;
+  refreshToken: string;
   user: User;
+}
+
+export interface RefreshTokenDto {
+  refreshToken: string;
 } 

@@ -49,7 +49,14 @@ export class NavbarComponent implements OnDestroy {
   }
 
   logout(): void {
-    this.authService.logout();
-    this.router.navigate(['/']);
+    this.authService.logout().subscribe({
+      next: () => {
+        this.router.navigate(['/']);
+      },
+      error: () => {
+        // W przypadku błędu i tak wylogowujemy użytkownika lokalnie
+        this.router.navigate(['/']);
+      }
+    });
   }
 }
