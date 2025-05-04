@@ -3,6 +3,7 @@ using System;
 using BackendService.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BackendService.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250504132942_RemoveUserAddApplicationUser")]
+    partial class RemoveUserAddApplicationUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.15");
@@ -99,9 +102,6 @@ namespace BackendService.Migrations
                     b.Property<string>("ApplicationUserId")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("BreedingSeason")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("CommonName")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -117,17 +117,8 @@ namespace BackendService.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Diet")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Family")
                         .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Genus")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Habitat")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ImageUrl")
@@ -136,31 +127,13 @@ namespace BackendService.Migrations
                     b.Property<bool>("IsVerified")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Lifespan")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Order")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("ScientificName")
                         .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Size")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Species")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("TEXT");
-
-                    b.Property<double?>("Weight")
-                        .HasColumnType("REAL");
-
-                    b.Property<double?>("Wingspan")
-                        .HasColumnType("REAL");
 
                     b.HasKey("Id");
 

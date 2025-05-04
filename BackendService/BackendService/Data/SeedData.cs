@@ -1,63 +1,194 @@
 using BackendService.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
+using BackendService.Constants;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace BackendService.Data
 {
     public static class SeedData
     {
-        public static void SeedBirds(ApplicationDbContext context)
+        public static async Task Initialize(IServiceProvider serviceProvider)
         {
+            var context = serviceProvider.GetRequiredService<ApplicationDbContext>();
+            var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+
+            // Tworzenie ról
+            if (!await roleManager.RoleExistsAsync(AuthorizationConstants.AdminRole))
+            {
+                await roleManager.CreateAsync(new IdentityRole(AuthorizationConstants.AdminRole));
+            }
+
+            if (!await roleManager.RoleExistsAsync(AuthorizationConstants.UserRole))
+            {
+                await roleManager.CreateAsync(new IdentityRole(AuthorizationConstants.UserRole));
+            }
+
+            // Tworzenie administratora
+            var adminConfig = configuration.GetSection("DefaultAdmin");
+            var adminEmail = adminConfig["Email"] ?? throw new InvalidOperationException("DefaultAdmin:Email is not configured");
+            var adminPassword = adminConfig["Password"] ?? throw new InvalidOperationException("DefaultAdmin:Password is not configured");
+            var adminUser = await userManager.FindByEmailAsync(adminEmail);
+
+            if (adminUser == null)
+            {
+                adminUser = new ApplicationUser
+                {
+                    UserName = adminEmail,
+                    Email = adminEmail,
+                    EmailConfirmed = true,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                var result = await userManager.CreateAsync(adminUser, adminPassword);
+                if (result.Succeeded)
+                {
+                    // Przypisanie obu ról do administratora
+                    await userManager.AddToRoleAsync(adminUser, AuthorizationConstants.AdminRole);
+                    await userManager.AddToRoleAsync(adminUser, AuthorizationConstants.UserRole);
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Nie udało się utworzyć konta administratora: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                }
+            }
+            else
+            {
+                // Upewniamy się, że administrator ma obie role
+                if (!await userManager.IsInRoleAsync(adminUser, AuthorizationConstants.AdminRole))
+                {
+                    await userManager.AddToRoleAsync(adminUser, AuthorizationConstants.AdminRole);
+                }
+                if (!await userManager.IsInRoleAsync(adminUser, AuthorizationConstants.UserRole))
+                {
+                    await userManager.AddToRoleAsync(adminUser, AuthorizationConstants.UserRole);
+                }
+            }
+
+            // Dodawanie przykładowych ptaków
             if (!context.Birds.Any())
             {
                 var birds = new List<Bird>
                 {
                     new Bird
                     {
-                        ScientificName = "Ciconia ciconia",
-                        CommonName = "Bocian biały",
-                        Family = "Ciconiidae",
-                        Order = "Ciconiiformes",
+                        CommonName = "Bogatka",
+                        ScientificName = "Parus major",
+                        Family = "Sikory",
+                        Order = "Wróblowe",
+                        Genus = "Parus",
+                        Species = "major",
                         ConservationStatus = "LC",
-                        Description = "Bocian biały to duży ptak brodzący, charakterystyczny dla krajobrazu polskiej wsi. Ma białe upierzenie z czarnymi lotkami, czerwony dziób i nogi. Jest symbolem wiosny i płodności.",
-                        ImageUrl = "/uploads/birds/df8c59f6-5b04-47f9-a088-796e322fe93e.jpg",
+                        Description = "Największa z europejskich sikor. Charakterystyczna czarna głowa z białymi policzkami i żółtym brzuchem z czarnym paskiem.",
+                        Habitat = "Lasy liściaste, parki, ogrody",
+                        Diet = "Owady, pająki, nasiona",
+                        Size = "14 cm",
+                        Weight = 20,
+                        Wingspan = 24,
+                        Lifespan = "2-3 lata",
+                        BreedingSeason = "Kwiecień - Czerwiec",
+                        ImageUrl = "/images/birds/bogatka.jpg",
                         IsVerified = true,
-                        CreatedAt = DateTime.UtcNow,
-                        UpdatedAt = DateTime.UtcNow
+                        UserId = adminUser.Id,
+                        CreatedAt = DateTime.UtcNow.AddDays(-10)
                     },
                     new Bird
                     {
-                        ScientificName = "Parus major",
-                        CommonName = "Bogatka",
-                        Family = "Paridae",
-                        Order = "Passeriformes",
+                        CommonName = "Sikora modra",
+                        ScientificName = "Cyanistes caeruleus",
+                        Family = "Sikory",
+                        Order = "Wróblowe",
+                        Genus = "Cyanistes",
+                        Species = "caeruleus",
                         ConservationStatus = "LC",
-                        Description = "Bogatka to największy przedstawiciel rodziny sikor w Polsce. Charakteryzuje się czarną głową z białymi policzkami, żółtym brzuchem z czarnym pasem pośrodku i zielonkawym grzbietem.",
-                        ImageUrl = "/uploads/birds/69f57822-c6dd-43ba-81e2-cffbedce9da9.jpg",
+                        Description = "Mniejsza od bogatki, z charakterystycznym niebieskim wierzchem głowy i skrzydeł.",
+                        Habitat = "Lasy liściaste, parki, ogrody",
+                        Diet = "Owady, pająki, nasiona",
+                        Size = "11 cm",
+                        Weight = 11,
+                        Wingspan = 20,
+                        Lifespan = "2-3 lata",
+                        BreedingSeason = "Kwiecień - Czerwiec",
+                        ImageUrl = "/images/birds/sikora-modra.jpg",
+                        IsVerified = true,
+                        UserId = adminUser.Id,
+                        CreatedAt = DateTime.UtcNow.AddDays(-8)
+                    },
+                    new Bird
+                    {
+                        CommonName = "Kos",
+                        ScientificName = "Turdus merula",
+                        Family = "Drozdowate",
+                        Order = "Wróblowe",
+                        Genus = "Turdus",
+                        Species = "merula",
+                        ConservationStatus = "LC",
+                        Description = "Samiec czarny z żółtym dziobem, samica brązowa. Śpiewa wczesnym rankiem i wieczorem.",
+                        Habitat = "Lasy, parki, ogrody",
+                        Diet = "Dżdżownice, owady, owoce",
+                        Size = "25 cm",
+                        Weight = 100,
+                        Wingspan = 38,
+                        Lifespan = "3-4 lata",
+                        BreedingSeason = "Marzec - Lipiec",
+                        ImageUrl = "/images/birds/kos.jpg",
+                        IsVerified = true,
+                        UserId = adminUser.Id,
+                        CreatedAt = DateTime.UtcNow.AddDays(-6)
+                    },
+                    new Bird
+                    {
+                        CommonName = "Wróbel",
+                        ScientificName = "Passer domesticus",
+                        Family = "Wróblowate",
+                        Order = "Wróblowe",
+                        Genus = "Passer",
+                        Species = "domesticus",
+                        ConservationStatus = "LC",
+                        Description = "Mały ptak o brązowym upierzeniu. Samiec ma czarną plamę na gardle i szarą czapeczkę.",
+                        Habitat = "Osiedla ludzkie, miasta, wsie",
+                        Diet = "Nasiona, owady, resztki pokarmu",
+                        Size = "16 cm",
+                        Weight = 30,
+                        Wingspan = 25,
+                        Lifespan = "2-3 lata",
+                        BreedingSeason = "Kwiecień - Sierpień",
+                        ImageUrl = "/images/birds/wrobel.jpg",
+                        IsVerified = true,
+                        UserId = adminUser.Id,
+                        CreatedAt = DateTime.UtcNow.AddDays(-4)
+                    },
+                    new Bird
+                    {
+                        CommonName = "Szpak",
+                        ScientificName = "Sturnus vulgaris",
+                        Family = "Szpakowate",
+                        Order = "Wróblowe",
+                        Genus = "Sturnus",
+                        Species = "vulgaris",
+                        ConservationStatus = "LC",
+                        Description = "Czarny ptak z metalicznym połyskiem i białymi plamkami. Świetny naśladowca dźwięków.",
+                        Habitat = "Parki, ogrody, tereny rolnicze",
+                        Diet = "Owady, owoce, nasiona",
+                        Size = "22 cm",
+                        Weight = 80,
+                        Wingspan = 37,
+                        Lifespan = "2-3 lata",
+                        BreedingSeason = "Kwiecień - Czerwiec",
+                        ImageUrl = "/images/birds/szpak.jpg",
                         IsVerified = false,
-                        CreatedAt = DateTime.UtcNow,
-                        UpdatedAt = DateTime.UtcNow
+                        UserId = adminUser.Id,
+                        CreatedAt = DateTime.UtcNow.AddDays(-2)
                     }
                 };
 
-                context.Birds.AddRange(birds);
-                context.SaveChanges();
-            }
-        }
-
-        public static void SeedUsers(ApplicationDbContext context)
-        {
-            if (!context.Users.Any())
-            {
-                var user = new User
-                {
-                    Username = "test",
-                    Email = "test@example.com",
-                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("Test123!", 12),
-                    Role = UserRole.User,
-                    CreatedAt = DateTime.UtcNow
-                };
-
-                context.Users.Add(user);
-                context.SaveChanges();
+                await context.Birds.AddRangeAsync(birds);
+                await context.SaveChangesAsync();
             }
         }
     }

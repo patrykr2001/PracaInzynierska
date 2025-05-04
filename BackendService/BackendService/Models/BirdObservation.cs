@@ -10,9 +10,11 @@ namespace BackendService.Models
 
         [Required]
         public int BirdId { get; set; }
+        public Bird Bird { get; set; } = null!;
 
         [Required]
-        public int UserId { get; set; }
+        public string UserId { get; set; } = string.Empty;
+        public ApplicationUser User { get; set; } = null!;
 
         [Required]
         [Column(TypeName = "decimal(9,6)")]
@@ -39,9 +41,5 @@ namespace BackendService.Models
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-
-        // Relacje
-        public required Bird Bird { get; set; }
-        public required User User { get; set; }
     }
 } 

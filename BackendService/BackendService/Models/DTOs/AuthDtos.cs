@@ -5,42 +5,38 @@ namespace BackendService.Models.DTOs
     public class LoginDto
     {
         [Required]
-        public required string Username { get; set; }
+        [EmailAddress]
+        public string Email { get; set; } = string.Empty;
 
         [Required]
-        public required string Password { get; set; }
+        public string Password { get; set; } = string.Empty;
     }
 
     public class RegisterDto
     {
         [Required]
-        [StringLength(50)]
-        public required string Username { get; set; }
-
-        [Required]
         [EmailAddress]
-        [StringLength(100)]
-        public required string Email { get; set; }
+        public string Email { get; set; } = string.Empty;
 
         [Required]
-        [StringLength(100, MinimumLength = 6)]
-        public required string Password { get; set; }
+        [MinLength(6)]
+        public string Password { get; set; } = string.Empty;
 
         [Required]
         [Compare("Password")]
-        public required string ConfirmPassword { get; set; }
+        public string ConfirmPassword { get; set; } = string.Empty;
     }
 
-    public class AuthResponse
+    public class AuthResponseDto
     {
-        public required string AccessToken { get; set; }
-        public required string RefreshToken { get; set; }
-        public required UserDto User { get; set; }
+        public string AccessToken { get; set; } = string.Empty;
+        public string RefreshToken { get; set; } = string.Empty;
+        public UserDto User { get; set; } = null!;
     }
 
     public class RefreshTokenDto
     {
         [Required]
-        public required string RefreshToken { get; set; }
+        public string RefreshToken { get; set; } = string.Empty;
     }
 } 

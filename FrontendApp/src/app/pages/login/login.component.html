@@ -6,13 +6,22 @@
     <mat-card-content>
       <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Nazwa użytkownika</mat-label>
-          <input matInput type="text" name="username" [(ngModel)]="loginDto.username" required>
+          <mat-label>Email</mat-label>
+          <input matInput type="email" name="email" [(ngModel)]="loginDto.email" required email>
+          <mat-error *ngIf="loginForm.form.get('email')?.errors?.['required']">
+            Email jest wymagany
+          </mat-error>
+          <mat-error *ngIf="loginForm.form.get('email')?.errors?.['email']">
+            Podaj prawidłowy adres email
+          </mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Hasło</mat-label>
           <input matInput type="password" name="password" [(ngModel)]="loginDto.password" required>
+          <mat-error *ngIf="loginForm.form.get('password')?.errors?.['required']">
+            Hasło jest wymagane
+          </mat-error>
         </mat-form-field>
 
         @if (errorMessage) {

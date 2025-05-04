@@ -5,12 +5,13 @@ namespace BackendService.Interfaces
 {
     public interface IBirdService
     {
-        Task<IEnumerable<Bird>> GetAllBirdsAsync();
-        Task<IEnumerable<Bird>> GetUnverifiedBirdsAsync();
+        Task<PaginatedResponse<Bird>> GetAllBirdsAsync(PaginationParams paginationParams);
+        Task<PaginatedResponse<Bird>> GetUnverifiedBirdsAsync(PaginationParams paginationParams);
+        Task<PaginatedResponse<Bird>> SearchBirdsAsync(string searchTerm, PaginationParams paginationParams);
         Task<Bird?> GetBirdByIdAsync(int id);
-        Task<Bird> CreateBirdAsync(CreateBirdDto createBirdDto);
-        Task UpdateBirdAsync(int id, UpdateBirdDto updateBirdDto);
+        Task<Bird> CreateBirdAsync(CreateBirdDto birdDto, string userId);
+        Task UpdateBirdAsync(int id, UpdateBirdDto birdDto);
         Task DeleteBirdAsync(int id);
-        Task<IEnumerable<Bird>> SearchBirdsAsync(string searchTerm);
+        Task VerifyBirdAsync(int id);
     }
 } 

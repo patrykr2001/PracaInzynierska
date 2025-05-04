@@ -10,6 +10,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { BirdService } from '../../../services/bird.service';
 import { Bird } from '../../../models/bird.model';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-edit-bird-dialog',
@@ -34,7 +35,7 @@ export class EditBirdDialogComponent {
   errorMessage = '';
   selectedFile: File | null = null;
   imagePreview: string | null = null;
-  apiUrl = 'https://localhost:7077';
+  apiUrl = environment.apiUrl;
 
   conservationStatuses = [
     { value: 'EX', label: 'Wymarły (EX)' },
@@ -57,10 +58,19 @@ export class EditBirdDialogComponent {
     this.birdForm = this.fb.group({
       scientificName: [data.bird.scientificName, [Validators.required, Validators.maxLength(100)]],
       commonName: [data.bird.commonName, [Validators.required, Validators.maxLength(100)]],
-      family: [data.bird.family, Validators.maxLength(100)],
-      order: [data.bird.order, Validators.maxLength(100)],
-      conservationStatus: [data.bird.conservationStatus],
-      description: [data.bird.description]
+      family: [data.bird.family, [Validators.required, Validators.maxLength(100)]],
+      order: [data.bird.order, [Validators.maxLength(100)]],
+      genus: [data.bird.genus, [Validators.maxLength(100)]],
+      species: [data.bird.species, [Validators.maxLength(100)]],
+      conservationStatus: [data.bird.conservationStatus, Validators.required],
+      description: [data.bird.description, [Validators.required, Validators.maxLength(1000)]],
+      habitat: [data.bird.habitat, [Validators.maxLength(200)]],
+      diet: [data.bird.diet, [Validators.maxLength(200)]],
+      size: [data.bird.size, [Validators.maxLength(100)]],
+      weight: [data.bird.weight],
+      wingspan: [data.bird.wingspan],
+      lifespan: [data.bird.lifespan, [Validators.maxLength(100)]],
+      breedingSeason: [data.bird.breedingSeason, [Validators.maxLength(100)]]
     });
 
     if (data.bird.imageUrl) {

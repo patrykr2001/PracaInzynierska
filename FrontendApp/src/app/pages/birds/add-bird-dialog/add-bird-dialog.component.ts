@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { BirdService } from '../../../services/bird.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-add-bird-dialog',
@@ -33,6 +34,7 @@ export class AddBirdDialogComponent {
   errorMessage = '';
   selectedFile: File | null = null;
   imagePreview: string | null = null;
+  apiUrl = environment.apiUrl;
 
   conservationStatuses = [
     { value: 'EX', label: 'Wymarły (EX)' },
@@ -54,10 +56,19 @@ export class AddBirdDialogComponent {
     this.birdForm = this.fb.group({
       scientificName: ['', [Validators.required, Validators.maxLength(100)]],
       commonName: ['', [Validators.required, Validators.maxLength(100)]],
-      family: ['', Validators.maxLength(100)],
-      order: ['', Validators.maxLength(100)],
-      conservationStatus: [''],
-      description: ['']
+      family: ['', [Validators.required, Validators.maxLength(100)]],
+      order: ['', [Validators.maxLength(100)]],
+      genus: ['', [Validators.maxLength(100)]],
+      species: ['', [Validators.maxLength(100)]],
+      conservationStatus: ['', Validators.required],
+      description: ['', [Validators.required, Validators.maxLength(1000)]],
+      habitat: ['', [Validators.maxLength(200)]],
+      diet: ['', [Validators.maxLength(200)]],
+      size: ['', [Validators.maxLength(100)]],
+      weight: [null],
+      wingspan: [null],
+      lifespan: ['', [Validators.maxLength(100)]],
+      breedingSeason: ['', [Validators.maxLength(100)]]
     });
   }
 
@@ -100,25 +111,26 @@ export class AddBirdDialogComponent {
       return;
     }
 
-    if (!this.selectedFile) {
-      this.errorMessage = 'Wybierz zdjęcie ptaka';
-      return;
-    }
-
     this.isLoading = true;
     this.errorMessage = '';
 
     const formData = new FormData();
-    formData.append('file', this.selectedFile);
+    
+    // Dodaj zdjęcie jeśli zostało wybrane
+    if (this.selectedFile) {
+      formData.append('file', this.selectedFile);
+    }
     
     // Dodaj pozostałe pola formularza
     Object.keys(this.birdForm.value).forEach(key => {
-      formData.append(key, this.birdForm.value[key]);
+      if (this.birdForm.value[key] !== null && this.birdForm.value[key] !== undefined) {
+        formData.append(key, this.birdForm.value[key]);
+      }
     });
 
     this.birdService.createBird(formData).subscribe({
-      next: () => {
-        this.dialogRef.close(true);
+      next: (bird) => {
+        this.dialogRef.close(bird);
       },
       error: (error) => {
         this.errorMessage = error.error.message || 'Wystąpił błąd podczas dodawania ptaka';

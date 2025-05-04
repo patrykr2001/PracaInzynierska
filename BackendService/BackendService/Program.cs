@@ -6,6 +6,8 @@ using BackendService.Data;
 using BackendService.Interfaces;
 using BackendService.Services;
 using BackendService.Models;
+using Microsoft.AspNetCore.Identity;
+using BackendService.Constants;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,14 +24,48 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Add Identity
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+{
+    // Password settings
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequiredLength = 8;
+
+    // Lockout settings
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.AllowedForNewUsers = true;
+
+    // User settings
+    options.User.RequireUniqueEmail = true;
+    options.SignIn.RequireConfirmedEmail = false; // Zmienić na true po dodaniu potwierdzania emaila
+})
+.AddEntityFrameworkStores<ApplicationDbContext>()
+.AddDefaultTokenProviders();
+
+// Add Authorization Policies
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("RequireAdminRole", policy =>
+        policy.RequireRole(AuthorizationConstants.AdminRole));
+    
+    options.AddPolicy("RequireUserRole", policy =>
+        policy.RequireRole(AuthorizationConstants.UserRole));
+});
+
 // Add CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularDevServer",
         builder => builder
-            .WithOrigins("http://localhost:4200")
+            .WithOrigins("http://localhost:4200", "https://localhost:4200")
             .AllowAnyMethod()
-            .AllowAnyHeader());
+            .AllowAnyHeader()
+            .WithExposedHeaders("Token-Expired")
+            .AllowCredentials());
 });
 
 // Add Authentication
@@ -39,20 +75,46 @@ if (string.IsNullOrEmpty(jwtKey))
     throw new InvalidOperationException("JWT Key is not configured. Please check appsettings.Local.json file.");
 }
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
     {
-        options.TokenValidationParameters = new TokenValidationParameters
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+    };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
         {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
-        };
-    });
+            var authHeader = context.Request.Headers["Authorization"].ToString();
+            if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
+            {
+                context.Token = authHeader.Substring("Bearer ".Length);
+            }
+            return Task.CompletedTask;
+        },
+        OnAuthenticationFailed = context =>
+        {
+            if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
+            {
+                context.Response.Headers.Add("Token-Expired", "true");
+            }
+            return Task.CompletedTask;
+        }
+    };
+});
 
 // Add Services
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -60,7 +122,7 @@ builder.Services.AddScoped<IBirdService, BirdService>();
 
 var app = builder.Build();
 
-// Automatyczne tworzenie bazy danych
+// Automatyczne tworzenie bazy danych i inicjalizacja danych
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -69,30 +131,8 @@ using (var scope = app.Services.CreateScope())
         var context = services.GetRequiredService<ApplicationDbContext>();
         context.Database.EnsureCreated();
 
-        // Dodaj domyślnego admina jeśli nie istnieje
-        if (!context.Users.Any(u => u.Username == "admin"))
-        {
-            var adminConfig = builder.Configuration.GetSection("DefaultAdmin");
-            var username = adminConfig["Username"] ?? throw new InvalidOperationException("DefaultAdmin:Username is not configured");
-            var email = adminConfig["Email"] ?? throw new InvalidOperationException("DefaultAdmin:Email is not configured");
-            var password = adminConfig["Password"] ?? throw new InvalidOperationException("DefaultAdmin:Password is not configured");
-
-            var adminUser = new User
-            {
-                Username = username,
-                Email = email,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
-                Role = UserRole.Admin,
-                CreatedAt = DateTime.UtcNow
-            };
-            context.Users.Add(adminUser);
-            context.SaveChanges();
-        }
-
-        // Dodaj domyślne dane ptaków
-        SeedData.SeedBirds(context);
-        // Dodaj domyślnego użytkownika testowego
-        SeedData.SeedUsers(context);
+        // Inicjalizacja danych
+        await SeedData.Initialize(services);
     }
     catch (Exception ex)
     {

@@ -1,53 +1,62 @@
 <div class="container">
-  <div class="header">
-    <h1>Lista ptaków</h1>
-    <div class="header-actions">
-      <mat-form-field appearance="outline" class="search-field">
-        <mat-label>Szukaj ptaków</mat-label>
-        <input matInput [(ngModel)]="searchTerm" (ngModelChange)="onSearch()" placeholder="Wpisz nazwę naukową lub zwyczajową">
-        <mat-icon matSuffix>search</mat-icon>
-      </mat-form-field>
-      <button *ngIf="isLoggedIn()" mat-raised-button color="primary" (click)="openAddBirdDialog()">
-        <mat-icon>add</mat-icon>
-        Dodaj nowego ptaka
-      </button>
-      <button *ngIf="isAdmin()" mat-button color="primary" routerLink="/birds/unverified">
-        <mat-icon>pending_actions</mat-icon>
-        Oczekujące na weryfikację
-      </button>
-    </div>
+  <mat-toolbar class="mb-4">
+    <span>Lista ptaków</span>
+    <span class="spacer"></span>
+    <button *ngIf="isAdmin()" mat-button color="primary" (click)="toggleUnverifiedOnly()">
+      <mat-icon>{{ showUnverifiedOnly ? 'verified' : 'pending' }}</mat-icon>
+      {{ showUnverifiedOnly ? 'Wszystkie ptaki' : 'Ptaki oczekujące na weryfikację' }}
+    </button>
+    <button *ngIf="isLoggedIn()" mat-raised-button color="primary" (click)="openAddBirdDialog()">
+      <mat-icon>add</mat-icon>
+      Dodaj ptaka
+    </button>
+  </mat-toolbar>
+
+  <mat-form-field appearance="outline" class="full-width mb-4">
+    <mat-label>Szukaj ptaków</mat-label>
+    <input matInput type="text" [(ngModel)]="searchTerm" (keyup.enter)="onSearch()">
+    <button mat-icon-button matSuffix (click)="onSearch()">
+      <mat-icon>search</mat-icon>
+    </button>
+  </mat-form-field>
+
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner></mat-spinner>
   </div>
 
-  @if (isLoading) {
-    <div class="loading">
-      <mat-spinner></mat-spinner>
-    </div>
-  } @else if (errorMessage) {
-    <div class="error-message">
-      {{ errorMessage }}
-    </div>
-  } @else if (birds.length === 0) {
-    <div class="no-birds">
-      <mat-icon>pets</mat-icon>
-      <h2>Nie znaleziono ptaków</h2>
-      <p>Nie ma żadnych ptaków spełniających kryteria wyszukiwania.</p>
-      @if (searchTerm) {
-        <button mat-button color="primary" (click)="searchTerm = ''; loadBirds()">
-          Wyczyść wyszukiwanie
+  <div *ngIf="error" class="error-message">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!loading && !error && birds.length === 0" class="no-data-message">
+    Nie znaleziono żadnych ptaków.
+  </div>
+
+  <div class="birds-grid">
+    <mat-card *ngFor="let bird of birds" class="bird-card">
+      <img mat-card-image [src]="bird.imageUrl || 'images/bird-placeholder.jpg'" [alt]="bird.commonName">
+      <mat-card-content>
+        <h2>{{ bird.commonName }}</h2>
+        <p><strong>Rodzina:</strong> {{ bird.family }}</p>
+        <p><strong>Status ochrony:</strong> {{ bird.conservationStatus }}</p>
+        <mat-chip *ngIf="!bird.isVerified" color="warn" selected>
+          Oczekuje na weryfikację
+        </mat-chip>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-button color="primary" (click)="viewBirdDetails(bird.id)">
+          <mat-icon>info</mat-icon>
+          Szczegóły
         </button>
-      }
-    </div>
-  } @else {
-    <div class="birds-grid">
-      @for (bird of birds; track bird.id) {
-        <mat-card class="bird-card" [routerLink]="['/birds', bird.id]">
-          <img mat-card-image [src]="apiUrl + bird.imageUrl || 'assets/images/bird-placeholder.jpg'" [alt]="bird.commonName">
-          <mat-card-content>
-            <h2>{{ bird.commonName }}</h2>
-            <p class="scientific-name">{{ bird.scientificName }}</p>
-          </mat-card-content>
-        </mat-card>
-      }
-    </div>
-  }
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <mat-paginator
+    [length]="totalItems"
+    [pageSize]="paginationParams.pageSize"
+    [pageSizeOptions]="[5, 10, 20, 50]"
+    (page)="onPageChange($event)"
+    class="mt-4">
+  </mat-paginator>
 </div>

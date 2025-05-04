@@ -1,14 +1,16 @@
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using BackendService.Constants;
+using BackendService.Interfaces;
 using BackendService.Models;
 using BackendService.Services;
-using System.Security.Claims;
-using BackendService.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
 namespace BackendService.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+[Authorize(Policy = "RequireUserRole")]
 public class UserSettingsController : ControllerBase
 {
     private readonly IAuthService _authService;
@@ -18,7 +20,7 @@ public class UserSettingsController : ControllerBase
         _authService = authService;
     }
 
-    [HttpGet("settings")]
+    [HttpGet]
     public async Task<IActionResult> GetUserSettings()
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -36,12 +38,12 @@ public class UserSettingsController : ControllerBase
         return Ok(new
         {
             id = user.Id,
-            username = user.Username,
+            username = user.UserName,
             email = user.Email
         });
     }
 
-    [HttpPut("settings")]
+    [HttpPut]
     public async Task<IActionResult> UpdateUserSettings([FromBody] UpdateUserSettingsDto updateDto)
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -57,7 +59,7 @@ public class UserSettingsController : ControllerBase
         }
 
         // Sprawdź, czy nowa nazwa użytkownika nie jest już zajęta
-        if (updateDto.Username != user.Username)
+        if (updateDto.Username != user.UserName)
         {
             var existingUser = await _authService.GetUserByUsernameAsync(updateDto.Username);
             if (existingUser != null)
@@ -97,7 +99,7 @@ public class UserSettingsController : ControllerBase
         }
 
         // Aktualizuj dane użytkownika
-        user.Username = updateDto.Username;
+        user.UserName = updateDto.Username;
         user.Email = updateDto.Email;
 
         if (!string.IsNullOrEmpty(updateDto.NewPassword))
@@ -110,7 +112,7 @@ public class UserSettingsController : ControllerBase
         return Ok(new
         {
             id = user.Id,
-            username = user.Username,
+            username = user.UserName,
             email = user.Email
         });
     }

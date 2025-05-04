@@ -18,42 +18,72 @@ namespace BackendService.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<AuthResponse>> Login([FromBody] LoginDto loginDto)
+        public async Task<ActionResult<AuthResponseDto>> Login([FromBody] LoginDto loginDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { 
+                    message = "Błąd walidacji",
+                    errors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                });
+            }
+
             try
             {
                 var response = await _authService.LoginAsync(loginDto);
                 return Ok(response);
             }
-            catch (Exception ex)
+            catch (InvalidOperationException ex)
             {
                 return BadRequest(new { message = ex.Message });
             }
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult<AuthResponse>> Register([FromBody] RegisterDto registerDto)
+        public async Task<ActionResult<AuthResponseDto>> Register([FromBody] RegisterDto registerDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { 
+                    message = "Błąd walidacji",
+                    errors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                });
+            }
+
             try
             {
                 var response = await _authService.RegisterAsync(registerDto);
                 return Ok(response);
             }
-            catch (Exception ex)
+            catch (InvalidOperationException ex)
             {
                 return BadRequest(new { message = ex.Message });
             }
         }
 
         [HttpPost("refresh-token")]
-        public async Task<ActionResult<AuthResponse>> RefreshToken([FromBody] RefreshTokenDto refreshTokenDto)
+        public async Task<ActionResult<AuthResponseDto>> RefreshToken([FromBody] RefreshTokenDto refreshTokenDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { 
+                    message = "Błąd walidacji",
+                    errors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                });
+            }
+
             try
             {
                 var response = await _authService.RefreshTokenAsync(refreshTokenDto.RefreshToken);
                 return Ok(response);
             }
-            catch (Exception ex)
+            catch (InvalidOperationException ex)
             {
                 return BadRequest(new { message = ex.Message });
             }
@@ -63,19 +93,12 @@ namespace BackendService.Controllers
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
-            try
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId != null)
             {
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (!string.IsNullOrEmpty(userId))
-                {
-                    await _authService.RevokeRefreshTokenAsync(userId);
-                }
-                return Ok(new { message = "Wylogowano pomyślnie" });
+                await _authService.RevokeRefreshTokenAsync(userId);
             }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            return Ok(new { message = "Wylogowano pomyślnie." });
         }
     }
 } 

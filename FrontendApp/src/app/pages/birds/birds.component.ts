@@ -8,13 +8,19 @@ import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatSelectModule } from '@angular/material/select';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatChipsModule } from '@angular/material/chips';
 import { FormsModule } from '@angular/forms';
 import { BirdService } from '../../services/bird.service';
 import { Bird } from '../../models/bird.model';
 import { AddBirdDialogComponent } from './add-bird-dialog/add-bird-dialog.component';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../services/auth.service';
-import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import { Router } from '@angular/router';
+import { PaginatedResponse, PaginationParams } from '../../models/pagination';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-birds',
@@ -29,6 +35,10 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
     MatProgressSpinnerModule,
     MatInputModule,
     MatFormFieldModule,
+    MatPaginatorModule,
+    MatSelectModule,
+    MatToolbarModule,
+    MatChipsModule,
     FormsModule
   ],
   templateUrl: './birds.component.html',
@@ -37,63 +47,82 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 export default class BirdsComponent implements OnInit {
   apiUrl = environment.apiUrl;
   birds: Bird[] = [];
-  isLoading = false;
-  errorMessage = '';
+  paginationParams: PaginationParams = {
+    pageNumber: 1,
+    pageSize: 10
+  };
+  totalPages = 0;
+  totalItems = 0;
   searchTerm = '';
-  private searchSubject = new Subject<string>();
+  loading = false;
+  error = '';
+  showUnverifiedOnly = false;
+  hasPreviousPage = false;
+  hasNextPage = false;
 
   constructor(
     private birdService: BirdService,
     private dialog: MatDialog,
-    private authService: AuthService
-  ) {
-    this.searchSubject.pipe(
-      debounceTime(300),
-      distinctUntilChanged()
-    ).subscribe(term => {
-      this.searchBirds(term);
-    });
-  }
+    private authService: AuthService,
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
     this.loadBirds();
   }
 
   loadBirds(): void {
-    this.isLoading = true;
-    this.birdService.getBirds().subscribe({
-      next: (birds) => {
-        this.birds = birds;
-        this.isLoading = false;
+    this.loading = true;
+    this.error = '';
+
+    let observable: Observable<PaginatedResponse<Bird>>;
+
+    if (this.showUnverifiedOnly && this.authService.isAdmin()) {
+      observable = this.birdService.getUnverifiedBirds(this.paginationParams);
+    } else if (this.authService.isAdmin()) {
+      observable = this.birdService.getAllBirdsForAdmin(this.paginationParams);
+    } else if (this.searchTerm) {
+      observable = this.birdService.searchBirds(this.searchTerm, this.paginationParams);
+    } else {
+      observable = this.birdService.getAllBirds(this.paginationParams);
+    }
+
+    observable.subscribe({
+      next: (response: PaginatedResponse<Bird>) => {
+        this.birds = response.items;
+        this.totalPages = response.totalPages;
+        this.totalItems = response.totalCount;
+        this.hasPreviousPage = response.hasPreviousPage;
+        this.hasNextPage = response.hasNextPage;
+        this.loading = false;
       },
-      error: (error) => {
-        this.errorMessage = 'Wystąpił błąd podczas ładowania listy ptaków';
-        this.isLoading = false;
+      error: (err) => {
+        this.error = 'Wystąpił błąd podczas ładowania ptaków.';
+        this.loading = false;
+        console.error('Error loading birds:', err);
       }
     });
   }
 
   onSearch(): void {
-    if(this.searchTerm.length > 2) {
-      this.searchSubject.next(this.searchTerm);
-    }
-    else if(this.searchTerm.length == 0) {
-      this.loadBirds();
-    }
+    this.paginationParams.pageNumber = 1;
+    this.loadBirds();
   }
 
-  searchBirds(term: string): void {
-    this.isLoading = true;
-    this.birdService.searchBirds(term).subscribe({
-      next: (birds) => {
-        this.birds = birds;
-        this.isLoading = false;
-      },
-      error: (error) => {
-        this.errorMessage = 'Wystąpił błąd podczas wyszukiwania ptaków';
-        this.isLoading = false;
-      }
-    });
+  onPageChange(event: PageEvent): void {
+    this.paginationParams.pageNumber = event.pageIndex + 1;
+    this.paginationParams.pageSize = event.pageSize;
+    this.loadBirds();
+  }
+
+  toggleUnverifiedOnly(): void {
+    this.showUnverifiedOnly = !this.showUnverifiedOnly;
+    this.paginationParams.pageNumber = 1;
+    this.loadBirds();
+  }
+
+  viewBirdDetails(id: number): void {
+    this.router.navigate(['/birds', id]);
   }
 
   openAddBirdDialog(): void {

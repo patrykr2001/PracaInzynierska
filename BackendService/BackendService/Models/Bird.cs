@@ -8,31 +8,48 @@ namespace BackendService.Models
         public int Id { get; set; }
 
         [Required]
-        [MaxLength(100)]
-        public required string ScientificName { get; set; }
+        public string CommonName { get; set; } = string.Empty;
 
         [Required]
-        [MaxLength(100)]
-        public required string CommonName { get; set; }
+        public string ScientificName { get; set; } = string.Empty;
 
-        [MaxLength(100)]
-        public string? Family { get; set; }
+        [Required]
+        public string Family { get; set; } = string.Empty;
 
-        [MaxLength(100)]
         public string? Order { get; set; }
 
-        [MaxLength(50)]
-        public string? ConservationStatus { get; set; }
+        public string? Genus { get; set; }
 
-        public string? Description { get; set; }
+        public string? Species { get; set; }
 
-        [MaxLength(500)]
+        [Required]
+        public string ConservationStatus { get; set; } = string.Empty;
+
+        [Required]
+        public string Description { get; set; } = string.Empty;
+
+        public string? Habitat { get; set; }
+
+        public string? Diet { get; set; }
+
+        public string? Size { get; set; }
+
+        public double? Weight { get; set; }
+
+        public double? Wingspan { get; set; }
+
+        public string? Lifespan { get; set; }
+
+        public string? BreedingSeason { get; set; }
+
         public string? ImageUrl { get; set; }
 
-        public bool IsVerified { get; set; } = false;
+        public bool IsVerified { get; set; }
+
+        [Required]
+        public string UserId { get; set; } = string.Empty;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
         // Relacja z obserwacjami
         public ICollection<BirdObservation> Observations { get; set; } = new List<BirdObservation>();

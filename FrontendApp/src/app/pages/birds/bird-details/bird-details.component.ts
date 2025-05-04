@@ -1,28 +1,33 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatChipsModule } from '@angular/material/chips';
 import { BirdService } from '../../../services/bird.service';
 import { Bird } from '../../../models/bird.model';
 import { environment } from '../../../../environments/environment';
 import { AuthService } from '../../../services/auth.service';
 import { EditBirdDialogComponent } from '../edit-bird-dialog/edit-bird-dialog.component';
+import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-bird-details',
   standalone: true,
   imports: [
     CommonModule,
+    RouterModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
-    MatProgressBarModule,
-    MatDialogModule
+    MatProgressSpinnerModule,
+    MatDialogModule,
+    MatSnackBarModule,
+    MatChipsModule
   ],
   templateUrl: './bird-details.component.html',
   styleUrl: './bird-details.component.scss'
@@ -31,7 +36,8 @@ export default class BirdDetailsComponent implements OnInit {
   apiUrl = environment.apiUrl;
   bird: Bird | null = null;
   isLoading = false;
-  errorMessage = '';
+  errorMessage: string | null = null;
+  isAdmin = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -43,18 +49,19 @@ export default class BirdDetailsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.isAdmin = this.authService.isAdmin();
     this.loadBird();
   }
 
-  loadBird(): void {
+  private loadBird(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
-      this.router.navigate(['/birds']);
+      this.errorMessage = 'Nie znaleziono ptaka';
       return;
     }
 
     this.isLoading = true;
-    this.birdService.getBird(+id).subscribe({
+    this.birdService.getBirdById(Number(id)).subscribe({
       next: (bird) => {
         this.bird = bird;
         this.isLoading = false;
@@ -62,6 +69,7 @@ export default class BirdDetailsComponent implements OnInit {
       error: (error) => {
         this.errorMessage = 'Wystąpił błąd podczas ładowania danych ptaka';
         this.isLoading = false;
+        console.error('Error loading bird:', error);
       }
     });
   }
@@ -70,69 +78,80 @@ export default class BirdDetailsComponent implements OnInit {
     this.router.navigate(['/birds']);
   }
 
-  isAdmin(): boolean {
-    return this.authService.isAdmin();
-  }
-
-  canEdit(): boolean {
-    return this.isAdmin() || !!(this.bird && !this.bird.isVerified);
-  }
-
-  openEditDialog(): void {
+  onEdit(): void {
     if (!this.bird) return;
 
     const dialogRef = this.dialog.open(EditBirdDialogComponent, {
-      width: '500px',
+      width: '800px',
       data: { bird: this.bird }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.bird = result;
-        this.snackBar.open('Ptak został zaktualizowany', 'Zamknij', {
-          duration: 3000
+        this.loadBird();
+      }
+    });
+  }
+
+  onVerify(): void {
+    if (!this.bird) return;
+
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Weryfikacja ptaka',
+        message: `Czy na pewno chcesz zweryfikować ptaka "${this.bird.commonName}"?`
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.isLoading = true;
+        this.errorMessage = null;
+
+        this.birdService.verifyBird(this.bird!.id).subscribe({
+          next: () => {
+            this.snackBar.open('Ptak został zweryfikowany', 'Zamknij', { duration: 3000 });
+            this.loadBird();
+          },
+          error: (error) => {
+            this.errorMessage = 'Wystąpił błąd podczas weryfikacji ptaka';
+            this.isLoading = false;
+            console.error('Error verifying bird:', error);
+          }
         });
       }
     });
   }
 
-  verifyBird(): void {
+  onDelete(): void {
     if (!this.bird) return;
 
-    this.isLoading = true;
-    this.birdService.verifyBird(this.bird.id).subscribe({
-      next: (bird) => {
-        this.bird = bird;
-        this.isLoading = false;
-        this.snackBar.open('Ptak został zweryfikowany', 'Zamknij', {
-          duration: 3000
-        });
-      },
-      error: (error) => {
-        this.errorMessage = 'Wystąpił błąd podczas weryfikacji ptaka';
-        this.isLoading = false;
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Usuwanie ptaka',
+        message: `Czy na pewno chcesz usunąć ptaka "${this.bird.commonName}"?`
       }
     });
-  }
 
-  deleteBird(): void {
-    if (!this.bird) return;
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.isLoading = true;
+        this.errorMessage = null;
 
-    if (confirm('Czy na pewno chcesz usunąć tego ptaka?')) {
-      this.isLoading = true;
-      this.birdService.deleteBird(this.bird.id).subscribe({
-        next: () => {
-          this.isLoading = false;
-          this.snackBar.open('Ptak został usunięty', 'Zamknij', {
-            duration: 3000
-          });
-          this.router.navigate(['/birds']);
-        },
-        error: (error) => {
-          this.errorMessage = 'Wystąpił błąd podczas usuwania ptaka';
-          this.isLoading = false;
-        }
-      });
-    }
+        this.birdService.deleteBird(this.bird!.id).subscribe({
+          next: () => {
+            this.snackBar.open('Ptak został usunięty', 'Zamknij', { duration: 3000 });
+            this.router.navigate(['/birds']);
+          },
+          error: (error) => {
+            this.errorMessage = 'Wystąpił błąd podczas usuwania ptaka';
+            this.isLoading = false;
+            console.error('Error deleting bird:', error);
+          }
+        });
+      }
+    });
   }
 } 

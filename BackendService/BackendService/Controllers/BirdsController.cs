@@ -1,9 +1,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using BackendService.Data;
 using BackendService.Interfaces;
 using BackendService.Models;
 using BackendService.Models.DTOs;
-using BackendService.Authorization;
+using BackendService.Services;
+using BackendService.Constants;
+using System.Security.Claims;
 
 namespace BackendService.Controllers
 {
@@ -11,32 +15,52 @@ namespace BackendService.Controllers
     [Route("api/[controller]")]
     public class BirdsController : ControllerBase
     {
+        private readonly ApplicationDbContext _context;
         private readonly IBirdService _birdService;
 
-        public BirdsController(IBirdService birdService)
+        public BirdsController(ApplicationDbContext context, IBirdService birdService)
         {
+            _context = context;
             _birdService = birdService;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Bird>>> GetBirds()
+        public async Task<ActionResult<PaginatedResponse<Bird>>> GetBirds([FromQuery] PaginationParams paginationParams)
         {
-            var birds = await _birdService.GetAllBirdsAsync();
+            var birds = await _birdService.GetAllBirdsAsync(paginationParams);
             return Ok(birds);
+        }
+
+        [HttpGet("all")]
+        [Authorize(Roles = AuthorizationConstants.AdminRole)]
+        public async Task<ActionResult<PaginatedResponse<Bird>>> GetAllBirds([FromQuery] PaginationParams paginationParams)
+        {
+            var query = _context.Birds.AsQueryable();
+            var totalCount = await query.CountAsync();
+            var items = await query
+                .Skip((paginationParams.PageNumber - 1) * paginationParams.PageSize)
+                .Take(paginationParams.PageSize)
+                .ToListAsync();
+
+            var response = new PaginatedResponse<Bird>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                PageNumber = paginationParams.PageNumber,
+                PageSize = paginationParams.PageSize,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)paginationParams.PageSize),
+                HasPreviousPage = paginationParams.PageNumber > 1,
+                HasNextPage = paginationParams.PageNumber < (int)Math.Ceiling(totalCount / (double)paginationParams.PageSize)
+            };
+
+            return Ok(response);
         }
 
         [HttpGet("unverified")]
         [Authorize(Roles = AuthorizationConstants.AdminRole)]
-        public async Task<ActionResult<IEnumerable<Bird>>> GetUnverifiedBirds()
+        public async Task<ActionResult<PaginatedResponse<Bird>>> GetUnverifiedBirds([FromQuery] PaginationParams paginationParams)
         {
-            var birds = await _birdService.GetUnverifiedBirdsAsync();
-            return Ok(birds);
-        }
-
-        [HttpGet("search")]
-        public async Task<ActionResult<IEnumerable<Bird>>> SearchBirds([FromQuery] string searchTerm)
-        {
-            var birds = await _birdService.SearchBirdsAsync(searchTerm);
+            var birds = await _birdService.GetUnverifiedBirdsAsync(paginationParams);
             return Ok(birds);
         }
 
@@ -51,49 +75,81 @@ namespace BackendService.Controllers
             return Ok(bird);
         }
 
-        [Authorize]
         [HttpPost]
-        public async Task<ActionResult<Bird>> CreateBird([FromForm] CreateBirdDto createBirdDto)
+        public async Task<ActionResult<Bird>> CreateBird([FromBody] CreateBirdDto birdDto)
         {
-            try
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
             {
-                var bird = await _birdService.CreateBirdAsync(createBirdDto);
-                return CreatedAtAction(nameof(GetBird), new { id = bird.Id }, bird);
+                return Unauthorized();
             }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+
+            var bird = await _birdService.CreateBirdAsync(birdDto, userId);
+            return CreatedAtAction(nameof(GetBird), new { id = bird.Id }, bird);
         }
 
-        [Authorize(Roles = AuthorizationConstants.AdminRole)]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateBird(int id, [FromForm] UpdateBirdDto updateBirdDto)
+        [Authorize(Roles = AuthorizationConstants.AdminRole)]
+        public async Task<IActionResult> UpdateBird(int id, [FromBody] UpdateBirdDto birdDto)
         {
-            try
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
             {
-                await _birdService.UpdateBirdAsync(id, updateBirdDto);
-                return NoContent();
+                return Unauthorized();
             }
-            catch (Exception ex)
+
+            var bird = await _context.Birds.FindAsync(id);
+            if (bird == null)
             {
-                return BadRequest(new { message = ex.Message });
+                return NotFound();
             }
+
+            if (bird.UserId != userId && !User.IsInRole(AuthorizationConstants.AdminRole))
+            {
+                return Forbid();
+            }
+
+            await _birdService.UpdateBirdAsync(id, birdDto);
+            return NoContent();
         }
 
-        [Authorize(Roles = AuthorizationConstants.AdminRole)]
         [HttpDelete("{id}")]
+        [Authorize(Roles = AuthorizationConstants.AdminRole)]
         public async Task<IActionResult> DeleteBird(int id)
         {
-            try
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
             {
-                await _birdService.DeleteBirdAsync(id);
-                return NoContent();
+                return Unauthorized();
             }
-            catch (Exception ex)
+
+            var bird = await _context.Birds.FindAsync(id);
+            if (bird == null)
             {
-                return BadRequest(new { message = ex.Message });
+                return NotFound();
             }
+
+            if (bird.UserId != userId && !User.IsInRole(AuthorizationConstants.AdminRole))
+            {
+                return Forbid();
+            }
+
+            await _birdService.DeleteBirdAsync(id);
+            return NoContent();
+        }
+
+        [HttpPost("{id}/verify")]
+        [Authorize(Roles = AuthorizationConstants.AdminRole)]
+        public async Task<IActionResult> VerifyBird(int id)
+        {
+            var bird = await _context.Birds.FindAsync(id);
+            if (bird == null)
+            {
+                return NotFound();
+            }
+
+            await _birdService.VerifyBirdAsync(id);
+            return NoContent();
         }
     }
 } 

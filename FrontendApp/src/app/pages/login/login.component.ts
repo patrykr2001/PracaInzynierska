@@ -27,7 +27,7 @@ import { LoginDto } from '../../models/auth.model';
 })
 export default class LoginComponent {
   loginDto: LoginDto = {
-    username: '',
+    email: '',
     password: ''
   };
   errorMessage: string = '';

@@ -1,20 +1,24 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 import { User, UpdateUserDto } from '../models/user.model';
+import { environment } from '../../environments/environment';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = 'https://localhost:7077/api/UserSettings';
+  private apiUrl = environment.apiUrl + '/api/UserSettings';
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   currentUser$ = this.currentUserSubject.asObservable();
 
   constructor(
     private http: HttpClient,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) {
     // Synchronizacja stanu użytkownika z AuthService
     this.authService.currentUser$.subscribe(user => {
@@ -27,8 +31,13 @@ export class UserService {
   }
 
   setCurrentUser(user: User): void {
-    localStorage.setItem('currentUser', JSON.stringify(user));
-    this.currentUserSubject.next(user);
+    const currentUser = this.getCurrentUser();
+    if (currentUser) {
+      const updatedUser = { ...currentUser, ...user };
+      localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+      this.currentUserSubject.next(updatedUser);
+      this.authService.updateCurrentUser(updatedUser);
+    }
   }
 
   isLoggedIn(): boolean {
@@ -40,11 +49,25 @@ export class UserService {
     this.currentUserSubject.next(null);
   }
 
+  private handleError(error: HttpErrorResponse) {
+    if (error.status === 401 || error.status === 403) {
+      this.router.navigate(['/login'], {
+        queryParams: { returnUrl: this.router.url }
+      });
+    }
+    return throwError(() => error);
+  }
+
   updateUserSettings(updateDto: UpdateUserDto): Observable<User> {
-    return this.http.put<User>(`${this.apiUrl}/settings`, updateDto);
+    return this.http.put<User>(`${this.apiUrl}`, updateDto)
+      .pipe(
+        tap(user => this.setCurrentUser(user)),
+        catchError(this.handleError.bind(this))
+      );
   }
 
   getUserSettings(): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/settings`);
+    return this.http.get<User>(`${this.apiUrl}`)
+      .pipe(catchError(this.handleError.bind(this)));
   }
 } 

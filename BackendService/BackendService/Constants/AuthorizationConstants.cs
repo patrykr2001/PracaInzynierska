@@ -1,4 +1,4 @@
-namespace BackendService.Authorization
+namespace BackendService.Constants
 {
     public static class AuthorizationConstants
     {

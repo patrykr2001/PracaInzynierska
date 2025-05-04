@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
-import { catchError, tap, finalize } from 'rxjs/operators';
+import { catchError, tap, finalize, switchMap } from 'rxjs/operators';
 import { User, UserRole } from '../models/user.model';
 import { LoginDto, RegisterDto, AuthResponse, RefreshTokenDto } from '../models/auth.model';
 import { environment } from '../../environments/environment';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -14,8 +15,13 @@ export class AuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   currentUser$ = this.currentUserSubject.asObservable();
   private tokenRefreshTimeout: any;
+  private isRefreshing = false;
+  private refreshTokenSubject = new BehaviorSubject<string | null>(null);
 
-  constructor(private http: HttpClient) {
+  constructor(
+    private http: HttpClient,
+    private router: Router
+  ) {
     const savedUser = localStorage.getItem('currentUser');
     if (savedUser) {
       this.currentUserSubject.next(JSON.parse(savedUser));
@@ -26,35 +32,59 @@ export class AuthService {
   private setupTokenRefresh(): void {
     const refreshToken = localStorage.getItem('refreshToken');
     if (refreshToken) {
-      // Odśwież token 1 minutę przed jego wygaśnięciem
       this.tokenRefreshTimeout = setTimeout(() => {
         this.refreshToken().subscribe({
           error: () => {
-            this.logout();
+            this.handleAuthError();
           }
         });
-      }, 14 * 60 * 1000); // 14 minut (token jest ważny 15 minut)
+      }, 14 * 60 * 1000);
     }
   }
 
-  private refreshToken(): Observable<AuthResponse> {
+  refreshToken(): Observable<AuthResponse> {
+    if (this.isRefreshing) {
+      return this.refreshTokenSubject.pipe(
+        switchMap(token => {
+          if (token) {
+            return this.http.post<AuthResponse>(`${this.apiUrl}/refresh-token`, { refreshToken: token });
+          } else {
+            return throwError(() => new Error('Brak refresh token'));
+          }
+        })
+      );
+    }
+
+    this.isRefreshing = true;
     const refreshToken = localStorage.getItem('refreshToken');
+    
     if (!refreshToken) {
+      this.handleAuthError();
       return throwError(() => new Error('Brak refresh token'));
     }
 
     const refreshTokenDto: RefreshTokenDto = { refreshToken };
-    return this.http.post<AuthResponse>(`${this.apiUrl}/refresh-token`, refreshTokenDto)
-      .pipe(
-        tap(response => {
-          this.setTokens(response);
-          this.setupTokenRefresh();
-        }),
-        catchError((error: HttpErrorResponse) => {
-          this.logout();
-          return throwError(() => error);
-        })
-      );
+    return this.http.post<AuthResponse>(`${this.apiUrl}/refresh-token`, refreshTokenDto).pipe(
+      tap(response => {
+        this.setTokens(response);
+        this.setupTokenRefresh();
+        this.refreshTokenSubject.next(response.refreshToken);
+        this.isRefreshing = false;
+      }),
+      catchError((error: HttpErrorResponse) => {
+        this.isRefreshing = false;
+        this.refreshTokenSubject.next(null);
+        this.handleAuthError();
+        return throwError(() => error);
+      })
+    );
+  }
+
+  private handleAuthError(): void {
+    this.logout();
+    this.router.navigate(['/login'], {
+      queryParams: { returnUrl: this.router.url }
+    });
   }
 
   private setTokens(response: AuthResponse): void {
@@ -62,6 +92,11 @@ export class AuthService {
     localStorage.setItem('refreshToken', response.refreshToken);
     localStorage.setItem('currentUser', JSON.stringify(response.user));
     this.currentUserSubject.next(response.user);
+  }
+
+  updateCurrentUser(user: User): void {
+    localStorage.setItem('currentUser', JSON.stringify(user));
+    this.currentUserSubject.next(user);
   }
 
   login(loginDto: LoginDto): Observable<AuthResponse> {
@@ -91,6 +126,7 @@ export class AuthService {
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('currentUser');
         this.currentUserSubject.next(null);
+        this.refreshTokenSubject.next(null);
         if (this.tokenRefreshTimeout) {
           clearTimeout(this.tokenRefreshTimeout);
         }
