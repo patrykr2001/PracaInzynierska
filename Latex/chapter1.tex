@@ -12,7 +12,7 @@
 
 %----------------------------------------------------------------------------------------
 %	CHAPTER 1
-% 	author: Joanna Kolodziejczyk (jkolodziejczyk@zut.edu.pl)
+% 	author: Patryk Rakowski (rp51626@zut.edu.pl)
 %----------------------------------------------------------------------------------------
 
 \chapter{Analiza wymagań i założeń projektowych}
@@ -52,6 +52,96 @@ Spora część użytkowników wciąż głównie korzysta z komputerów osobistyc
 
 \section{Specyfikacja funkcjonalna}
 \index{Specyfikacja funkcjonalna}
+
+Celem projektu jest stworzenie aplikacji internetowej umożliwiającej użytkownikom dodawanie ptaków, obserwacji i przeglądanie dostępnych treści. System ma za zadanie wspierać amatorów jak i zaawansowanych ornitologów i badaczy w dokumentowaniu i analizie występowania różnych gatunków ptaków w Polsce.
+Poniżej przedstawiono wymagania funkcjonalne systemu:
+
+\subsection{Użytkownicy}
+\begin{itemize}
+	\item \textbf{Rejestracja i logowanie użytkowników} - system umożliwia rejestracje nowych użytkowników oraz logowanie do aplikacji.
+	\item \textbf{Zarządzenie użytkownikami} - system umożliwia administratorom zarządzanie kontami użytkowników.
+	\item \textbf{Zarządzanie swoim kontem} - system umożliwia użytkownikom zarządzanie swoim kontem: zmianę adresu e-mail, hasła oraz dezaktywacje konta.
+\end{itemize}
+
+\subsection{Strona główna i mapa}
+\begin{itemize}
+	\item \textbf{Mapa obserwacji} - system udostępnia mapę obserwacji ptaków z zaznaczonymi poszczególnymi obserwacjami.
+	\item \textbf{Filtrowanie danych} - mapa umożliwia filtrowanie obserwacji po roku, tygodniu oraz gatunkach ptaków.
+	\item \textbf{Szczegóły obserwacji} - znaczniki na mapie przenoszą użytkowników do strony obserwacji której dotyczą.
+\end{itemize}
+
+\subsection{Obserwacje}
+\begin{itemize}
+	\item \textbf{Strona obserwacji} - system udostępnia użytkownikom stronę z zweryfikowanymi obserwacjami ptaków.
+	\item \textbf{Filtrowanie danych} - system umożliwia filtrowanie danych na stronie obserwacji po zakresie dat oraz gatunkach ptaków.
+	\item \textbf{Dodawanie nowych obserwacji} - system umożliwia dodawanie nowych obserwacji niezweryfikowanych zarejestrowanym użytkownikom. Obserwacja składa się z następujących danych:
+	\begin{itemize}
+		\item wybór ptaka,
+		\item data obserwacji,
+		\item liczba osobników,
+		\item warunki pogodowe,
+		\item siedlisko,
+		\item opis,
+		\item lokalizacja geograficzna,
+		\item zdjęcia.
+	\end{itemize}
+	\item \textbf{Strona szczegółów obserwacji} - system udostępnia dla każdej obserwacji stronę ze szczegółami danej obserwacji.
+		Moderator lub użytkownik który dodał daną obserwację może edytować jej dane lub ją usunąć.
+	\item \textbf{Moderacja obserwacji} - strona obserwacji udostępnia moderatorom zakładkę z obserwacjami niezweryfikowanymi oraz możliwość weryfikacji danej obserwacji poprzez podstronę szczegółów obserwacji.
+\end{itemize}
+
+\subsection{Ptaki}
+\begin{itemize}
+	\item \textbf{Strona ptaków} - system udostępnia użytkownikom stronę z zweryfikowanymi ptaków.
+	\item \textbf{Filtrowanie danych} - system umożliwia wyszukiwanie ptaków po:
+		\begin{itemize}
+			\item nazwie,
+			\item nazwie naukowej,
+			\item rodzinie,
+			\item rzędzie,
+			\item rodzajowi,
+			\item gatunkowi.
+		\end{itemize}
+	\item \textbf{Dodawanie nowych ptaków} - system umożliwia dodawanie nowych ptaków niezweryfikowanych zarejestrowanym użytkownikom. Ptak składa się z następujących danych:
+	\begin{itemize}
+		\item nazwa,
+		\item nazwa naukowa,
+		\item zdjęcie,
+		\item rodzina,
+		\item rząd,
+		\item rodzaj,
+		\item gatunek,
+		\item status ochrony,
+		\item siedlisko,
+		\item dieta,
+		\item rozmiar,
+		\item waga,
+		\item rozpiętość skrzydeł,
+		\item długość życia,
+		\item sezon lęgowy,
+		\item opis.
+	\end{itemize}
+	\item \textbf{Strona szczegółów ptaka} - system udostępnia dla każdego ptaka stronę ze szczegółami danego ptaka.
+		Moderator lub użytkownik który dodał danego ptaka może edytować jego dane lub go usunąć.
+	\item \textbf{Moderacja ptaków} - strona ptaków udostępnia moderatorom zakładkę z ptakami niezweryfikowanymi oraz możliwość weryfikacji danego ptaka poprzez podstronę szczegółów obserwacji.
+\end{itemize}
+
+\subsection{Statystyki}
+System udostępnia stronę statystyk obserwacji ptaków. Strona zawiera informację takie jak:
+\begin{itemize}
+	\item \textbf{Panel główny} z kluczowymi wskaźnikami:
+		\begin{itemize}
+			\item całkowita liczba zaobserwowanych ptaków,
+			\item liczba różnych gatunków ptaków,
+			\item najczęściej spotykane gatunki,
+			\item najrzadziej spotykane gatunki.
+		\end{itemize}
+	\item \textbf{Wykresy i wizualizacje}
+		\begin{itemize}
+			\item mapa cieplna pokazująca najczęstsze lokalizacje obserwacji,
+			\item wykres liniowy pokazujący trendy obserwacji w czasie.
+		\end{itemize}
+\end{itemize}
 
 \section{Wymagania niefunkcjonalne}
 \index{Wymagania niefunkcjonalne}
