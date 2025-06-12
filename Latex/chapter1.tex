@@ -146,5 +146,76 @@ System udostępnia stronę statystyk obserwacji ptaków. Strona zawiera informac
 \section{Wymagania niefunkcjonalne}
 \index{Wymagania niefunkcjonalne}
 
+Wymagania niefunkcjonalne definiują cechy systemu, które wpływają na jakość, wydajność oraz użyteczność. Poniżej zostały przedstawione kluczowe wymagania niefunkcjonalne projektowanego systemu:
+
+\subsection{Wydajność i skalowalność}
+\begin{itemize}
+	\item \textbf{Czas odpowiedzi} - system powinien realizować żądania użytkowników w czasie poniżej 2 sekund.
+	\item \textbf{Skalowalność} - architektura systemu powinna umożliwiać skalowanie w przypadku wzrostu liczby użytkowników.
+\end{itemize}
+
+\subsection{Bezpieczeństwo}
+\begin{itemize}
+	\item \textbf{Uwierzytelnianie} - system wykorzystuje bezpieczne uwierzytelnianie sesji użytkowników z użyciem JWT \footnote{JSON Web Token (JWT) to otwarty standard (RFC 7519), który definiuje kompaktowy i samodzielny sposób bezpiecznego przesyłania informacji między stronami jako obiektu JSON. Te informacje mogą być weryfikowane i można im ufać, ponieważ są podpisane cyfrowo. JWT mogą być podpisywane przy użyciu klucza tajnego (z algorytmem HMAC) lub pary kluczy publiczny/prywatny przy użyciu RSA lub ECDSA. Z angl. \cite{jwt.io}}.
+	\item \textbf{Autoryzacja} - system implementuje role użytkowników (administrator, moderator, użytkownik) z odpowiednimi uprawnieniami.
+	\item \textbf{Ochrona danych} - wrażliwe dane użytkowników muszą być szyfrowane.
+\end{itemize}
+
+\subsection{Dostępność i użyteczność}
+\begin{itemize}
+	\item \textbf{Responsywność} - interfejs użytkownika powinien być w pełni responsywny i dostosowany do wyświetlania na różnych urządzeniach.
+	\item \textbf{Intuicyjność} - interfejs powinien być intuicyjny i prostu w użyciu dla szerokiej gamy użytkowników.
+\end{itemize}
+
+\subsection{Techniczne}
+\begin{itemize}
+	\item \textbf{Standardy kodowania} - kod powinien być zgodny z przyjętymi w branży standardami kodowania takimi jak: clean code
+	\footnote{Pisanie czystego, zrozumiałego i łatwego w utrzymaniu kodu. Z angl. \cite{freecodecamp.cleancode} \cite{theartofclieancode}}, SOLID
+	\footnote{Zasady SOLID to pięć podstawowych wytycznych, które usprawniają projektowanie oprogramowania, sprawiając, że kod jest łatwiejszy w utrzymaniu i skalowalny. Zasada pojedynczej odpowiedzialności (SRP) Zasada otwarta/zamknięta Zasada substytucji Liskova (LSP) Zasada segregacji interfejsu (ISP) Zasada odwrócenia zależności (DIP). Z angl. \cite{geeksforgeeks.solid}}
+	oraz standardami dla Angular \cite{Angular_17_Documentation} i ASP.NET Core \cite{ASP.NET_Core_Documentation}
+\end{itemize}
+
 \section{Analiza podobnych rozwiązań na rynku}
 \index{Analiza podobnych rozwiązań na rynku}
+
+W ramach analizy rynku zostały zostały przeanalizowane istniejące dotychczas rozwiązania służące do dokumentowania i analizy obserwacji ptaków.
+
+\subsection{Ornitho.pl}
+\begin{itemize}
+	\item Możliwość wprowadzania obserwacji ptaków z dokładną lokalizacją.
+	\item Rozbudowany system weryfikacji obserwacji.
+	\item Zaawansowane narzędzia do analizy danych.
+	\item Współpraca z organizacjami naukowymi i instytucjami badawczymi.
+\end{itemize}
+
+\subsection{Porównanie z projektowanym systemem}
+Projektowany system ma zasadnicze różnice względem analizowanego rozwiązania.
+
+\subsubsection{Zalety ornitho.pl}
+\begin{itemize}
+	\item Duża i aktywna społeczność użytkowników,
+	\item Zaawansowane narzędzia analityczne,
+	\item Integracja z międzynarodowymi bazami danych,
+	\item Profejsonalna weryfikacja obserwacji.
+\end{itemize}
+
+\subsubsection{Przewagi projektowanego systemu}
+\begin{itemize}
+	\item Nowoczesne technologie webowe,
+	\item Nowoczesny, responsywny interfejs,
+	\item Wsparcie dla urządzeń mobilnych,
+	\item Intuicyjna nawigacja,
+	\item Szybszy proces weryfikacji obserwacji,
+	\item Przejrzysty interfejs.
+\end{itemize}
+
+\subsection{Wnioski z analizy}
+Analiza istniejących rozwiązań pozwoliła zidentyfikować kluczowe aspekty nowego systemu:
+\begin{itemize}
+	\item Istnieje zapotrzebowanie na nowoczesne systemu, wykorzystujące aktualne technologie,
+	\item Istotna jest równowaga między łatwością użycia a bardziej rozbudowanymi funkcjonalnościami,
+	\item Konieczność dostosowania interfejsów do urządzeń mobilnych.
+	\item Wartość nowoczesnych technologii webowych dla lepszego doświadczenia użytkowników.
+\end{itemize}
+
+Projektowany system, czerpiąc inspiracje z dostępnych konkurencyjnych rozwiązań, wykorzystując aktualne trendy technologiczne, wprowadza innowacyjne podejście do analizy, dokumentowania i dostępności danych ornitologicznych zarówno dla amatorów jak i profesjonalistów.
