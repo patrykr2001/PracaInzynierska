@@ -27,7 +27,7 @@
 Jednym z najważniejszych etapów w projektowaniu systemu informatycznego jest identyfikacja grupy docelowej użytkowników.
 Po analizie rynku i dostępnych rozwiązań można wyróżnić kilka kluczowych grup użytkowników:
 \begin{itemize}
-	\item \textbf{Profesjonalni Ornitolodzy} - osoby zajmujące się nauką i badaniem ptaków zawodowo, główna grupa użytkowników wykorzystujących systemy informatyczne do gromadzenia i analizy danych.
+	\item \textbf{Profesjonalni Ornitolodzy\footnote{Ornitologia – dział zoologii zajmujący się ptakami. Domeną zainteresowania ornitologów jest przede wszystkim biologia ptaków, ale także ich zwyczaje, trasy przelotów, gniazdowanie, życie społeczne, obserwacja w terenie itp.}} - osoby zajmujące się nauką i badaniem ptaków zawodowo, główna grupa użytkowników wykorzystujących systemy informatyczne do gromadzenia i analizy danych.
 	\item \textbf{Amatorzy i hobbyści} - grupa która interesuje się ptakami w wolnym czasie, lub osoby które chcące rozwijać swoją wiedzę. Często korzystają z aplikacji do identyfikacji lub dokumentacji napotkanych ptaków.,
 	\item \textbf{Studenci kierunków przyrodniczych} - studenci biologii, ekologii lub innych kierunków przyrodniczych, którzy mogą korzystać z systemów do nauki i badań terenowych.
 	\item \textbf{Badacze i naukowcy} - grupa zbliżona zawodowo do profesjonalnych ornitologów, jednak często badająca inne aspekty związane z ptakami i środowiskiem życia.
@@ -156,7 +156,7 @@ Wymagania niefunkcjonalne definiują cechy systemu, które wpływają na jakoś�
 
 \subsection{Bezpieczeństwo}
 \begin{itemize}
-	\item \textbf{Uwierzytelnianie} - system wykorzystuje bezpieczne uwierzytelnianie sesji użytkowników z użyciem JWT \footnote{JSON Web Token (JWT) to otwarty standard (RFC 7519), który definiuje kompaktowy i samodzielny sposób bezpiecznego przesyłania informacji między stronami jako obiektu JSON. Te informacje mogą być weryfikowane i można im ufać, ponieważ są podpisane cyfrowo. JWT mogą być podpisywane przy użyciu klucza tajnego (z algorytmem HMAC) lub pary kluczy publiczny/prywatny przy użyciu RSA lub ECDSA. Z angl. \cite{jwt.io}}.
+	\item \textbf{Uwierzytelnianie} - system wykorzystuje bezpieczne uwierzytelnianie sesji użytkowników z użyciem JWT\footnote{JSON Web Token (JWT) to otwarty standard (RFC 7519), który definiuje kompaktowy i samodzielny sposób bezpiecznego przesyłania informacji między stronami jako obiektu JSON. Te informacje mogą być weryfikowane i można im ufać, ponieważ są podpisane cyfrowo. JWT mogą być podpisywane przy użyciu klucza tajnego (z algorytmem HMAC) lub pary kluczy publiczny/prywatny przy użyciu RSA lub ECDSA. Z angl. \cite{jwt.io}}.
 	\item \textbf{Autoryzacja} - system implementuje role użytkowników (administrator, moderator, użytkownik) z odpowiednimi uprawnieniami.
 	\item \textbf{Ochrona danych} - wrażliwe dane użytkowników muszą być szyfrowane.
 \end{itemize}

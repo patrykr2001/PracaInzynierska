@@ -17,11 +17,164 @@
 \chapter{Wybór i uzasadnienie technologii}
 \label{rozdzial2}
 
+W tej sekcji zostało przedstawione przegląd i porównanie dostępnych technologii webowych oraz uzasadniony ich wybór w implementacji systemu.
+
 \section{Analiza dostępnych rozwiązań technologicznych}
 \index{Analiza dostępnych rozwiązań technologicznych}
 
+\subsection{Frameworki frontendowe}
+Poniżej zostało przedstawione porównanie głównych frameworków frontendowych.\cite{reactvsvuevsangularvsnextjs}
+
+\subsubsection{Angular}
+Kompletny framework utrzymywany przez Google. Angular wymusza strukture z dużym naciskiem na TypeScript, RxJS i skalowalną architekturę.
+\begin{itemize}
+	\item \textbf{Język} - TypeScript,
+	\item \textbf{Kluczowe cechy} - wstrzykiwanie zależności\footnote{Wstrzykiwanie zależności – wzorzec projektowy i wzorzec architektury oprogramowania polegający na usuwaniu bezpośrednich zależności pomiędzy komponentami na rzecz architektury typu plug-in. Polega na przekazywaniu gotowych, utworzonych instancji obiektów udostępniających swoje metody i właściwości obiektom, które z nich korzystają.}, RxJS\footnote{RxJS to biblioteka do programowania reaktywnego przy użyciu Observables, aby ułatwić tworzenie kodu asynchronicznego lub opartego na wywołaniach zwrotnych. Z ang. \cite{rxjs.dev}}, routing, testowanie, CLI\footnote{CLI to skrót od „Command Line Interface” (interfejs wiersza poleceń). Jest to sposób interakcji użytkownika z komputerem poprzez wprowadzanie poleceń tekstowych w terminalu lub wierszu poleceń, zamiast korzystania z interfejsu graficznego (GUI).},
+	\item \textbf{Przypadki użycia} - Aplikacje dla przedsiębiorstw, narzędzia wewnętrzne, sektory regulowane.
+\end{itemize}
+
+Zalety:
+\begin{itemize}
+	\item Kompleksowe rozwiązanie,
+	\item Wbudowany system zarządzania stanem (RxJS),
+	\item Sile typowanie dzięki wykorzystaniu TypeScript,
+	\item Oficjalna biblioteka komponentów (Material),
+	\item Dependency injection wbudowany w framework,
+	\item Oficjalne wsparcie od Google,
+	\item Długoterminowe wsparcie (LTS),
+	\item Bogata dokumentacja i duża społeczność.
+\end{itemize}
+
+Wady:
+\begin{itemize}
+	\item Wysoki próg wejścia,
+	\item Większy rozmiar aplikacji w porównaniu do innych frameworków,
+	\item Mniej elastyczny niz React,
+	\item Wymaga znajomości wielu konceptów inżynierii oprogramowania,
+	\item Mniejsza ilość dostępnych komponentów niż w React.
+\end{itemize}
+
+\subsubsection{React}
+Biblioteka UI opracowana przez firmę Meta. React skupia się wyłącznie na warstwie widoku, dając elastyczność w wyborze własnych narzędzi do routingu, zarządzania stanem i budowania.
+
+\begin{itemize}
+	\item \textbf{Język} - JavaScript lub TypeScript (z JSX\footnote{JSX (JavaScript XML) – format zapisu kodu HTML oraz XML wewnątrz języka JavaScript. Pierwotnie zaproponowany przez Facebooka i użyty w bibliotece React.js. Korzystają z niego także inne biblioteki.}),
+	\item \textbf{Kluczowe cechy} - hooki, wirtualny DOM\footnote{Obiektowy model dokumentu – sposób reprezentacji złożonych dokumentów XML i HTML w postaci modelu obiektowego. Model ten jest niezależny od platformy i języka programowania.}, architektura oparta na komponentach,
+	\item \textbf{Przypadki użycia} - wszelkiego rodzaju interfejsy użytkownika, od prostych komponentów po aplikacje wieloplatformowe.
+\end{itemize}
+
+Zalety:
+\begin{itemize}
+	\item Elastyczność i swoboda w wyborze narzędzi,
+	\item Duża ilość dostępnych komponentów i bibliotek,
+	\item Mniejszy próg wejścia i szybsza nauka,
+	\item Virtual DOM dla lepszej wydajności,
+	\item Popularny z dużą społecznością,
+	\item Wsparcie od Meta (Facebook).
+\end{itemize}
+
+Wady:
+\begin{itemize}
+	\item Wymaga dodatkowych bibliotek do pełnej funkcjonalności,
+	\item Brak wbudowanego systemu zarządzania stanem,
+	\item Konieczność samodzielnego wyboru narzędzi.
+\end{itemize}
+
+\subsubsection{Vue}
+Progresywny framework opracowany przez Evana You. Vue kładzie nacisk na prostotę i wydajność, w wbudowaną mocą reaktywności i kompozycji.
+
+\begin{itemize}
+	\item \textbf{Język} - JavaScript/TypeScript z opartymi na HTML\footnote{HTML – język znaczników stosowany do tworzenia dokumentów hipertekstowych.} szablonami,
+	\item \textbf{Kluczowe cechy} - API kompozycji, SFC\footnote{Vue Single-File Components(SFC) - Komponenty jednoplikowe Vue}, silnik reaktywności,
+	\item \textbf{Przypadki użycia} - pulpity nawigacyjne, panele administracyjne, CMS-y\footnote{Content Management System (CMS) - System zarządzania treścią – oprogramowanie pozwalające na łatwe utworzenie i prowadzenie serwisu WWW, a także jego późniejszą aktualizację i rozbudowę, również przez redakcyjny personel nietechniczny.} i SPA\footnote{Single Page Application (SPA) - jednostronicowa aplikacja internetowa. Rodzaj aplikacji webowej, która działa w przeglądarce użytkownika i nie wymaga przeładowywania strony przy przechodzeniu między sekcjami}.
+\end{itemize}
+
+Zalety:
+\begin{itemize}
+	\item Niski próg wejścia,
+	\item Elastyczność implementacji,
+	\item Bardzo dobra dokumentacja,
+	\item Mniejszy rozmiar aplikacji,
+	\item Prosty system komponentów.
+\end{itemize}
+
+Wady:
+\begin{itemize}
+	\item Mniejsza społeczność niż w przypadku innych frameworków,
+	\item Mniej dostępnych komponentów,
+	\item Mniej popularny w profesjonalnych zastosowaniach,
+	\item Brak oficjalnego wsparcia dużej firmy.
+\end{itemize}
+
+\subsubsection{Next.js}
+Oparty na React framework full-stack zbudowany przez firmę Vercel. Next.js przekształca Reacta w platformę do budowania aplikacji SSR\footnote{Server Side Rendering (SSR) - renderowanie po stronie serwera, to technika generowania strony internetowej na serwerze jeszcze przed wysłaniem jej do klienta. Jest to alternatywa dla Client Side Rendering (CSR)}, SSG\footnote{SSG (Static Site Generation) - technika tworzenia stron internetowych, gdzie całość zawartości strony generowana jest w momencie jej budowy, a następnie serwowana jako statyczne pliki HTML.} oraz ESR\footnote{Edge Side Rendering (ESR) - technika renderowania stron internetowych, która polega na wstępnym renderowaniu stron internetowych na obrzeżach sieci, w pobliżu użytkownika, a nie na serwerze źródłowym.}.
+
+\begin{itemize}
+	\item \textbf{Język} - JavaScript/TypeScript
+	\item \textbf{Kluczowe cechy} - routing, routing oparty na plikach, ESR, ISR\footnote{ISR (Interrupt Service Routine) - procedura obsługi przerwania, jest funkcją lub podprogramem w programie komputerowym wykonywanym w odpowiedzi na przerwanie. Głównym celem ISR jest obsługa przerwań, czyli sygnałów wysyłanych przez sprzęt lub oprogramowanie w celu przerwania normalnego przepływu wykonywania programu. Reagując na zakłócenia, ISR zapewniają szybką i efektywną realizację krytycznych zadań.}
+	\item \textbf{Przypadki użycia} - aplikacje internetowe zoptymalizowane pod kątem SEO\footnote{SEO (search engine optimization) - proces optymalizacji strony internetowej w celu zwiększenia widoczności i ruchu z wyników wyszukiwania.}, produkty na skalę globalną.
+\end{itemize}
+
+Zalety:
+\begin{itemize}
+	\item oparty na React,
+	\item SSR,
+	\item SSG,
+	\item Automatyczna optymalizacja obrazów,
+	\item Oficjalne wsparcie od Vercel,
+	\item Dobre SEO.
+\end{itemize}
+
+Wady:
+\begin{itemize}
+	\item wymaga znajomości React,
+	\item mniej elastyczny od React,
+	\item Konieczność dostosowania do konwencji Next.js,
+	\item Mniej dostępnych komponentów niż React,
+	\item Konieczność używania specyficznych rozwiązań Next.js.
+\end{itemize}
+
+\subsection{Frameworki backendowe}
+
+\subsection{Bazy danych}
+
 \section{Uzasadnienie wyboru Angular jako frameworka frontendowego}
 \index{Uzasadnienie wyboru Angular jako frameworka frontendowego}
+
+Angular to kompleksowe rozwiązanie do budowani aplikacji webowych. Rozwijany i wspierany przez Google, jest platformą typu "battery-included" - czyli dostarcza wszystkie niezbędne narzędzia do tworzenia nowoczesnych aplikacji. Framework oparty jest na TypeScript co ułatwia kontrolę nad kodem.
+
+\subsection{Kluczowe zalety}
+\begin{itemize}
+	\item Modułowa architektura ułatwiająca organizacje kodu,
+	\item Wbudowane Dependency Injection,
+	\item Jasne i dobrze opisane konwencje kodowania,
+	\item Przewidywalna struktura projektu,
+	\item Łatwe zarządzanie zależnościami.
+\end{itemize}
+
+\subsection{TypeScript i bezpieczeństwo}
+\begin{itemize}
+	\item Silne typowanie,
+	\item Wczesne wykrywanie błędów podczas kompilacji,
+	\item Przewidywalne zachowanie aplikacji,
+	\item Lepsza dokumentacja typów i refaktoryzacja kodu w porównaniu do JavaScript.
+\end{itemize}
+
+\subsection{Komponenty i UI}
+\begin{itemize}
+	\item oficjalna biblioteka Material komponentów,
+	\item dostępne gotowe komponenty UI,
+	\item spójny wygląd i zachowanie,
+	\item wbudowana responsywność,
+	\item łatwe tworzenie formularzy,
+	\item system szablonów.
+\end{itemize}
+
+\subsection{Zarządzanie stanem i reaktywność}
+\begin{itemize}
+	\item RxJS do zarządzania stanem aplikacji i operacjami asynchronicznymi,
+	\item Łatwe w implementacji, rektywne formularze.
+\end{itemize}
 
 \section{Uzasadnienie wyboru ASP.NET Core jako backendu}
 \index{Uzasadnienie wyboru ASP.NET Core jako backendu}
@@ -31,170 +184,15 @@
 
 \section{Omówienie innych wykorzystanych technologii}
 \index{Omówienie innych wykorzystanych technologii}
+
+\subsection{Angular Material}
+
+\subsection{JWT}
+
+\subsection{Leaflet.js}
+
+\subsection{Git i GitHub}
+
+\subsection{JetBrains IDE}
+
 %  (Leaflet, Material Design)
-
-
-% \chaptermark{Elementy w pracy} % Tekst, który wyświetli się w nagłówku strony,  jeżeli jest za długi tytuł rozdziału
-
-% Szablon definiuje różne otoczenia, z których może korzystać autor pracy dyplomowej. Takowe zostały opisane w niniejszym rozdziale. Jeżeli otoczenie jest zawarte w szablonie, to właśnie takie należy stosować. Jeżeli w ramach pracy zachodzi potrzeba korzystania z elementów nie ujętych w szablonie można je stosować dowolnie.
-
-% \section{Listy}
-
-% Strukturę list wyliczeniowych poprawnie wykorzystywanych w języku polskim opisują słowniki. Oto fragment z poradnika \url{sjp.pwn.pl}. Podpunkty zdaniowe powinny się zaczynać wielką literą, a niezdaniowe małą. Jeśli podpunkt jest zdaniem, to zamykamy go kropką lub znakiem równoważnym, jeśli nie – przecinkiem lub średnikiem.  Nagłówek listy powinien się kończyć dwukropkiem nawet wtedy, gdy następują po nim podpunkty zdaniowe, pisane wielką literą. 
-
-% \noindent Listy numerowane wykorzystuje się, gdy kolejność elementów jest istotna:
-% \begin{enumerate}
-% \item element 1,
-% \item element 2,
-% \item element 34234.
-% \end{enumerate}
-
-% \noindent Listy wypunktowane wykorzystuje się, gdy kolejność elementów jest istotna:
-% \begin{itemize}
-% \item osoba Alicja A, 
-% \item zwierzak kot Alicji,
-% \item dom Alicji.
-% \end{itemize}
-
-% Jeżeli zamiast punktora lub wyliczenia istnieje potrzeba wykorzystania innego słowa jako wyliczenia,to możliwe jest stosowanie listy z nagłówkami (descriptions-definitions),
-% \begin{description}
-% \item[Nazwa] Opis;
-% \item[Słowo] Definicja;
-% \item[Komentarz] Wywód.
-% \end{description}
-
-% \section{Tabele i rysunki w pracy}
-
-% Tabele podpisuje się z góry. Ważne, że każdy element osadzony w treści pracy musi zostać przywołany w tekście np. w Tabeli: \ref{tab:eksperyment1} zaprezentowano wyniki eksperymentu
-
-% \begin{table}[ht]
-% \centering
-% \caption{Tabelka z wynikami eksperymentu 1} 
-% \begin{tabular}{l l l}
-% \toprule
-% \textbf{Lek} & \textbf{Odpowiedź 1} & \textbf{Odpowiedź 2}\\
-% \midrule
-% Lek 1 & 0.0003262 & 0.562 \\
-% Lek 2 & 0.0015681 & 0.910 \\
-% Lek 3 & 0.0009271 & 0.296 \\
-% \bottomrule
-% \end{tabular}
-% \label{tab:eksperyment1} % Etykiety dla każdej tabeli musi być unikalna
-% \end{table}
-
-% Rysunki podpisywane są z dołu. Należy tak jak w tabeli w treści pracy odnieść się do etykiety rysunku, np. Rysunek \ref{fig:rys1} przedstawia
-
-% \begin{figure}[!ht]
-% 		\centering
-% 		%\vspace{2mm}
-% 		\includegraphics[scale=0.6]{Pictures/placeholder.jpg}
-% 		\caption{To jest przykład osadzania rysunków (źródło:), który może mieć długi podpis nawet na 10000000 00000 000000 00000 linijek.. 10000000 00000 000000 00000 linijek. 10000000 00000 000000 00000 linijek.}
-% 		\label{fig:rys1}
-% \end{figure}
-
-
-
-% \section{Twierdzenia i definicje}
-
-% W pracach o rozbudowanej części teoretycznej może istnieć potrzeba prezentowania twierdzeń i definicji. Poniżej przykłady stosowania odpowiednich otoczeń. 
-
-% A oto twierdzenie składające się z kilku równań.
-
-% \begin{theorem}[Tytuł twierdzenia]
-% In $E=\mathbb{R}^n$ all norms are equivalent. It has the properties:
-% \begin{align}
-% & \big| ||\mathbf{x}|| - ||\mathbf{y}|| \big|\leq || \mathbf{x}- \mathbf{y}||\\
-% &  ||\sum_{i=1}^n\mathbf{x}_i||\leq \sum_{i=1}^n||\mathbf{x}_i||\quad\text{where $n$ is a finite integer}
-% \end{align}
-% \end{theorem}
-
-% Jest to twierdzenie składające się z tylko jednej linii.
-
-% \begin{theorem}
-% Zbiór $\mathcal{D}(G)$ ma gęstość $L^2(G)$, $|\cdot|_0$. 
-% \end{theorem}
-
-
-% To jest przykład definicji. Definicja może być matematyczna lub może definiować koncepcję. Jeżeli w pracy wprowadza się nowe pojęcia najlepiej ująć je w formie definicji, co będzie spójnie akcentować taki fakt.
-
-% \begin{definition}[Tytuł definicji]
-% Given a vector space $E$, a norm on $E$ is an application, denoted $||\cdot||$, $E$ in $\mathbb{R}^+=[0,+\infty[$ such that:
-% \begin{align}
-% & ||\mathbf{x}||=0\ \Rightarrow\ \mathbf{x}=\mathbf{0}\\
-% & ||\lambda \mathbf{x}||=|\lambda|\cdot ||\mathbf{x}||\\
-% & ||\mathbf{x}+\mathbf{y}||\leq ||\mathbf{x}||+||\mathbf{y}||
-% \end{align}
-% \end{definition}
-
-
-% %------------------------------------------------
-
-% \section{Przykłady}
-
-% W wielu pracach do przedstawionych idei prezentuje się przykłady. Na tą okoliczność przygotowano otoczenie {\it example}, które pomoże utrzymać spójny wygląd wszystkich przykładów. 
-
-% Przykład może dotyczyć obliczeń lub prezentacji działania np. metody, algorytmu kodu, itp, itd.
-
-% \begin{example}
-
-% Let $G=\{x\in\mathbb{R}^2:|x|<3\}$ and denoted by: $x^0=(1,1)$; consider the function:
-% \begin{equation}
-% f(x)=\left\{\begin{aligned} & \mathrm{e}^{|x|} & & \text{si $|x-x^0|\leq 1/2$}\\
-% & 0 & & \text{si $|x-x^0|> 1/2$}\end{aligned}\right.
-% \end{equation}
-% The function $f$ has bounded support, we can take $A=\{x\in\mathbb{R}^2:|x-x^0|\leq 1/2+\epsilon\}$ for all $\epsilon\in\intoo{0}{5/2-\sqrt{2}}$.
-% \end{example}
-
-
-% \begin{example}[Przykład krzyżowania]
-% \begin{align*}
-% &\text{Pokolenie rodziców:} & & & &\text{Pokolenie potomków:} \\
-% &x_1 = (\textbf{00110} | \textbf{011}) & &\xrightarrow{\text{krzyżowanie}} & &(\textbf{00110}|1 0 1)\\
-% &x_2 = (0 1 1 0 1 | 1 0 1) & & & &(0 1 1 0 1|\textbf{011})\\
-% \end{align*}
-% \end{example}
-
-
-% %------------------------------------------------
-
-% \section{Kod źródłowy}
-
-% Jeżeli w pracy prezentowany jest kod źródłowy, to należy skorzystać z predefiniowanego i skonfigurowanego (w structure.tex) otoczenia lstlisting. Jeżeli autor chciałby umieścić w pracy pseudokod, to może posłużyć się wybranym przez siebie otoczeniem.
-
-% Zasada odwołania w tekście do algorytmu jest taka sama jak do tabeli i rysunku np. algorytm \ref{alg:kod1} został opracowany na potrzeby...
-
-% \begin{lstlisting}[language=Python, caption=Fragment algorytmu xxx, label=alg:kod1]
-% import numpy as np
-% # change this value for a different result
-% celsius = 37.5
-
-% # calculate fahrenheit
-% fahrenheit = (celsius * 1.8) + 32
-% print('%0.1f degree Celsius is equal to %0.1f degree Fahrenheit' %(celsius,fahrenheit))
- 
-% def incmatrix(genl1,genl2):
-%     m = len(genl1)
-%     n = len(genl2)
-%     M = None #to become the incidence matrix
-%     VT = np.zeros((n*m,1), int)  #zmienna ąźćł
- 
-%     #compute the bitwise xor matrix
-%     M1 = bitxormatrix(genl1)
-%     M2 = np.triu(bitxormatrix(genl2),1) 
- 
-%     for i in range(m-1):
-%         for j in range(i+1, m):
-%             [r,c] = np.where(M2 == M1[i,j])
-%             for k in range(len(r)):
-%                 VT[(i)*n + r[k]] = 1;
-%                 VT[(i)*n + c[k]] = 1;
-%                 VT[(j)*n + r[k]] = 1;
-%                 VT[(j)*n + c[k]] = 1;
- 
-%                 if M is None:
-%                     M = np.copy(VT)
-%                 else:
-%                     M = np.concatenate((M, VT), 1)
- 
-%     return M
-% \end{lstlisting}
