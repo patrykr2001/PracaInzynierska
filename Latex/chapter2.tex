@@ -141,7 +141,7 @@ Wady:
 \section{Uzasadnienie wyboru Angular jako frameworka frontendowego}
 \index{Uzasadnienie wyboru Angular jako frameworka frontendowego}
 
-Angular to kompleksowe rozwiązanie do budowani aplikacji webowych. Rozwijany i wspierany przez Google, jest platformą typu "battery-included" - czyli dostarcza wszystkie niezbędne narzędzia do tworzenia nowoczesnych aplikacji. Framework oparty jest na TypeScript co ułatwia kontrolę nad kodem.
+Angular to kompleksowe rozwiązanie do budowani aplikacji webowych. Rozwijany i wspierany przez Google, jest platformą typu "battery-included"" - czyli dostarcza wszystkie niezbędne narzędzia do tworzenia nowoczesnych aplikacji. Framework oparty jest na TypeScript co ułatwia kontrolę nad kodem.
 
 \subsection{Kluczowe zalety}
 \begin{itemize}
@@ -187,12 +187,40 @@ Angular to kompleksowe rozwiązanie do budowani aplikacji webowych. Rozwijany i 
 
 \subsection{Angular Material}
 
-\subsection{JWT}
+Jest to oficjalna biblioteka komponentów UI dla Angular, która jest zgodna z Material Design\footnote{Material Design 3 to system projektowania Google typu open source do tworzenia pięknych, użytecznych produktów. Z ang. \cite{material_design}}.
+Komponenty są zgodne ze standardem dostępności WCAG 2.1, responsywne i zapewniają jednolity wygląd całej aplikacji.
+
+\subsubsection{Zalety w kontekście projektu}
+\begin{itemize}
+	\item spójny wygląd systemu,
+	\item duża ilość gotowych komponentów,
+	\item łatwość implementacji,
+	\item responsywne,
+	\item możliwość konfiguracji wyglądu.
+\end{itemize}
+
+\subsection{JWT (JSON Web Tokens)}
+
+Tokeny JWT wykorzystywane są do autoryzacji użytkowników. Gdy użytkownik zostanie zalogowany, każde następne żądanie będzie zawierać token JWT, dzięki czemu uzyska on dostęp do zasobów przewidzianych dla zalogowanych użytkowników lub zablokowanych za odpowiednią rolą (administrator, moderator).
+
+\subsubsection{Wykorzystanie w projekcie}
+
+\begin{itemize}
+	\item uwierzytelnianie,
+	\item zarządzanie sesją,
+	\item autoryzacja.
+\end{itemize}
 
 \subsection{Leaflet.js}
 
 \subsection{Git i GitHub}
 
+Do śledzenia zmian kodu, wersjonowania oraz dla bezpieczeństwa projekt kod i wszystkie niezbędne pliki są przechowywane w systemie Git. Repozytorium Git znajduję się w serwisie Github\footnote{https://github.com/}.
+
+Git to rozproszony system kontroli wersji stworzony przez Linus'a Torvalds'a. Jest to aktualnie najczęściej wykorzystywane narzędzie do wersjonowania kodu na świecie, zarówno wśród hobbystów i pasjonatów programowania jak i w środowiskach profesjonalnych i biznesach.
+
 \subsection{JetBrains IDE}
+
+Do pracy nad systemem wykorzystywane są narzędzia firmy JetBrains. Jetbrains IDE\footnote{Zintegrowane środowisko programistyczne, IDE – program lub zespół programów służących do tworzenia, modyfikowania, testowania i konserwacji oprogramowania.\cite{wikipedia.pl}} WebStorm dla prac Frontendowych Angular oraz IDE Rider do pracy z kodem C# i Asp.Net Core. Są to zaawansowane narzędzia developerskie zapewniające kompleksowe wsparcie dla wybranych technologii.
 
 %  (Leaflet, Material Design)
