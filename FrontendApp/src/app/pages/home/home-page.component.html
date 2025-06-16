@@ -1,0 +1,25 @@
+<div class="home-container">
+  <div class="week-slider-container">
+    <mat-form-field appearance="fill" class="year-select">
+      <mat-label>Rok</mat-label>
+      <mat-select [(ngModel)]="selectedYear" (ngModelChange)="onYearChange($event)">
+        <mat-option *ngFor="let year of years" [value]="year">{{ year }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-button-toggle-group
+      class="week-toggle-group"
+      [value]="selectedWeekIndex"
+      (change)="onWeekChange($event.value)"
+      appearance="legacy">
+      <mat-button-toggle *ngFor="let week of weeks; let i = index" [value]="i">
+        {{ week.start | date:'dd.MM' }}-{{ week.end | date:'dd.MM' }}
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+    <div class="week-label">
+      {{ weeks[selectedWeekIndex]?.start | date:'dd.MM.yyyy' }} - {{ weeks[selectedWeekIndex]?.end | date:'dd.MM.yyyy' }}
+    </div>
+  </div>
+  <div class="map-wrapper">
+    <app-map [observations]="filteredObservations"></app-map>
+  </div>
+</div> 

@@ -12,5 +12,6 @@ namespace BackendService.Interfaces
         Task DeleteObservationAsync(int id);
         Task VerifyObservationAsync(int id);
         Task DeleteObservationImageAsync(int id, string imageUrl);
+        Task<List<object>> GetObservationWeeksAsync(int? year = null);
     }
 } 

@@ -297,5 +297,39 @@ namespace BackendService.Services
 
             return $"/uploads/observations/{uniqueFileName}";
         }
+
+        public async Task<List<object>> GetObservationWeeksAsync(int? year = null)
+        {
+            var observations = await _context.BirdObservations.ToListAsync();
+            if (observations.Count == 0) return new List<object>();
+            if (year.HasValue)
+            {
+                observations = observations.Where(o => o.ObservationDate.Year == year.Value).ToList();
+            }
+            if (observations.Count == 0) return new List<object>();
+            var dates = observations.Select(o => o.ObservationDate.Date).ToList();
+            var minDate = dates.Min();
+            var maxDate = dates.Max();
+            var startOfWeek = new Func<DateTime, DateTime>(d => d.AddDays(-(d.DayOfWeek == DayOfWeek.Sunday ? 6 : ((int)d.DayOfWeek - 1))).Date);
+            var current = startOfWeek(minDate);
+            var end = startOfWeek(maxDate);
+            var result = new List<object>();
+            while (current <= end)
+            {
+                var weekStart = current;
+                var weekEnd = current.AddDays(6);
+                var count = observations.Count(o => o.ObservationDate.Date >= weekStart && o.ObservationDate.Date <= weekEnd);
+                if (count > 0)
+                {
+                    result.Add(new {
+                        start = weekStart,
+                        end = weekEnd,
+                        count
+                    });
+                }
+                current = current.AddDays(7);
+            }
+            return result;
+        }
     }
 } 

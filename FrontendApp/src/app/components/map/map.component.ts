@@ -1,6 +1,7 @@
-import { Component, OnInit, AfterViewInit, OnDestroy, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import * as L from 'leaflet';
+import { BirdObservation } from '../../models/bird-observation.model';
 
 @Component({
   selector: 'app-map',
@@ -9,14 +10,16 @@ import * as L from 'leaflet';
   templateUrl: './map.component.html',
   styleUrl: './map.component.scss'
 })
-export class MapComponent implements AfterViewInit, OnDestroy {
+export class MapComponent implements AfterViewInit, OnDestroy, OnChanges {
   @Input() initialLocation?: { lat: number; lng: number };
   @Input() initialZoom: number = 6;
   @Input() allowSelection: boolean = false;
+  @Input() observations: BirdObservation[] = [];
   @Output() locationSelected = new EventEmitter<{ lat: number; lng: number }>();
 
   private map: L.Map | undefined;
   private marker: L.Marker | undefined;
+  private observationMarkers: L.Marker[] = [];
 
   // Granice Polski z 10% marginesem
   private readonly POLAND_BOUNDS = L.latLngBounds(
@@ -47,6 +50,27 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     if (this.map) {
       this.map.remove();
       this.map = undefined;
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['observations'] && this.map) {
+      this.updateObservationMarkers();
+    }
+  }
+
+  private updateObservationMarkers(): void {
+    // Usuń stare markery
+    this.observationMarkers.forEach(marker => this.map?.removeLayer(marker));
+    this.observationMarkers = [];
+    // Dodaj nowe markery
+    if (this.observations && this.observations.length > 0) {
+      this.observations.forEach(obs => {
+        const marker = L.marker([obs.latitude, obs.longitude], { icon: this.defaultIcon })
+          .bindPopup(`<b>${obs.birdCommonName}</b><br>${new Date(obs.observationDate).toLocaleDateString()}`);
+        marker.addTo(this.map!);
+        this.observationMarkers.push(marker);
+      });
     }
   }
 
@@ -99,6 +123,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.locationSelected.emit({ lat, lng });
       });
     }
+
+    // Dodanie markerów obserwacji po inicjalizacji mapy
+    this.updateObservationMarkers();
 
     // Odświeżenie mapy po załadowaniu
     setTimeout(() => {

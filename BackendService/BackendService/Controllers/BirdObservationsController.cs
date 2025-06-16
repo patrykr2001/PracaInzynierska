@@ -5,6 +5,7 @@ using BackendService.Models.DTOs;
 using BackendService.Constants;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
 namespace BackendService.Controllers
 {
@@ -135,6 +136,13 @@ namespace BackendService.Controllers
             {
                 return NotFound();
             }
+        }
+
+        [HttpGet("weeks")]
+        public async Task<ActionResult<List<object>>> GetObservationWeeks([FromQuery] int? year = null)
+        {
+            var weeks = await _observationService.GetObservationWeeksAsync(year);
+            return Ok(weeks);
         }
     }
 } 

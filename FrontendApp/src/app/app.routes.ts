@@ -1,8 +1,9 @@
 import { Routes } from '@angular/router';
 import { MapComponent } from './components/map/map.component';
+import { HomePageComponent } from './pages/home/home-page.component';
 
 export const routes: Routes = [
-  { path: '', component: MapComponent },
+  { path: '', component: HomePageComponent },
   { 
     path: 'birds', 
     loadComponent: () => import('./pages/birds/birds.component').then(m => m.default)
