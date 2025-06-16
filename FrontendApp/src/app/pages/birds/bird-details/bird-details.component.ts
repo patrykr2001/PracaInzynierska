@@ -34,7 +34,7 @@ import { UserService } from '../../../services/user.service';
   styleUrl: './bird-details.component.scss'
 })
 export default class BirdDetailsComponent implements OnInit {
-  apiUrl = environment.apiUrl;
+  baseUrl = environment.api.baseUrl;
   bird: Bird | null = null;
   isLoading = true;
   errorMessage = '';

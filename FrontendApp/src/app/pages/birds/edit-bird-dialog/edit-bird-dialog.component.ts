@@ -35,7 +35,7 @@ export class EditBirdDialogComponent {
   errorMessage = '';
   selectedFile: File | null = null;
   imagePreview: string | null = null;
-  apiUrl = environment.apiUrl;
+  baseUrl = environment.api.baseUrl;
 
   conservationStatuses = [
     { value: 'EX', label: 'Wymarły (EX)' },
@@ -74,7 +74,7 @@ export class EditBirdDialogComponent {
     });
 
     if (data.bird.imageUrl) {
-      this.imagePreview = this.apiUrl + data.bird.imageUrl;
+      this.imagePreview = this.baseUrl + data.bird.imageUrl;
     }
   }
 

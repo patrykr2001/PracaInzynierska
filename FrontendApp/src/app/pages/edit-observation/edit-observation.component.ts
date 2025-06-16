@@ -54,7 +54,7 @@ export default class EditObservationComponent implements OnInit {
   previewUrls: string[] = [];
   existingImageUrls: string[] = [];
   canEdit = false;
-  apiUrl = environment.apiUrl;
+  baseUrl = environment.api.baseUrl;
 
   constructor(
     private fb: FormBuilder,
@@ -104,7 +104,7 @@ export default class EditObservationComponent implements OnInit {
         this.loadBirds();
         this.initializeForm(observation);
         this.existingImageUrls = observation.imageUrls || [];
-        this.previewUrls = observation.imageUrls?.map(url => this.apiUrl + url) || [];
+        this.previewUrls = observation.imageUrls?.map(url => this.baseUrl + url) || [];
         this.isLoading = false;
       },
       error: (error) => {

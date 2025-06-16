@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, throwError, of } from 'rxjs';
 import { catchError, tap, finalize, switchMap } from 'rxjs/operators';
 import { User, UserRole } from '../models/user.model';
 import { LoginDto, RegisterDto, AuthResponse, RefreshTokenDto } from '../models/auth.model';
@@ -11,7 +11,7 @@ import { Router } from '@angular/router';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = environment.apiUrl + '/api/Auth';
+  private baseUrl = `${environment.api.baseUrl}${environment.api.endpoints.auth}`;
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   currentUser$ = this.currentUserSubject.asObservable();
   private tokenRefreshTimeout: any;
@@ -43,41 +43,48 @@ export class AuthService {
   }
 
   refreshToken(): Observable<AuthResponse> {
+    const refreshToken = localStorage.getItem('refreshToken');
+    if (!refreshToken) {
+      return throwError(() => new Error('No refresh token available'));
+    }
+
     if (this.isRefreshing) {
       return this.refreshTokenSubject.pipe(
         switchMap(token => {
           if (token) {
-            return this.http.post<AuthResponse>(`${this.apiUrl}/refresh-token`, { refreshToken: token });
-          } else {
-            return throwError(() => new Error('Brak refresh token'));
+            return of({ 
+              accessToken: token, 
+              refreshToken: '',
+              user: this.currentUserSubject.value || {
+                id: '0',
+                email: '',
+                username: '',
+                role: UserRole.User,
+                roles: [UserRole.User]
+              }
+            });
           }
+          return throwError(() => new Error('Token refresh failed'));
         })
       );
     }
 
     this.isRefreshing = true;
-    const refreshToken = localStorage.getItem('refreshToken');
-    
-    if (!refreshToken) {
-      this.handleAuthError();
-      return throwError(() => new Error('Brak refresh token'));
-    }
+    this.refreshTokenSubject.next(null);
 
-    const refreshTokenDto: RefreshTokenDto = { refreshToken };
-    return this.http.post<AuthResponse>(`${this.apiUrl}/refresh-token`, refreshTokenDto).pipe(
-      tap(response => {
-        this.setTokens(response);
-        this.setupTokenRefresh();
-        this.refreshTokenSubject.next(response.refreshToken);
-        this.isRefreshing = false;
-      }),
-      catchError((error: HttpErrorResponse) => {
-        this.isRefreshing = false;
-        this.refreshTokenSubject.next(null);
-        this.handleAuthError();
-        return throwError(() => error);
-      })
-    );
+    return this.http.post<AuthResponse>(`${this.baseUrl}${environment.api.endpoints.authEndpoints.refreshToken}`, { refreshToken })
+      .pipe(
+        tap(response => {
+          this.setTokens(response);
+          this.refreshTokenSubject.next(response.accessToken);
+          this.isRefreshing = false;
+        }),
+        catchError(error => {
+          this.isRefreshing = false;
+          this.refreshTokenSubject.next(null);
+          return throwError(() => error);
+        })
+      );
   }
 
   private handleAuthError(): void {
@@ -100,7 +107,7 @@ export class AuthService {
   }
 
   login(loginDto: LoginDto): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, loginDto)
+    return this.http.post<AuthResponse>(`${this.baseUrl}${environment.api.endpoints.authEndpoints.login}`, loginDto)
       .pipe(
         tap(response => {
           this.setTokens(response);
@@ -111,7 +118,7 @@ export class AuthService {
   }
 
   register(registerDto: RegisterDto): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, registerDto)
+    return this.http.post<AuthResponse>(`${this.baseUrl}${environment.api.endpoints.authEndpoints.register}`, registerDto)
       .pipe(
         tap(response => {
           this.setTokens(response);
@@ -124,7 +131,7 @@ export class AuthService {
   logout(): Observable<void> {
     const refreshToken = localStorage.getItem('refreshToken');
     if (refreshToken) {
-      return this.http.post<void>(`${this.apiUrl}/revoke-token`, { refreshToken })
+      return this.http.post<void>(`${this.baseUrl}${environment.api.endpoints.authEndpoints.revokeToken}`, { refreshToken })
         .pipe(
           finalize(() => {
             this.clearAuthData();

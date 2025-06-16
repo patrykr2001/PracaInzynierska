@@ -11,7 +11,7 @@ import { Router } from '@angular/router';
   providedIn: 'root'
 })
 export class BirdService {
-  private apiUrl = `${environment.apiUrl}/api/birds`;
+  private baseUrl = `${environment.api.baseUrl}${environment.api.endpoints.birds}`;
 
   constructor(
     private http: HttpClient,
@@ -34,7 +34,7 @@ export class BirdService {
     const params = new HttpParams()
       .set('pageNumber', paginationParams.pageNumber.toString())
       .set('pageSize', paginationParams.pageSize.toString());
-    return this.http.get<PaginatedResponse<Bird>>(this.apiUrl, { params })
+    return this.http.get<PaginatedResponse<Bird>>(this.baseUrl, { params })
       .pipe(catchError(this.handleError.bind(this)));
   }
 
@@ -42,7 +42,7 @@ export class BirdService {
     const params = new HttpParams()
       .set('pageNumber', paginationParams.pageNumber.toString())
       .set('pageSize', paginationParams.pageSize.toString());
-    return this.http.get<PaginatedResponse<Bird>>(`${this.apiUrl}/all`, { params })
+    return this.http.get<PaginatedResponse<Bird>>(`${this.baseUrl}${environment.api.endpoints.birdsEndpoints.all}`, { params })
       .pipe(catchError(this.handleError.bind(this)));
   }
 
@@ -50,17 +50,17 @@ export class BirdService {
     const params = new HttpParams()
       .set('pageNumber', paginationParams.pageNumber.toString())
       .set('pageSize', paginationParams.pageSize.toString());
-    return this.http.get<PaginatedResponse<Bird>>(`${this.apiUrl}/unverified`, { params })
+    return this.http.get<PaginatedResponse<Bird>>(`${this.baseUrl}${environment.api.endpoints.birdsEndpoints.unverified}`, { params })
       .pipe(catchError(this.handleError.bind(this)));
   }
 
   getBirdById(id: number): Observable<Bird> {
-    return this.http.get<Bird>(`${this.apiUrl}/${id}`)
+    return this.http.get<Bird>(`${this.baseUrl}/${id}`)
       .pipe(catchError(this.handleError.bind(this)));
   }
 
   createBird(bird: FormData): Observable<Bird> {
-    return this.http.post<Bird>(this.apiUrl, bird, {
+    return this.http.post<Bird>(this.baseUrl, bird, {
       headers: {
         'Accept': 'application/json'
       }
@@ -69,7 +69,7 @@ export class BirdService {
   }
 
   updateBird(id: number, bird: FormData): Observable<Bird> {
-    return this.http.put<Bird>(`${this.apiUrl}/${id}`, bird, {
+    return this.http.put<Bird>(`${this.baseUrl}/${id}`, bird, {
       headers: {
         'Accept': 'application/json'
       }
@@ -78,12 +78,12 @@ export class BirdService {
   }
 
   deleteBird(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`)
+    return this.http.delete<void>(`${this.baseUrl}/${id}`)
       .pipe(catchError(this.handleError.bind(this)));
   }
 
   verifyBird(id: number): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/${id}/verify`, {})
+    return this.http.post<void>(`${this.baseUrl}${environment.api.endpoints.birdsEndpoints.verify(id)}`, {})
       .pipe(catchError(this.handleError.bind(this)));
   }
 
@@ -92,7 +92,7 @@ export class BirdService {
       .set('searchTerm', searchTerm)
       .set('pageNumber', paginationParams.pageNumber.toString())
       .set('pageSize', paginationParams.pageSize.toString());
-    return this.http.get<PaginatedResponse<Bird>>(`${this.apiUrl}/search`, { params })
+    return this.http.get<PaginatedResponse<Bird>>(`${this.baseUrl}${environment.api.endpoints.birdsEndpoints.search}`, { params })
       .pipe(catchError(this.handleError.bind(this)));
   }
 } 

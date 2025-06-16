@@ -48,7 +48,7 @@ import { UserService } from '../../services/user.service';
   styleUrl: './birds.component.scss'
 })
 export default class BirdsComponent implements OnInit {
-  apiUrl = environment.apiUrl;
+  baseUrl = environment.api.baseUrl;
   birds: Bird[] = [];
   paginationParams: PaginationParams = {
     pageNumber: 1,

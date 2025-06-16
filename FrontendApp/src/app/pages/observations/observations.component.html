@@ -30,10 +30,10 @@
       <mat-card *ngFor="let observation of observations" class="observation-card" (click)="viewObservationDetails(observation.id)">
         <img mat-card-image 
              [src]="observation.imageUrls && observation.imageUrls.length > 0 
-                    ? apiUrl + observation.imageUrls[0] 
+                    ? baseUrl + observation.imageUrls[0] 
                     : observation.birdImageUrl 
-                      ? apiUrl + observation.birdImageUrl 
-                      : apiUrl + '/images/placeholder.jpg'" 
+                      ? baseUrl + observation.birdImageUrl 
+                      : baseUrl + '/images/placeholder.jpg'" 
              [alt]="observation.birdCommonName">
         <mat-card-content>
           <h2>{{ observation.birdCommonName }}</h2>

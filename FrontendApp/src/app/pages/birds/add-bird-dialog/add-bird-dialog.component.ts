@@ -34,7 +34,7 @@ export class AddBirdDialogComponent {
   errorMessage = '';
   selectedFile: File | null = null;
   imagePreview: string | null = null;
-  apiUrl = environment.apiUrl;
+  baseUrl = environment.api.baseUrl;
 
   conservationStatuses = [
     { value: 'EX', label: 'Wymarły (EX)' },

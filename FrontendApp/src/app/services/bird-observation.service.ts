@@ -11,7 +11,7 @@ import { Router } from '@angular/router';
   providedIn: 'root'
 })
 export class BirdObservationService {
-  private apiUrl = `${environment.apiUrl}/api/birdobservations`;
+  private baseUrl = `${environment.api.baseUrl}${environment.api.endpoints.birdObservations}`;
 
   constructor(
     private http: HttpClient,
@@ -33,7 +33,7 @@ export class BirdObservationService {
     const params = new HttpParams()
       .set('pageNumber', paginationParams.pageNumber.toString())
       .set('pageSize', paginationParams.pageSize.toString());
-    return this.http.get<PaginatedResponse<BirdObservation>>(this.apiUrl, { params })
+    return this.http.get<PaginatedResponse<BirdObservation>>(this.baseUrl, { params })
       .pipe(catchError(this.handleError.bind(this)));
   }
 
@@ -41,17 +41,17 @@ export class BirdObservationService {
     const params = new HttpParams()
       .set('pageNumber', paginationParams.pageNumber.toString())
       .set('pageSize', paginationParams.pageSize.toString());
-    return this.http.get<PaginatedResponse<BirdObservation>>(`${this.apiUrl}/user`, { params })
+    return this.http.get<PaginatedResponse<BirdObservation>>(`${this.baseUrl}${environment.api.endpoints.observationsEndpoints.user}`, { params })
       .pipe(catchError(this.handleError.bind(this)));
   }
 
   getObservationById(id: number): Observable<BirdObservation> {
-    return this.http.get<BirdObservation>(`${this.apiUrl}/${id}`)
+    return this.http.get<BirdObservation>(`${this.baseUrl}/${id}`)
       .pipe(catchError(this.handleError.bind(this)));
   }
 
   createObservation(observation: FormData): Observable<BirdObservation> {
-    return this.http.post<BirdObservation>(this.apiUrl, observation);
+    return this.http.post<BirdObservation>(this.baseUrl, observation);
   }
 
   updateObservation(id: number, observation: UpdateBirdObservation): Observable<void> {
@@ -70,22 +70,22 @@ export class BirdObservationService {
       }
     });
 
-    return this.http.put<void>(`${this.apiUrl}/${id}`, formData)
+    return this.http.put<void>(`${this.baseUrl}/${id}`, formData)
       .pipe(catchError(this.handleError.bind(this)));
   }
 
   deleteObservation(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`)
+    return this.http.delete<void>(`${this.baseUrl}/${id}`)
       .pipe(catchError(this.handleError.bind(this)));
   }
 
   verifyObservation(id: number): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/${id}/verify`, {})
+    return this.http.post<void>(`${this.baseUrl}${environment.api.endpoints.observationsEndpoints.verify(id)}`, {})
       .pipe(catchError(this.handleError.bind(this)));
   }
 
   deleteObservationImage(observationId: number, imageUrl: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${observationId}/images`, {
+    return this.http.delete<void>(`${this.baseUrl}${environment.api.endpoints.observationsEndpoints.images(observationId)}`, {
       body: { imageUrl }
     }).pipe(catchError(this.handleError.bind(this)));
   }

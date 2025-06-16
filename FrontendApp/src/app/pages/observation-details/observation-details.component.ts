@@ -32,7 +32,7 @@ import { UserService } from '../../services/user.service';
 export default class ObservationDetailsComponent implements OnInit {
   observation: BirdObservation | null = null;
   isLoading = true;
-  apiUrl = environment.apiUrl;
+  baseUrl = environment.api.baseUrl;
   currentImageIndex = 0;
   canEdit = false;
   canDelete = false;
@@ -98,7 +98,7 @@ export default class ObservationDetailsComponent implements OnInit {
     if (this.observation?.imageUrls) {
       this.dialog.open(ImageGalleryDialogComponent, {
         data: {
-          images: this.observation.imageUrls.map(url => this.apiUrl + url),
+          images: this.observation.imageUrls.map(url => this.baseUrl + url),
           startIndex: index
         },
         maxWidth: '90vw',

@@ -41,7 +41,7 @@
 
   <div class="birds-grid">
     <mat-card *ngFor="let bird of birds" class="bird-card">
-      <img mat-card-image [src]="bird.imageUrl ? apiUrl + bird.imageUrl : apiUrl + '/images/placeholder.jpg'" [alt]="bird.commonName">
+      <img mat-card-image [src]="bird.imageUrl ? baseUrl + bird.imageUrl : baseUrl + '/images/placeholder.jpg'" [alt]="bird.commonName">
       <mat-card-content>
         <h2>{{ bird.commonName }}</h2>
         <p><strong>Rodzina:</strong> {{ bird.family }}</p>

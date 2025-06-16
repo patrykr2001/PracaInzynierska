@@ -1,8 +1,9 @@
 export const environment = {
-  production: false,
+  production: true,
   api: {
-    baseUrl: 'https://localhost:7077',
-    timeout: 30000, // timeout w milisekundach
+    // Tutaj należy zmienić na właściwy adres serwera produkcyjnego
+    baseUrl: 'https://birdwatcher.rackit.pl',
+    timeout: 30000,
     endpoints: {
       auth: '/api/Auth',
       birds: '/api/birds',
@@ -30,7 +31,6 @@ export const environment = {
       }
     }
   },
-  // Możesz dodać więcej konfiguracji tutaj
   app: {
     name: 'Bird-Watcher-App',
     version: '1.0.0'

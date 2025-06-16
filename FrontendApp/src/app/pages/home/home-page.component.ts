@@ -49,7 +49,7 @@ export class HomePageComponent implements OnInit {
 
   fetchWeeks() {
     if (!this.selectedYear) return;
-    this.http.get<ObservationWeek[]>(`${environment.apiUrl}/api/birdobservations/weeks?year=${this.selectedYear}`).subscribe(weeks => {
+    this.http.get<ObservationWeek[]>(`${environment.api.baseUrl}/api/birdobservations/weeks?year=${this.selectedYear}`).subscribe(weeks => {
       this.weeks = weeks;
       this.selectedWeekIndex = this.weeks.length - 1;
       this.loadObservationsForWeek();

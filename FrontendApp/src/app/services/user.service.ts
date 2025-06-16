@@ -11,7 +11,7 @@ import { Router } from '@angular/router';
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = environment.apiUrl + '/api/UserSettings';
+  private baseUrl = `${environment.api.baseUrl}${environment.api.endpoints.userSettings}`;
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   currentUser$ = this.currentUserSubject.asObservable();
 
@@ -65,7 +65,7 @@ export class UserService {
   }
 
   updateUserSettings(updateDto: UpdateUserDto): Observable<User> {
-    return this.http.put<User>(`${this.apiUrl}`, updateDto)
+    return this.http.put<User>(`${this.baseUrl}`, updateDto)
       .pipe(
         tap(user => this.setCurrentUser(user)),
         catchError(this.handleError.bind(this))
@@ -73,7 +73,7 @@ export class UserService {
   }
 
   getUserSettings(): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}`)
+    return this.http.get<User>(`${this.baseUrl}`)
       .pipe(catchError(this.handleError.bind(this)));
   }
 } 
