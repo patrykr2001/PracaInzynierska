@@ -136,6 +136,102 @@ Wady:
 
 \subsection{Frameworki backendowe}
 
+Poniżej zostały przedstawione popularne frameworki backendowe w oparciu o zgromadzoną wiedzę i dostępne materiały\cite{medium_django_ruby_express_laravel}\cite{medium_spring_asp}.
+
+\subsubsection{Django}
+
+Django to jeden z najpopularniejszych frameworków webowych w Pythonie. Oferuje duży wachlarz solidnych funkcjonalności i przejrzysty design.
+
+
+Zalety:
+\begin{itemize}
+	\item Architektura oparta na model-view-controller (MVC\footnote{Kontroler widoku modelu (MVC) framework to wzorzec architektoniczny, który dzieli aplikację na trzy główne komponenty logiczne: Model, Widok i Kontroler. Stąd skrót MVC. Każdy komponent architektury jest zbudowany tak, aby obsługiwać określony aspekt rozwoju aplikacji. MVC oddziela od siebie warstwę logiki biznesowej i prezentacyjną.\cite{guru99_mvc}})
+	\item Bezpieczeństwo
+	\item Wbudowany system ORM\footnote{ORM (Object-Relational Mapping) to technika programowania, która służy do łączenia baz danych z obiektowymi językami programowania. Umożliwia ona programistom pracę z bazami danych w sposób, który jest zgodny z ich zrozumieniem obiektowego programowania.\cite{nofluffjobs_orm}}
+	\item Wbudowany interfejs administracyjny, który w łatwy sposób umożliwia zarządzaniem danymi aplikacji
+\end{itemize} 
+
+
+Wadami Django są przede wszystkim wydajność w przypadku bardzo dużego ruchu - wynikają bezpośrednio z zastosowania języka Python, monolityczna struktura, która utrudnia dzielenia aplikacji na mikroserwisy oraz krzywa uczenia się wynikająca z dużej ilości wbudowanych funkcjonalności.
+
+\subsubsection{Express.js}
+
+Express.js to minimalistyczny framework backendowy wykorzystujący javascript i Node.js
+
+
+Zalety:
+\begin{itemize}
+	\item Lekki i nieskomplikowany - nie narzuca struktury projektu
+	\item Olbrzymia społeczność
+	\item Elastyczność - umożliwia budowanie zarówno bardzo prostych API jak i rozbudowanych systemów webowych z użyciem wielu bibliotek
+\end{itemize}
+
+
+Jedną z wad użycia Express.js jest język javascript nieposiadający silnego typowania i pełnego wachlarza funkcji, który zapewniają innego języki obiektowe. Problemem przy rozbudowanie aplikacji może również być brak narzuconej struktury - co może być problematyczne gdy na początku dobrze się jej nie zaprojektuje oraz wymaga wykorzystania wielu dodatkowych bibliotek do osiągnięcia funkcjonalności porównywalnej z innymi frameworkami.
+
+\subsubsection{Laravel}
+
+Laravel to framework oparty na języku PHP stawiający na prostotę i łatwość użycia.
+
+
+Zalety:
+\begin{itemize}
+	\item Potężny silnik szablonów
+	\item Prosty i intuicyjny ORM
+	\item Czytelnia składnia PHP i struktura projektu
+	\item Duże zasoby dokumentacji i źródeł wiedzy
+\end{itemize}
+
+
+Laravel zdobył popularność dzięki eleganckiej składni i bogatemu ekosystemowi. Kod jest czytelny i łatwy w utrzymaniu. Największa wadą jest zależność od wersji PHP oraz bibliotek - aktualizację często wymagają dostosowania środowiska i kodu.
+
+\subsubsection{Spring Boot}
+
+Spring Boot to najpopularniejszych frameworków webowych dla Javy i Kotlina. Jest nowoczesny i upraszcza tworzenie architektury opartej na mikroserwisach.
+
+
+Zalety
+\begin{itemize}
+	\item Minimalna konfiguracja - automatyczny konfigurator upraszcza ustawianie środowiska i ustawienia frameworku.
+	\item Wbudowany serwer HTTP - umożliwia uruchamianie aplikacji bezpośrednio z pliku JAR i nie wymaga dodatkowego serwera WEB
+	\item Duża społeczność i dokumentacja
+	\item Idealny do mikroserwisów
+	\item Bogaty ekosystem integracji z bazami danych, kolejkowaniem, API itp.
+\end{itemize}
+
+Spring Boot jest dobrym rozwiązaniem do budowania backendu aplikacji webowych, jednak złożoność rośnie wraz z rozrostem projektu - mimo uproszczeń większe aplikację mogą wymagać dużej znajomości frameworku. Dodatkową wadą jest duże zużycie zasobów w porównaniu do innych frameworków.
+
+\subsubsection{ASP.NET Core}
+
+ASP.NET Core to wydajny framework oparty na .Net Core oraz języku programowania C#. Jest nowoczesny, opensourcowy, utrzymywany i rozwijany przez Microsoft.
+
+Zalety
+\begin{itemize}
+	\item Wysoka wydajność
+	\item Wsparcie Microsoftu i społeczności
+	\item Wbudowane Dependecy Injection
+	\item Modularna architektura
+\end{itemize}
+
+
+ASP.NET Core idealnie nadaję się do tworzenia wysokowydajnego backendu aplikacji webowej. Zapewnione wsparcie przez Microsoft oraz wydajność i bezpieczeństwo idealnie nadają się do projektowania skalowalnych systemów. Z wad można wyróżnić złożoną konfigurację oraz zależność od ekosystemu .NET - aktualizację frameworka mogą wymagać zmian w kodzie i środowisku.s
+
+\subsubsection{Ruby on Rails}
+
+Ruby on Rails często określany jako "Rails" to popularny framework opierający się na języku programowania Ruby. Filozofią Ruby on Rails jest prostota i produktywność deweloperów.
+
+
+Zalety:
+\begin{itemize}
+	\item Możliwość szybkiego tworzenia i rozwoju aplikacji
+	\item Duża liczba gotowych bibliotek
+	\item Aktywna społeczność
+	\item Wbudowane mechanizmy do ORM, routingu, system szablonów i API
+\end{itemize}
+
+
+Ruby on Rails zdobył ogromną popularność dzięki prostocie i łatwości z jaką można tworzyć aplikację webowe. Lata świetności tego frameworku przypadają na okres 2010-2015. Największą wadą jest trudność konfiguracji specyficznego środowiska uruchomieniowego oraz słaba wydajność i skalowalność dużych, złożonych aplikacji.
+
 \subsection{Bazy danych}
 
 \section{Uzasadnienie wyboru Angular jako frameworka frontendowego}
@@ -222,5 +318,3 @@ Git to rozproszony system kontroli wersji stworzony przez Linus'a Torvalds'a. Je
 \subsection{JetBrains IDE}
 
 Do pracy nad systemem wykorzystywane są narzędzia firmy JetBrains. Jetbrains IDE\footnote{Zintegrowane środowisko programistyczne, IDE – program lub zespół programów służących do tworzenia, modyfikowania, testowania i konserwacji oprogramowania.\cite{wikipedia.pl}} WebStorm dla prac Frontendowych Angular oraz IDE Rider do pracy z kodem C# i Asp.Net Core. Są to zaawansowane narzędzia developerskie zapewniające kompleksowe wsparcie dla wybranych technologii.
-
-%  (Leaflet, Material Design)
