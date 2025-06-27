@@ -1123,6 +1123,31 @@ Historia migracji jest przechowywana w osobnych plikach nazwanych opisowo np.:
 	\item ...
 \end{enumerate}
 
+
+Przykład jak wygląda migracja:
+
+\begin{lstlisting}[style=csharp, caption={Przykład migracji bazy danych}]
+public partial class AddObservationImages : Migration
+{
+	protected override void Up(MigrationBuilder migrationBuilder)
+	{
+		migrationBuilder.AddColumn<string>(
+		name: "ImageUrls",
+		table: "BirdObservations",
+		type: "TEXT",
+		nullable: false,
+		defaultValue: "[]");
+	}
+	
+	protected override void Down(MigrationBuilder migrationBuilder)
+	{
+		migrationBuilder.DropColumn(
+		name: "ImageUrls",
+		table: "BirdObservations");
+	}
+}
+\end{lstlisting}
+
 \subsection{Backup i odzyskiwanie}
 \index{Backup i odzyskiwanie}
 Ponieważ SQLite przechowuje bazę danych jako jeden plik na dysku, backup sprowadza się do skopiowania pliku \texttt{birdwatcher.db}
@@ -1156,11 +1181,253 @@ using (var scope = app.Services.CreateScope())
 
 \subsection{Podsumowanie implementacji bazy danych}
 \index{Podsumowanie implementacji bazy danych}
+Baza danych aplikacji została zaprojektowana by być łatwo w rozwoju oraz przechowywaniu. Dzięki podejściu \texttt{code first} oraz wykorzystaniu mechanizmów migracji dodanie nowych modeli oraz modyfikacja istniejących jest szybka i łatwa w realizacji. Dodatkowo mechanizmy \texttt{ASP.NET Core Identity} dostarczają gotowe rozwiązania zarządzania użytkownikami i schemat danych.
 
 \FloatBarrier
 
 \section{Implementacja systemu autentyfikacji i autoryzacji}
 \index{Implementacja systemu autentyfikacji i autoryzacji}
+System autentykacji i autoryzacji w aplikacji składa się z kilku nowoczesnych technologii i najlepszych praktyk bezpieczeństwa. Wykorzystuje on do działania \texttt{JWT (JSON Web Tokens)} w połączeniu z tokenami odświeżającymi oraz system ról oparty na \texttt{ASP.NET Core Identity}
+
+\subsection{Architektura systemu autentykacji}
+\index{Architektura systemu autentykacji}
+System składa się z paru kluczowych elementów:
+\begin{itemize}
+	\item \textbf{Model użytkownika} - rozszerzenie \texttt{IdentityUser} o dodatkowe pola
+	\item \textbf{Serwis autentykacji} - logika biznesowa związana z autentykacją
+	\item \textbf{Kontroler autentykacji} - endpointy REST API
+	\item \textbf{Interceptor HTTP} - automatyczne dodawanie tokenów autoryzacji do żądań po stronie frontendu
+	\item \textbf{Serwis frontendowy} - zarządzający stanem autentykacji po stronie klienta
+\end{itemize}
+
+\subsection{Konfiguracja Identity i JWT}
+\index{Konfiguracja Identity i JWT}
+W pliku \texttt{Program.cs} skonfigurowany został system autentykacji \texttt{Identity} poprzez wskazanie odpowiednich opcji bezpieczeństwa:
+
+\begin{lstlisting}[style=csharp, caption={Konfiguracja bezpieczeństwa w Program.cs}]
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+{
+	// Ustawienia haseł
+	options.Password.RequireDigit = true;
+	options.Password.RequireLowercase = true;
+	options.Password.RequireUppercase = true;
+	options.Password.RequireNonAlphanumeric = true;
+	options.Password.RequiredLength = 8;
+	
+	// Ustawienia blokady konta
+	options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+	options.Lockout.MaxFailedAccessAttempts = 5;
+	options.Lockout.AllowedForNewUsers = true;
+	
+	// Ustawienia użytkownika
+	options.User.RequireUniqueEmail = true;
+	options.SignIn.RequireConfirmedEmail = false;
+})
+.AddEntityFrameworkStores<ApplicationDbContext>()
+.AddDefaultTokenProviders();
+\end{lstlisting}
+
+Konfiguracja JWT obejmuję walidację tokenów z odpowiednimi parametrami bezpieczeństwa:
+
+\begin{lstlisting}[style=csharp, caption={Konfiguracja JWT w Program.cs}]
+builder.Services.AddAuthentication(options =>
+{
+	options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+	options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+	options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+	options.TokenValidationParameters = new TokenValidationParameters
+	{
+		ValidateIssuer = true,
+		ValidateAudience = true,
+		ValidateLifetime = true,
+		ValidateIssuerSigningKey = true,
+		ValidIssuer = builder.Configuration["Jwt:Issuer"],
+		ValidAudience = builder.Configuration["Jwt:Audience"],
+		IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+	};
+});
+\end{lstlisting}
+
+\subsection{System ról i autoryzacji}
+\index{System ról i autoryzacji}
+Zostały zdefiniowane dwie główne role w systemie:
+
+\begin{lstlisting}[style=csharp, caption={Role w systemie}]
+public static class AuthorizationConstants
+{
+	public const string AdminRole = "Admin";
+	public const string UserRole = "User";
+}
+\end{lstlisting}
+
+Odpowiednie polityki pozwalają na kontrolę dostępu użytkowników do zasobów:
+
+\begin{lstlisting}[style=csharp, caption={Polityki autoryzacji}]
+builder.Services.AddAuthorization(options =>
+{
+	options.AddPolicy("RequireAdminRole", policy =>
+	policy.RequireRole(AuthorizationConstants.AdminRole));
+	
+	options.AddPolicy("RequireUserRole", policy =>
+	policy.RequireRole(AuthorizationConstants.UserRole));
+});
+\end{lstlisting}
+
+\subsection{Serwis autentykacji}
+\index{Serwis autentykacji}
+\texttt{AuthService} po stronie backendu implementuje wszystkie operacje związane z autentykacją.
+
+\subsubsection{Logowanie użytkownika}
+Proces logowania obejmuje:
+\begin{itemize}
+	\item Walidację danych
+	\item Sprawdzanie blokady konta
+	\item Weryfikacje hasła
+	\item Generowanie tokenów dostępu i odświeżających
+	\item Resetowanie licznika nieudanych prób
+\end{itemize}
+
+Kod odpowiedzialny za logowanie został zawarty w listingu \ref{lst:logowanie}
+
+
+\subsubsection{Rejestracja użytkownika}
+Proces rejestracji obejmuje:
+\begin{itemize}
+	\item Walidację danych
+	\item Tworzenie nowego użytkownika
+	\item Automatyczne przypisanie roli
+	\item Generowanie tokenów dostępu po rejestracji
+\end{itemize}
+
+Kod odpowiedzialny za rejestracje został zawarty w listingu \ref{lst:rejestracja}
+
+\subsection{Generowanie tokenów}
+\index{Generowanie tokenów}
+Tokeny dostępu generowane są z odpowiednimi parametrami o krótkim czasie ważności (15 minut):
+
+\begin{lstlisting}[style=csharp, caption={Generowanie tokenu JWT}]
+private string GenerateAccessToken(ApplicationUser user, IList<string> roles)
+{
+	var claims = new List<Claim>
+	{
+		new Claim(ClaimTypes.NameIdentifier, user.Id),
+		new Claim(ClaimTypes.Name, user.UserName!),
+		new Claim(ClaimTypes.Email, user.Email!)
+	};
+	
+	foreach (var role in roles)
+	{
+		claims.Add(new Claim(ClaimTypes.Role, role));
+	}
+	
+	var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
+		_configuration["Jwt:Key"]!));
+	var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+	var expires = DateTime.UtcNow.AddMinutes(
+		ACCESS_TOKEN_EXPIRATION_MINUTES);
+	
+	var token = new JwtSecurityToken(
+	_configuration["Jwt:Issuer"],
+	_configuration["Jwt:Audience"],
+	claims,
+	expires: expires,
+	signingCredentials: creds
+	);
+	
+	return new JwtSecurityTokenHandler().WriteToken(token);
+}
+\end{lstlisting}
+
+Tokeny odświeżające są generowane przy użyciu kryptograficznie bezpiecznego generatora liczb losowych:
+
+\begin{lstlisting}[style=csharp, caption={Generowanie tokenu odświeżającego}]
+private string GenerateRefreshToken()
+{
+	var randomNumber = new byte[32];
+	using var rng = RandomNumberGenerator.Create();
+	rng.GetBytes(randomNumber);
+	return Convert.ToBase64String(randomNumber);
+}
+\end{lstlisting}
+
+\subsection{Kontroler autentykacji}
+\index{Kontroler autentykacji}
+\texttt{AuthController} udostępnia następujące endpointy REST API dla operacji autentykacji:
+\begin{itemize}
+	\item /api/auth/login
+	\item /api/auth/register
+	\item /api/auth/refresh-token
+	\item /api/auth/logout
+\end{itemize}
+
+Implementacja kontrolera została przedstawiona w listingu \ref{lst:kontrolerautentykacji}
+
+\subsection{Frontend - Serwis autentyfikacji}
+\index{Frontend - Serwis autentyfikacji}
+W aplikacji frontendowej Angular zaimplementowano \texttt{AuthService} odpowiedzialny za zarządzaniestanem autentyfikacji użytkownika.
+Serwis implementuje przechowywanie tokenu, kontrole nad zalogowanym użytkownikiem, odświeżanie tokenu oraz wylogowywanie.
+
+Implementacja serwisu została przedstawiona w listingu \ref{lst:serwisautentykacjifrontend}
+
+\subsection{Interceptor HTTP}
+\index{Interceptor HTTP}
+
+Interceptor automatycznie dodaje tokeny do żądań wysyłanych z frontendu i obsługuje błędy autoryzacji.
+
+\begin{lstlisting}[style=tsstyle, caption={Interceptor HTTP}]
+export const authInterceptor: HttpInterceptorFn = (req, next) => {
+	const router = inject(Router);
+	const authService = inject(AuthService);
+	const token = localStorage.getItem('accessToken');
+	
+	if (token) {
+		const clonedReq = req.clone({
+			headers: req.headers.set('Authorization', `Bearer ${token}`)
+		});
+		req = clonedReq;
+	}
+	
+	return next(req).pipe(
+	catchError((error: HttpErrorResponse) => {
+		if (error.status === 401 && !req.url.includes('/refresh-token')) {
+			return authService.refreshToken().pipe(
+			switchMap(response => {
+				const newReq = req.clone({
+					headers: req.headers.set('Authorization', `Bearer ${response.accessToken}`)
+				});
+				return next(newReq);
+			}),
+			catchError(refreshError => {
+				authService.logout().subscribe(() => {
+					router.navigate(['/login'], {
+						queryParams: { returnUrl: router.url }
+					});
+				});
+				return throwError(() => refreshError);
+			})
+			);
+		}
+		
+		if (error.status === 403) {
+			router.navigate(['/login'], { 
+				queryParams: { returnUrl: router.url }
+			});
+		}
+		
+		return throwError(() => error);
+	})
+	);
+};
+\end{lstlisting}
+
+\subsection{Bezpieczeństwo systemu}
+\index{Bezpieczeństwo systemu}
+
+\subsection{Podsumowanie}
+\index{Podsumowanie}
 
 \section{Implementacja funkcjonalności mapy i geolokalizacji}
 \index{Implementacja funkcjonalności mapy i geolokalizacji}

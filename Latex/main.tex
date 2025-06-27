@@ -150,14 +150,18 @@
 \addcontentsline{toc}{section}{Źródła internetowe i inne}
 \printbibliography[heading=bibempty,filter=other]
 
+\thispagestyle{empty}
+\listoffigures
+
 
 %----------------------------------------------------------------------------------------
 %	APPENDIX (JK - design and implementation)
 %----------------------------------------------------------------------------------------
 \pagestyle{fancy} 
 \begin{appendix}
-\appendix
-\include{appendixA} % conclusions.tex zawiera treść zakończenia/podsumowania pracy dyplomowej
+	\appendix
+	\include{appendixA}
+	\include{appendixB}
 \end{appendix}
 %----------------------------------------------------------------------------------------
 % Koniec dokumentu

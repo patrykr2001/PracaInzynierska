@@ -52,8 +52,8 @@ export class AuthService {
       return this.refreshTokenSubject.pipe(
         switchMap(token => {
           if (token) {
-            return of({ 
-              accessToken: token, 
+            return of({
+              accessToken: token,
               refreshToken: '',
               user: this.currentUserSubject.value || {
                 id: '0',
@@ -181,4 +181,4 @@ export class AuthService {
       clearTimeout(this.tokenRefreshTimeout);
     }
   }
-} 
+}

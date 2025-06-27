@@ -1,0 +1,367 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Szablon pracy dyplomowej
+% Wydział Informatyki 
+% Zachodniopomorski Uniwersytet Technologiczny w Szczecinie
+% autor Joanna Kołodziejczyk (jkolodziejczyk@zut.edu.pl)
+% Bardzo wczesnym pierwowzorem szablonu był
+% The Legrand Orange Book
+% Version 5.0 (29/05/2025)2023)
+%
+% Modifications to LOB assigned by %JK
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{System autentykacji i autoryzacji}
+\label{chapter:dodatek_B}
+
+\textit{Poniżej przedstawiono fragmenty kodu dotyczące systemu autentykacji i autoryzacji.}
+
+\begin{lstlisting}[style=csharp, caption={Implementacja logowania},label={lst:logowanie}]
+	public async Task<AuthResponseDto> LoginAsync(LoginDto loginDto)
+	{
+		var user = await _userManager.FindByEmailAsync(loginDto.Email);
+		if (user == null)
+		{
+			throw new InvalidOperationException("Nieprawidłowy email lub hasło.");
+		}
+		
+		if (await _userManager.IsLockedOutAsync(user))
+		{
+			var lockoutEnd = await _userManager.GetLockoutEndDateAsync(user);
+			throw new InvalidOperationException($"Konto jest zablokowane do {lockoutEnd}.");
+		}
+		
+		var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, true);
+		if (!result.Succeeded)
+		{
+			if (result.IsLockedOut)
+			{
+				throw new InvalidOperationException($"Konto zostało zablokowane na {LOCKOUT_DURATION_MINUTES} minut z powodu zbyt wielu nieudanych prób logowania.");
+			}
+			throw new InvalidOperationException("Nieprawidłowy email lub hasło.");
+		}
+		
+		await _userManager.ResetAccessFailedCountAsync(user);
+		
+		var roles = await _userManager.GetRolesAsync(user);
+		var token = GenerateAccessToken(user, roles);
+		var refreshToken = GenerateRefreshToken();
+		
+		user.RefreshToken = refreshToken;
+		user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(
+			REFRESH_TOKEN_EXPIRATION_DAYS);
+		await _userManager.UpdateAsync(user);
+		
+		return new AuthResponseDto
+		{
+			AccessToken = token,
+			RefreshToken = refreshToken,
+			User = new UserDto
+			{
+				Id = user.Id,
+				Username = user.UserName!,
+				Email = user.Email!,
+				Roles = roles.ToArray()
+			}
+		};
+	}
+\end{lstlisting}
+
+\begin{lstlisting}[style=csharp, caption={Implementacja rejestracji},label={lst:rejestracja}]
+	public async Task<AuthResponseDto> RegisterAsync(RegisterDto registerDto)
+	{
+		if (registerDto.Password != registerDto.ConfirmPassword)
+		{
+			throw new InvalidOperationException("Hasła nie są identyczne.");
+		}
+		
+		var passwordValidator = new PasswordValidator<ApplicationUser>();
+		var result = await passwordValidator.ValidateAsync(_userManager, null!, registerDto.Password);
+		if (!result.Succeeded)
+		{
+			throw new InvalidOperationException(string.Join(", ", result.Errors.Select(e => e.Description)));
+		}
+		
+		var user = new ApplicationUser
+		{
+			UserName = registerDto.Email,
+			Email = registerDto.Email,
+			CreatedAt = DateTime.UtcNow,
+			EmailConfirmed = true
+		};
+		
+		var createResult = await _userManager.CreateAsync(user, registerDto.Password);
+		if (!createResult.Succeeded)
+		{
+			throw new InvalidOperationException(string.Join(", ", createResult.Errors.Select(e => e.Description)));
+		}
+		
+		await _userManager.AddToRoleAsync(user, AuthorizationConstants.UserRole);
+		
+		var roles = await _userManager.GetRolesAsync(user);
+		var token = GenerateAccessToken(user, roles);
+		var refreshToken = GenerateRefreshToken();
+		
+		user.RefreshToken = refreshToken;
+		user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(
+			REFRESH_TOKEN_EXPIRATION_DAYS);
+		await _userManager.UpdateAsync(user);
+		
+		return new AuthResponseDto
+		{
+			AccessToken = token,
+			RefreshToken = refreshToken,
+			User = new UserDto
+			{
+				Id = user.Id,
+				Username = user.UserName!,
+				Email = user.Email!,
+				Roles = new[] { AuthorizationConstants.UserRole }
+			}
+		};
+	}
+\end{lstlisting}
+
+\begin{lstlisting}[style=csharp, caption={Kontroler autentykacji},label={lst:kontrolerautentykacji}]
+[ApiController]
+[Route("api/[controller]")]
+public class AuthController : ControllerBase
+{
+	private readonly IAuthService _authService;
+	
+	public AuthController(IAuthService authService)
+	{
+		_authService = authService;
+	}
+	
+	[HttpPost("login")]
+	public async Task<ActionResult<AuthResponseDto>> Login([FromBody] LoginDto loginDto)
+	{
+		if (!ModelState.IsValid)
+		{
+			return BadRequest(new { 
+				message = "Błąd walidacji",
+				errors = ModelState.Values
+				.SelectMany(v => v.Errors)
+				.Select(e => e.ErrorMessage)
+			});
+		}
+		
+		try
+		{
+			var response = await _authService.LoginAsync(loginDto);
+			return Ok(response);
+		}
+		catch (InvalidOperationException ex)
+		{
+			return BadRequest(new { message = ex.Message });
+		}
+	}
+	
+	[HttpPost("register")]
+	public async Task<ActionResult<AuthResponseDto>> Register([FromBody] RegisterDto registerDto)
+	{
+		// Implementacja rejestracji
+	}
+	
+	[HttpPost("refresh-token")]
+	public async Task<ActionResult<AuthResponseDto>> RefreshToken([FromBody] RefreshTokenDto refreshTokenDto)
+	{
+		// Implementacja odświeżania tokenu
+	}
+	
+	[Authorize]
+	[HttpPost("logout")]
+	public async Task<IActionResult> Logout()
+	{
+		var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+		if (userId != null)
+		{
+			await _authService.RevokeRefreshTokenAsync(userId);
+		}
+		return Ok(new { message = "Wylogowano pomyślnie." });
+	}
+}
+\end{lstlisting}
+
+\begin{lstlisting}[style=tsstyle, caption={Serwis autentykacji po stronie frontendu},label={lst:serwisautentykacjifrontend}]
+@Injectable({
+	providedIn: 'root'
+})
+export class AuthService {
+	private baseUrl = `${environment.api.baseUrl}${environment.api
+			.endpoints.auth}`;
+	private currentUserSubject = new BehaviorSubject<User | null>(null);
+	currentUser$ = this.currentUserSubject.asObservable();
+	private tokenRefreshTimeout: any;
+	private isRefreshing = false;
+	private refreshTokenSubject = new BehaviorSubject<string | null>(null);
+	
+	constructor(
+	private http: HttpClient,
+	private router: Router
+	) {
+		const savedUser = localStorage.getItem('currentUser');
+		if (savedUser) {
+			this.currentUserSubject.next(JSON.parse(savedUser));
+			this.setupTokenRefresh();
+		}
+	}
+	
+	private setupTokenRefresh(): void {
+		const refreshToken = localStorage.getItem('refreshToken');
+		if (refreshToken) {
+			this.tokenRefreshTimeout = setTimeout(() => {
+				this.refreshToken().subscribe({
+					error: () => {
+						this.handleAuthError();
+					}
+				});
+			}, 14 * 60 * 1000);
+		}
+	}
+	
+	refreshToken(): Observable<AuthResponse> {
+		const refreshToken = localStorage.getItem('refreshToken');
+		if (!refreshToken) {
+			return throwError(() => new Error('No refresh token available'));
+		}
+		
+		if (this.isRefreshing) {
+			return this.refreshTokenSubject.pipe(
+			switchMap(token => {
+				if (token) {
+					return of({ 
+						accessToken: token, 
+						refreshToken: '',
+						user: this.currentUserSubject.value || {
+							id: '0',
+							email: '',
+							username: '',
+							role: UserRole.User,
+							roles: [UserRole.User]
+						}
+					});
+				}
+				return throwError(() => new Error('Token refresh failed'));
+			})
+			);
+		}
+		
+		this.isRefreshing = true;
+		this.refreshTokenSubject.next(null);
+		
+		return this.http.post<AuthResponse>(`${this.baseUrl}
+		${environment.api.endpoints.authEndpoints.refreshToken}`, { refreshToken })
+		.pipe(
+		tap(response => {
+			this.setTokens(response);
+			this.refreshTokenSubject.next(response.accessToken);
+			this.isRefreshing = false;
+		}),
+		catchError(error => {
+			this.isRefreshing = false;
+			this.refreshTokenSubject.next(null);
+			return throwError(() => error);
+		})
+		);
+	}
+	
+	private handleAuthError(): void {
+		this.logout();
+		this.router.navigate(['/login'], {
+			queryParams: { returnUrl: this.router.url }
+		});
+	}
+	
+	private setTokens(response: AuthResponse): void {
+		localStorage.setItem('accessToken', response.accessToken);
+		localStorage.setItem('refreshToken', response.refreshToken);
+		localStorage.setItem('currentUser', JSON.stringify(response.user));
+		this.currentUserSubject.next(response.user);
+	}
+	
+	updateCurrentUser(user: User): void {
+		localStorage.setItem('currentUser', JSON.stringify(user));
+		this.currentUserSubject.next(user);
+	}
+	
+	login(loginDto: LoginDto): Observable<AuthResponse> {
+		return this.http.post<AuthResponse>(`${this.baseUrl}
+			${environment.api.endpoints.authEndpoints.login}`, loginDto)
+		.pipe(
+		tap(response => {
+			this.setTokens(response);
+			this.setupTokenRefresh();
+		}),
+		catchError(this.handleError.bind(this))
+		);
+	}
+	
+	register(registerDto: RegisterDto): Observable<AuthResponse> {
+		return this.http.post<AuthResponse>(`${this.baseUrl}
+			${environment.api.endpoints.authEndpoints.register}`, registerDto)
+		.pipe(
+		tap(response => {
+			this.setTokens(response);
+			this.setupTokenRefresh();
+		}),
+		catchError(this.handleError.bind(this))
+		);
+	}
+	
+	logout(): Observable<void> {
+		const refreshToken = localStorage.getItem('refreshToken');
+		if (refreshToken) {
+			return this.http.post<void>(`${this.baseUrl}
+			${environment.api.endpoints.authEndpoints.revokeToken}`, { refreshToken })
+			.pipe(
+			finalize(() => {
+				this.clearAuthData();
+			})
+			);
+		}
+		this.clearAuthData();
+		return new Observable(subscriber => {
+			subscriber.next();
+			subscriber.complete();
+		});
+	}
+	
+	getCurrentUser(): User | null {
+		return this.currentUserSubject.value;
+	}
+	
+	isLoggedIn(): boolean {
+		return !!this.currentUserSubject.value;
+	}
+	
+	isAdmin(): boolean {
+		const user = this.currentUserSubject.value;
+		return user?.roles?.includes(UserRole.Admin) ?? false;
+	}
+	
+	getToken(): string | null {
+		return localStorage.getItem('accessToken');
+	}
+	
+	private handleError(error: HttpErrorResponse) {
+		let errorMessage = 'Wystąpił błąd podczas operacji';
+		if (error.error instanceof ErrorEvent) {
+			errorMessage = `Błąd: ${error.error.message}`;
+		} else {
+			errorMessage = `Kod błędu: ${error.status}, wiadomość: ${error.error.message || errorMessage}`;
+		}
+		return throwError(() => new Error(errorMessage));
+	}
+	
+	private clearAuthData(): void {
+		localStorage.removeItem('accessToken');
+		localStorage.removeItem('refreshToken');
+		localStorage.removeItem('currentUser');
+		this.currentUserSubject.next(null);
+		if (this.tokenRefreshTimeout) {
+			clearTimeout(this.tokenRefreshTimeout);
+		}
+	}
+}
+\end{lstlisting}
