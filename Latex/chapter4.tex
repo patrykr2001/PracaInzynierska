@@ -772,18 +772,129 @@ builder.Services.AddScoped<IBirdObservationService, BirdObservationService>();
 \end{lstlisting}
 
 \subsection{Obsługa plików}
+\index{Obsługa plików}
+Aplikacja obsługuje przesyłanie i zapisywanie na backendzie plików graficznych. Pliki te są elementami ptaków oraz obserwacji. Pliki zapisywane są w katalogu \texttt{wwwroot/uploads} z unikalnymi nazwami generowanymi na podstawię \texttt{GUID} i są widoczne z poziomu aplikacji frontendowej.
+
+\begin{lstlisting}[style=csharp, caption={Fragment implementacji zapisu plików}]
+private async Task<string> SaveImageAsync(IFormFile image)
+{
+	var uniqueFileName = $"{Guid.NewGuid()}_{image.FileName}";
+	var filePath = Path.Combine(_uploadFolder, uniqueFileName);
+	
+	using (var fileStream = new FileStream(filePath, FileMode.Create))
+	{
+		await image.CopyToAsync(fileStream);
+	}
+	
+	return $"/uploads/birds/{uniqueFileName}";
+}
+\end{lstlisting}
 
 \subsection{Walidacja danych}
+\index{Walidacja danych}
+Modele danych wykorzystują \texttt{[Data Adnnotations]} do walidacji prawidłowości danych po stronie serwisów.
+
+\begin{lstlisting}[style=csharp, caption={Przykład stosowania adnotacji w modelu DTO}]
+public class CreateBirdDto
+{
+	[Required]
+	public string CommonName { get; set; } = string.Empty;
+	
+	[Required]
+	public string ScientificName { get; set; } = string.Empty;
+	
+	[Required]
+	public string Family { get; set; } = string.Empty;
+	
+	[Required]
+	public string ConservationStatus { get; set; } = string.Empty;
+	
+	[Required]
+	[MaxLength(1000)]
+	public string Description { get; set; } = string.Empty;
+	
+	public IFormFile? Image { get; set; }
+}
+\end{lstlisting}
 
 \subsection{Paginacja}
+\index{Paginacja}
+Aplikacja wykorzystuje dzielenie danych na mniejsze zbiory podczas prezentowania list. Zapewnia to wysoką wydajność aplikacji frontendowej oraz szybkie przesyłanie danych w mniejszych porcjach w przypadku dużych zbiorów.
+
+\begin{lstlisting}[style=csharp, caption={Implementacja paginacji po stronie backendu}]
+public class PaginationParams
+{
+	private const int MaxPageSize = 50;
+	private int _pageSize = 10;
+	
+	public int PageNumber { get; set; } = 1;
+	public int PageSize
+	{
+		get => _pageSize;
+		set => _pageSize = value > MaxPageSize ? MaxPageSize : value;
+	}
+}
+
+public class PaginatedResponse<T>
+{
+	public IEnumerable<T> Items { get; set; } = new List<T>();
+	public int TotalCount { get; set; }
+	public int PageNumber { get; set; }
+	public int PageSize { get; set; }
+	public int TotalPages { get; set; }
+	public bool HasPreviousPage { get; set; }
+	public bool HasNextPage { get; set; }
+}
+\end{lstlisting}
 
 \subsection{Obsługa błędów}
+\index{Obsługa błędów}
+System implementuje globalną obsługę wyjątków poprzez wykorzystanie \texttt{middleware} oraz zwracanie odpowiednich kodów \texttt{HTTP} zgodnie z obowiązującymi standardami.
+
+\begin{lstlisting}[style=csharp, caption={Przykład obsługi błędów w kontrolerze}]
+[HttpPut("{id}")]
+[Authorize(Roles = AuthorizationConstants.AdminRole)]
+public async Task<IActionResult> UpdateBird(int id, [FromForm] UpdateBirdDto birdDto)
+{
+	try
+	{
+		await _birdService.UpdateBirdAsync(id, birdDto);
+		return NoContent();
+	}
+	catch (KeyNotFoundException)
+	{
+		return NotFound();
+	}
+	catch (UnauthorizedAccessException)
+	{
+		return Forbid();
+	}
+}
+\end{lstlisting}
 
 \subsection{Konfiguracja CORS}
+CORS zostały odpowiednio skonfigurowane w pliku \texttt{Program.cs} aby umożliwić obsługę żądań aplikacji frontendowej Angular.
+
+\begin{lstlisting}[style=csharp, caption={Konfiguracja CORS}]
+builder.Services.AddCors(options =>
+{
+	options.AddPolicy("AllowAngularDevServer",
+	builder => builder
+	.WithOrigins("http://localhost:4200", "https://localhost:4200")
+	.AllowAnyMethod()
+	.AllowAnyHeader()
+	.WithExposedHeaders("Token-Expired")
+	.AllowCredentials());
+});
+\end{lstlisting}
 
 \subsection{Interfejs Swagger}
 \index{Interfejs Swagger}
 Lista \texttt{endpointów} oraz struktur wykorzystywanych w REST API jest przedstawiona w interfejsie Swagger zawartym w dodatku \ref{chapter:dodatek_A}. Dzięki interfejsowi Swagger z łatwością testuje się implementowane API oraz ułatwia on implementacje komunikacji po stronie frontendu.
+
+\subsection{Podsumowanie implementacji backendu}
+\index{Podsumowanie implementacji backendu}
+Część backendowa aplikacji została zaprojektowana zgodnie z obowiązującymi najlepszymi praktykami programowania, wzorcami projektowymi oraz zaleceniami Microsoftu. Stworzony system jest modularny, łatwy w rozwoju, wydajny i bezpieczny dzięki wykorzystaniu \texttt{ASP.NET Core} w połączeniu z \texttt{Entity Framework Core}. Architektura REST API zapewnia efektywną komunikację, a implementacja paginacji wydajność ładowania danych i oszczędność zasobów.
 
 \section{Implementacja bazy danych}
 \index{Implementacja bazy danych}
