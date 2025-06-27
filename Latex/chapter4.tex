@@ -98,6 +98,41 @@
 	numberstyle=\tiny\color{gray}
 }
 
+\definecolor{sqlblue}{rgb}{0.0,0.0,0.6}
+\definecolor{sqlgray}{rgb}{0.5,0.5,0.5}
+\definecolor{sqlgreen}{rgb}{0.0,0.5,0.0}
+\definecolor{sqlbg}{rgb}{0.97,0.97,0.97}
+
+\lstdefinelanguage{SQL}{
+	morekeywords={
+		SELECT, INSERT, UPDATE, DELETE, FROM, WHERE, JOIN, INNER, LEFT, RIGHT, FULL,
+		ON, AS, AND, OR, NOT, NULL, IS, IN, LIKE, BETWEEN, CREATE, TABLE, PRIMARY,
+		KEY, FOREIGN, REFERENCES, DROP, ALTER, ADD, INTO, VALUES, SET, DISTINCT, ORDER, BY, GROUP, HAVING, LIMIT
+	},
+	sensitive=false,
+	morecomment=[l]--,
+	morecomment=[s]{/*}{*/},
+	morestring=[b]',
+}
+
+\lstdefinestyle{sqlstyle}{
+	language=SQL,
+	backgroundcolor=\color{sqlbg},
+	basicstyle=\ttfamily\small,
+	keywordstyle=\color{sqlblue}\bfseries,
+	commentstyle=\color{sqlgreen}\itshape,
+	stringstyle=\color{sqlgray},
+	showstringspaces=false,
+	breaklines=true,
+	frame=single,
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	captionpos=b,
+	tabsize=2,
+	showtabs=false
+}
+
+
 
 \chapter{Implementacja}
 \label{rozdzial4}
@@ -631,7 +666,8 @@ namespace BackendService.Data
 {
 	public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 	{
-		public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+		public ApplicationDbContext(DbContextOptions
+		<ApplicationDbContext> options)
 		: base(options)
 		{}
 		
@@ -898,6 +934,230 @@ Część backendowa aplikacji została zaprojektowana zgodnie z obowiązującymi
 
 \section{Implementacja bazy danych}
 \index{Implementacja bazy danych}
+Baza danych w systemie została zaimplementowana z użyciem \texttt{SQLite3} oraz \texttt{Entity Framework Core} wykorzystując podejście \texttt{code first}.
+
+\subsection{Konfiguracja połączenia z bazą danych}
+\index{Konfiguracja połączenia z bazą danych}
+Połączenie z bazą danych zostało skonfigurowane w pliku \texttt{appsettings.json}
+
+\begin{lstlisting}[style=csharp, caption={Konfiguracja bazy w appsettings.json}]
+{
+	"ConnectionStrings": {
+		"DefaultConnection": "Data Source=birdwatcher.db"
+	}
+}
+\end{lstlisting}
+
+Plik bazy danych \texttt{birdwatcher.db} jest automatycznie tworzony przy pierwszym starcie aplikacji oraz automatycznie aktualizowany gdy powstają nowe migracje.
+
+\subsection{Struktura bazy danych}
+\index{Struktura bazy danych}
+
+\subsubsection{Tabela AspNetUsers (Identity)}
+Tabela \texttt{AspNetUsers} jest częścią systemu \texttt{ASP.NET Core Identity}, została rozszerzona o dodatkowe pola potrzebne w systemie i służy ona do przechowywania danych o użytkownikach.
+
+\begin{lstlisting}[style=sqlstyle, caption={Struktura tabeli AspNetUsers}]
+CREATE TABLE AspNetUsers (
+	Id TEXT PRIMARY KEY,
+	UserName TEXT,
+	NormalizedUserName TEXT,
+	Email TEXT,
+	NormalizedEmail TEXT,
+	EmailConfirmed INTEGER,
+	PasswordHash TEXT,
+	SecurityStamp TEXT,
+	ConcurrencyStamp TEXT,
+	PhoneNumber TEXT,
+	PhoneNumberConfirmed INTEGER,
+	TwoFactorEnabled INTEGER,
+	LockoutEnd TEXT,
+	LockoutEnabled INTEGER,
+	AccessFailedCount INTEGER,
+	RefreshToken TEXT,
+	RefreshTokenExpiryTime TEXT,
+	CreatedAt TEXT NOT NULL
+);
+\end{lstlisting}
+
+\subsubsection{Tabela AspNetRoles (Identity)}
+Tabela \texttt{AspNetRoles} przechowuje informację o rolach użytkowników.
+
+\begin{lstlisting}[style=sqlstyle, caption={Struktura tabeli AspNetRoles}]
+CREATE TABLE AspNetRoles (
+	Id TEXT PRIMARY KEY,
+	Name TEXT,
+	NormalizedName TEXT,
+	ConcurrencyStamp TEXT
+);
+\end{lstlisting}
+
+\subsubsection{Tabela AspNetUserRoles (Identity)}
+Tabela \texttt{AspNetUserRoles} łaczy użytkowników z rolami.
+
+\begin{lstlisting}[style=sqlstyle, caption={Struktura tabeli AspNetRoles}]
+CREATE TABLE AspNetUserRoles (
+	UserId TEXT NOT NULL,
+	RoleId TEXT NOT NULL,
+	PRIMARY KEY (UserId, RoleId),
+	FOREIGN KEY (UserId) REFERENCES AspNetUsers(Id) ON DELETE CASCADE,
+	FOREIGN KEY (RoleId) REFERENCES AspNetRoles(Id) ON DELETE CASCADE
+);
+\end{lstlisting}
+
+\subsubsection{Tabela Birds}
+Tabela \texttt{Birds} przechowuje informację o ptakach.
+
+\begin{lstlisting}[style=sqlstyle, caption={Struktura tabeli AspNetRoles}]
+CREATE TABLE Birds (
+	Id INTEGER PRIMARY KEY AUTOINCREMENT,
+	CommonName TEXT NOT NULL,
+	ScientificName TEXT NOT NULL,
+	Family TEXT NOT NULL,
+	Order TEXT,
+	Genus TEXT,
+	Species TEXT,
+	ConservationStatus TEXT NOT NULL,
+	Description TEXT NOT NULL,
+	Habitat TEXT,
+	Diet TEXT,
+	Size TEXT,
+	Weight REAL,
+	Wingspan REAL,
+	Lifespan TEXT,
+	BreedingSeason TEXT,
+	ImageUrl TEXT,
+	IsVerified INTEGER NOT NULL DEFAULT 0,
+	UserId TEXT NOT NULL,
+	CreatedAt TEXT NOT NULL,
+	FOREIGN KEY (UserId) REFERENCES AspNetUsers(Id) ON DELETE RESTRICT
+);
+\end{lstlisting}
+
+\subsubsection{Tabela BirdObervations}
+Tabela \texttt{BirdObersvations} przechowuje informację o obserwacjach ptaków.
+
+\begin{lstlisting}[style=sqlstyle, caption={Struktura tabeli AspNetRoles}]
+CREATE TABLE BirdObservations (
+	Id INTEGER PRIMARY KEY AUTOINCREMENT,
+	BirdId INTEGER NOT NULL,
+	UserId TEXT NOT NULL,
+	Latitude REAL NOT NULL,
+	Longitude REAL NOT NULL,
+	ObservationDate TEXT NOT NULL,
+	Description TEXT,
+	NumberOfBirds INTEGER,
+	WeatherConditions TEXT,
+	Habitat TEXT,
+	IsVerified INTEGER NOT NULL DEFAULT 0,
+	CreatedAt TEXT NOT NULL,
+	UpdatedAt TEXT NOT NULL,
+	ImageUrls TEXT NOT NULL DEFAULT '[]',
+	FOREIGN KEY (BirdId) REFERENCES Birds(Id) ON DELETE CASCADE,
+	FOREIGN KEY (UserId) REFERENCES AspNetUsers(Id) ON DELETE CASCADE
+);
+\end{lstlisting}
+
+\newpage
+
+\subsection{Relacje}
+\index{Relacje}
+
+\subsubsection{Diagram relacji}
+
+\begin{figure}[!htb]
+	\centering
+	\includegraphics[width=0.6\textwidth]{/chapter4/diagramrelacji.png}
+	\caption{Uproszczony diagram relacji bazy danych}
+	\label{fig:diagramrelacji}
+\end{figure}
+
+\subsubsection{Konfiguracja relacji w Entity Framework Core}
+
+\begin{lstlisting}[style=csharp, caption={Konfiguracja relacji w Entity Framework Core}]
+protected override void OnModelCreating(ModelBuilder modelBuilder)
+{
+	base.OnModelCreating(modelBuilder);
+	
+	modelBuilder.Entity<Bird>()
+	.HasOne<ApplicationUser>()
+	.WithMany()
+	.HasForeignKey(b => b.UserId)
+	.OnDelete(DeleteBehavior.Restrict);
+	
+	modelBuilder.Entity<BirdObservation>()
+	.HasOne(b => b.Bird)
+	.WithMany(b => b.Observations)
+	.HasForeignKey(b => b.BirdId)
+	.OnDelete(DeleteBehavior.Cascade);
+}
+\end{lstlisting}
+
+\subsection{Indeksy bazy danych}
+\index{Indeksy bazy danych}
+W bazie danych zostały utworzone następujące indeksy aby poprawić wydajność wyszukiwania.
+
+\begin{lstlisting}[style=sqlstyle, caption={Indeksy bazy danych}]
+-- Indeksy dla tabeli Birds
+CREATE INDEX IX_Birds_CommonName ON Birds(CommonName);
+CREATE INDEX IX_Birds_ScientificName ON Birds(ScientificName);
+
+-- Indeksy dla tabeli BirdObservations
+CREATE INDEX IX_BirdObservations_BirdId ON BirdObservations(BirdId);
+CREATE INDEX IX_BirdObservations_UserId ON BirdObservations(UserId);
+CREATE INDEX IX_BirdObservations_ObservationDate ON BirdObservations(ObservationDate);
+CREATE INDEX IX_BirdObservations_Latitude_Longitude ON BirdObservations(Latitude, Longitude);
+
+-- Indeksy dla tabeli AspNetUsers (Identity)
+CREATE INDEX IX_AspNetUsers_Email ON AspNetUsers(Email);
+CREATE INDEX IX_AspNetUsers_UserName ON AspNetUsers(UserName);
+\end{lstlisting}
+
+\subsection{Migracje}
+\index{Migracje}
+W aplikacji wykorzystywany jest \texttt{Code-First Migrations Entity Framework Core} do zarządzania schematem bazy danych.
+Historia migracji jest przechowywana w osobnych plikach nazwanych opisowo np.:
+\begin{enumerate}
+	\item InitalCreate
+	\item AddBirdsAndObserwations
+	\item AddRefreshToken
+	\item ...
+\end{enumerate}
+
+\subsection{Backup i odzyskiwanie}
+\index{Backup i odzyskiwanie}
+Ponieważ SQLite przechowuje bazę danych jako jeden plik na dysku, backup sprowadza się do skopiowania pliku \texttt{birdwatcher.db}
+
+\begin{lstlisting}[language=bash, caption={Przykład skryptu kopiującego w bash}]
+cp birdwatcher.db backup/birdwatcher_$(date +%Y%m%d_%H%M%S).db
+\end{lstlisting}
+
+\subsection{Automatyczne tworzenie bazy danych}
+\index{Automatyczne tworzenie bazy danych}
+Automatyczne tworzenie bazy danych zostało zaimplementowane w pliku \texttt{Program.cs}.
+
+\begin{lstlisting}[style=csharp, caption={Automatyczne tworzenie bazy danych}]
+using (var scope = app.Services.CreateScope())
+	{
+		var services = scope.ServiceProvider;
+		try
+		{
+			var context = services.GetRequiredService
+			<ApplicationDbContext>();
+			context.Database.EnsureCreated();
+			await SeedData.Initialize(services);
+		}
+		catch (Exception ex)
+		{
+			var logger = services.GetRequiredService<ILogger<Program>>();
+			logger.LogError(ex, "Wystąpił błąd podczas tworzenia bazy danych.");
+		}
+	}
+\end{lstlisting}
+
+\subsection{Podsumowanie implementacji bazy danych}
+\index{Podsumowanie implementacji bazy danych}
+
+\FloatBarrier
 
 \section{Implementacja systemu autentyfikacji i autoryzacji}
 \index{Implementacja systemu autentyfikacji i autoryzacji}
