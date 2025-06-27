@@ -234,6 +234,60 @@ Ruby on Rails zdobył ogromną popularność dzięki prostocie i łatwości z ja
 
 \subsection{Bazy danych}
 
+\subsubsection{SQLite}
+
+SQLite to lekkka, mała, szybka bezserwerowa relacyjna baza danych. Jej struktura składa się z jednego pliku i obsługiwana jest bezpośrednio przez aplikację - bez dodatkowego silnika bazodanowego.
+
+Zalety:
+\begin{itemize}
+	\item Brak potrzeby instalacji osobnego serwera
+	\item Niskie zużycie zasób
+	\item Łatwość migracji
+	\item Open Source
+\end{itemize}
+
+Wady:
+\begin{itemize}
+	\item Ograniczona skalowalność
+	\item Brak zaawansowanych funkcji analitycznych
+\end{itemize}
+
+\subsubsection{PostgreSQL}
+
+PostgreSQL to zaawansowany, wydajny system relacyjnych baz danych typu Open Source.
+
+Zalety:
+\begin{itemize}
+	\item Skalowalność i wydajność
+	\item Wysoka zgodność ze standardem SQL
+	\item Obsługa złożonych typów oraz JSON
+	\item Wsparcie procedur składniowych
+\end{itemize}
+
+Wady:
+\begin{itemize}
+	\item Wymaga instalacji serwera
+	\item Złożoność konfiguracji
+	\item Zasobożerność przy większych projektach
+\end{itemize}
+
+\subsubsection{MongoDB}
+
+MongoDB jest nierelacyjną bazą danych NoSQL opartą na JSON. Popularna w zastosowaniach webowych i mobilnych.
+
+Zalety:
+\begin{itemize}
+	\item Elastyczny schemat danych
+	\item Szybkie operacje zapisu i odczytu
+	\item Wysoka skalowalność pozioma
+\end{itemize}
+
+Wady:
+\begin{itemize}
+	\item Mniej wydajna przy złożonych zależnościach między danymi
+	\item Wymaga większej kontroli nad integralnością danych
+\end{itemize}
+
 \section{Uzasadnienie wyboru Angular jako frameworka frontendowego}
 \index{Uzasadnienie wyboru Angular jako frameworka frontendowego}
 
@@ -275,8 +329,40 @@ Angular to kompleksowe rozwiązanie do budowani aplikacji webowych. Rozwijany i 
 \section{Uzasadnienie wyboru ASP.NET Core jako backendu}
 \index{Uzasadnienie wyboru ASP.NET Core jako backendu}
 
+ASP.NET Core to nowoczesny, opensourcowy, wysoko wydajny framework webowy działający na platformie .NET.
+Wybór został podyktowany kilkoma kluczowymi czynnikami.
+
+\subsection{Kluczowe zalety}
+\begin{itemize}
+	\item Wydajność frameworku - według benchmarków jest wydajniejszy od innych popularnych frameworków\footnote{https://www.techempower.com/benchmarks/#hw=ph&test=plaintext&section=data-r23}
+	\item Stabilna platforma która jest ciągle rozwijana
+	\item Wieloplatformowość i elastyczność wdrożenia we wszystkich popularnych systemach operacyjnych jak i za pomocą Dockera i rozwiązań chmurowych.
+\end{itemize}
+
+\subsection{Wbudowane bezpieczeństwo}
+ASP.NET Core zawiera wiele mechanizmów i technologii zapewniających bezpieczeństwo na poziomie enterpise.
+\begin{itemize}
+	\item CSRF
+	\item XSS
+	\item SQL Injection
+	\item łatwa integracja z systemami JWT oraz OAuth2
+\end{itemize}
+
+\subsection{Modularna architektura oraz wstrzykiwanie zależności}
+Dzięki wbudowanej dependecy injection i modularnej budowie framework jest łatwy w utrzymaniu a tworzony kod jest przejrzysty i testowalny. W prosty sposób można skalować aplikację o nowe moduły i funkcjonalności.
+ASP.NET Core wspiera również wszelkie wzorce projektowe wykorzystywane w nowoczesnych aplikacjach oraz umożliwia tworzenie aplikacji z kodem C# po stronie klienta.
+
+\subsection{Silne wsparcie Microsoft oraz społeczności}
+Framework wraz z całą platformą .Net Core jest stale rozwijany i udoskonalany, do gwarantuje długotrwała stabilność i bezpieczeństwo oraz dostępność zasobów edukacyjnych.
+
+Ponad wyżej wymienione zalety posiadam wieloletnie doświadczenie w wykorzystaniu frameworku co również wpłynęło na jego wybór jako backend projektowanego systemu.
+
 \section{Uzasadnienie wyboru SQLite jako bazy danych}
 \index{Uzasadnienie wyboru SQLite jako bazy danych}
+
+SQLite stał się wyborem jako bazadanych w projektowanym systemie ze względu na prostotę, lekkość i brak potrzeb dodatkowych konfiguracji serwera i narzutu zasobów z tym związanych. Jest to idealne rozwiązanie do aplikacji webowych i mobilnych, szybkiego projektowania i rozwoju struktury danych oraz wdrażania programów na systemach o ograniczonych zasobach sprzętowych.
+
+Dzięki przechowywaniu danych w jednym pliku SQLite zapewnia prostotę wdrożenia i przenoszenia baz danych - co wiąże się również dość prostym backupem bazy. Zgodność z SQL gwarantuje spójność danych mimo braku serwera.
 
 \section{Omówienie innych wykorzystanych technologii}
 \index{Omówienie innych wykorzystanych technologii}
