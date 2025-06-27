@@ -1363,7 +1363,7 @@ private string GenerateRefreshToken()
 	\item /api/auth/logout
 \end{itemize}
 
-Implementacja kontrolera została przedstawiona w listingu \ref{lst:kontrolerautentykacji}
+Implementacja kontrolera została przedstawiona w listingu \ref{lst:kontrolerautentykacji}.
 
 \subsection{Frontend - Serwis autentyfikacji}
 \index{Frontend - Serwis autentyfikacji}
@@ -1374,60 +1374,27 @@ Implementacja serwisu została przedstawiona w listingu \ref{lst:serwisautentyka
 
 \subsection{Interceptor HTTP}
 \index{Interceptor HTTP}
-
 Interceptor automatycznie dodaje tokeny do żądań wysyłanych z frontendu i obsługuje błędy autoryzacji.
+Implementacja została przedstawiona w listingu \ref{lst:interceptorhttp}.
 
-\begin{lstlisting}[style=tsstyle, caption={Interceptor HTTP}]
-export const authInterceptor: HttpInterceptorFn = (req, next) => {
-	const router = inject(Router);
-	const authService = inject(AuthService);
-	const token = localStorage.getItem('accessToken');
-	
-	if (token) {
-		const clonedReq = req.clone({
-			headers: req.headers.set('Authorization', `Bearer ${token}`)
-		});
-		req = clonedReq;
-	}
-	
-	return next(req).pipe(
-	catchError((error: HttpErrorResponse) => {
-		if (error.status === 401 && !req.url.includes('/refresh-token')) {
-			return authService.refreshToken().pipe(
-			switchMap(response => {
-				const newReq = req.clone({
-					headers: req.headers.set('Authorization', `Bearer ${response.accessToken}`)
-				});
-				return next(newReq);
-			}),
-			catchError(refreshError => {
-				authService.logout().subscribe(() => {
-					router.navigate(['/login'], {
-						queryParams: { returnUrl: router.url }
-					});
-				});
-				return throwError(() => refreshError);
-			})
-			);
-		}
-		
-		if (error.status === 403) {
-			router.navigate(['/login'], { 
-				queryParams: { returnUrl: router.url }
-			});
-		}
-		
-		return throwError(() => error);
-	})
-	);
-};
-\end{lstlisting}
 
 \subsection{Bezpieczeństwo systemu}
 \index{Bezpieczeństwo systemu}
+System autentykacji został zaimplementowany tak aby gwarantował szereg mechanizmów bezpieczeństwa:
+
+\begin{itemize}
+	\item \textbf{Blokada konta} - automatyczna blokada po 5 nieudanych próbach logowania
+	\item \textbf{Walidacja haseł} - wymaganie cyfr, małych i wielkich liter, znaków specjalnych oraz minimalnej długości 8 znaków
+	\item \textbf{Krótki czas ważności tokenów} - tokeny ważne 15 minut
+	\item \textbf{Tokeny odświeżające} - długoterminowe tokeny (7 dni) do automatycznego odświeżania
+	\item \textbf{Unikalne adresy email} - wymaganie unikalności adresów email w systemie
+	\item \textbf{Bezpieczne generowanie tokenów} - wykorzystanie kryptograficznie bezpiecznego generatora liczb losowych
+	\item \textbf{Automatyczne czyszczenie} - usuwanie tokenów po wylogowaniu
+\end{itemize}
 
 \subsection{Podsumowanie}
 \index{Podsumowanie}
+Przedstawiona implementacja systemu autoryzacji i autentykacji zapewnia bezpieczeństwo aplikacji. Bezpieczny dostęp użytkowników poprzez wykorzystanie nowoczesnych technologii JWT, tokenów odświeżających oraz mechanizmów blokady konta. System jest skalowalny i zgodny z praktykami bezpieczeństwa w aplikacjach webowych.
 
 \section{Implementacja funkcjonalności mapy i geolokalizacji}
 \index{Implementacja funkcjonalności mapy i geolokalizacji}
