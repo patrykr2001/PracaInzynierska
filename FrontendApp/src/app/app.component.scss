@@ -1,4 +1,5 @@
 main {
-  height: calc(100vh - 64px); // 64px to wysokość paska nawigacyjnego
-  overflow: hidden;
+  min-height: calc(100vh - 64px);
+  overflow-y: auto;
+  overflow-x: hidden;
 }

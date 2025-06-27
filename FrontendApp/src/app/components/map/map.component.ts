@@ -15,6 +15,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnChanges {
   @Input() initialZoom: number = 6;
   @Input() allowSelection: boolean = false;
   @Input() observations: BirdObservation[] = [];
+  @Input() mapType: 'default' | 'home' | 'form' = 'default';
   @Output() locationSelected = new EventEmitter<{ lat: number; lng: number }>();
 
   private map: L.Map | undefined;
@@ -38,6 +39,10 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnChanges {
     shadowSize: undefined,
     shadowAnchor: undefined
   });
+
+  get mapContainerClass(): string {
+    return `map-container ${this.mapType}-map`;
+  }
 
   ngAfterViewInit(): void {
     // Opóźniamy inicjalizację mapy, aby upewnić się, że kontener jest widoczny

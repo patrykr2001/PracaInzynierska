@@ -150,7 +150,7 @@ W projekcie wymiana danych pomiędzy frontendem i backendem odbywa się za pomoc
 }
 \end{lstlisting}
 
-\begin{lstlisting}[style=csharp, caption=Fragment kontrolera REST API z projektu]
+\begin{lstlisting}[style=csharp, caption={Fragment kontrolera REST API z projektu}, label={lst:przykladCSController}]
 namespace BackendService.Controllers
 {
 	[ApiController]
@@ -175,7 +175,7 @@ namespace BackendService.Controllers
 ...
 \end{lstlisting}
 
-\begin{lstlisting}[style=tsstyle, caption=Fragment serwisu po stronie frontendu]
+\begin{lstlisting}[style=tsstyle, caption={Fragment serwisu po stronie frontendu}, label={lst:przykladTSService}]
 @Injectable({
 	providedIn: 'root'
 })
@@ -215,7 +215,7 @@ export class BirdService {
 Do mapowania obiektowo-relacyjnego wykorzystywany jest Entity Framework Core. Umożliwia on pracę na platformie .NET z bazami danych przy użyciu kontekstu oraz modeli danych. Wykonywanie zapytań bazodanowych odbywa się w tle a programistą udostępniony jest wygodny interfejs LINQ\footnote{Zapytanie zintegrowane z językiem (LINQ) - zestaw technologii opartych na integracji funkcji zapytań bezpośrednio w języku C\#\cite{dotnet_linq}} niewymagający ręcznego pisania zapytań.
 
 Przykład takiego wywołania zapytań został przedstawiony poniżej:
-\begin{lstlisting}[style=csharp, caption=Przykład wywołania zapytania bazodanowego za pomocą EF Core oraz LINQ]
+\begin{lstlisting}[style=csharp, caption={Przykład wywołania zapytania bazodanowego za pomocą EF Core oraz LINQ}]
 var query = _context.Birds.Where(b =>
 	b.IsVerified && (
 	b.CommonName.ToLower().Contains(searchTerm) ||
@@ -228,6 +228,179 @@ var query = _context.Birds.Where(b =>
 
 \section{Implementacja frontendu}
 \index{Implementacja frontendu}
+
+\subsection{Zastosowane technologie}
+W implementacji frontendu zostały wykorzystane poniżej wymienione technologie:
+\begin{itemize}
+	\item Angular 17 - framework
+	\item Typescript, HTML5, CSS3 - języki programowania oraz znaczników i stylów
+	\item Angular Material - biblioteka komponentów UI
+	\item Leaflet - biblioteka do obsługi map interaktywnych
+	\item RxJS - biblioteka do programowania reaktywnego
+\end{itemize}
+
+\subsection{Wzorce architektoniczne}
+Aplikacja została wykonana w oparciu o obowiązujące trendy i odpowiednie wzorce architektoniczne wykorzystywane w programowaniu i zastosowaniu frameworku Angular.
+
+\subsubsection{Modularna architektura}
+Aplikacja jest podzielona na funkcjonalne moduły obsługujące poszczególne funkcjonalności takie jak zarządzanie stanem, logowaniem, wymianą danych z backendem oraz poszczególne komponenty stron i podstron.
+Rozwój aplikacji w takiej konfiguracji jest efektywny - z łatwością można dodać kolejne elementy i wykorzystywać dependecy injection to zarządzania stanem i wykorzystania serwisów.
+
+\subsubsection{Komponenty}
+System składa się z komponentów Angular, które odpowiadają za poszczególne funkcjonalności i są reużywalne w całej aplikacji np.: pasek nawigacyjny, strony listującej ptaki, obserwacje, komponent formularzy, komponent obsługi mapy, logowania i rejestracji.
+Każdy komponent składa się z pliku TypeScript zawierającego logikę biznesową danego komponentu oraz szablonu html ze stylami css do określenia wyglądu.
+
+\begin{lstlisting}[style=tsstyle, caption={Fragment kodu TypeScript komponentu}]
+@Component({
+	selector: 'app-bird-details',
+	standalone: true,
+	imports: [ ... ],
+	templateUrl: './bird-details.component.html',
+	styleUrl: './bird-details.component.scss'
+})
+export default class BirdDetailsComponent implements OnInit {
+	baseUrl = environment.api.baseUrl;
+	bird: Bird | null = null;
+	isLoading = true;
+	errorMessage = '';
+	isAdmin = false;
+	dateFormat: string;
+	
+	constructor(
+	private route: ActivatedRoute,
+	private router: Router,
+	private birdService: BirdService,
+	private authService: AuthService,
+	private snackBar: MatSnackBar,
+	private dialog: MatDialog,
+	private localeService: LocaleService,
+	private userService: UserService
+	) {
+		this.dateFormat = this.localeService.getDateTimeFormat();
+	}
+	
+	ngOnInit(): void {
+		this.route.params.subscribe(params => {
+			const id = params['id'];
+			if (id) {
+				this.loadBird(id);
+			}
+		});
+		this.isAdmin = this.userService.isAdmin();
+	}
+	
+	private loadBird(id: string): void {
+		this.isLoading = true;
+		this.birdService.getBirdById(Number(id)).subscribe({
+			next: (bird) => {
+				this.bird = bird;
+				this.isLoading = false;
+			},
+			error: (error) => {
+				this.errorMessage = 'Wystąpił błąd podczas ładowania danych ptaka';
+				this.isLoading = false;
+				console.error('Error loading bird:', error);
+			}
+		});
+	}
+...
+\end{lstlisting}
+
+\begin{lstlisting}[language=html, caption={Fragment szablonu html komponentu}]
+<div class="container">
+@if (isLoading) {
+	<div class="loading-container">
+	<mat-spinner></mat-spinner>
+	</div>
+} @else if (errorMessage) {
+	<div class="error-message">
+	{{ errorMessage }}
+	</div>
+} @else if (bird) {
+	<mat-card class="bird-card">
+	<div class="bird-content">
+	<div class="bird-image">
+	<img [src]="bird.imageUrl ? baseUrl + bird.imageUrl : baseUrl + '/images/placeholder.jpg'" [alt]="bird.commonName">
+	</div>
+	<div class="bird-info">
+	<h1>{{ bird.commonName }}</h1>
+	<h2>{{ bird.scientificName }}</h2>
+...
+\end{lstlisting}
+
+\begin{lstlisting}[language=css, caption={Fragment styli css komponentu}]
+.container {
+	padding: 20px;
+	max-width: 1200px;
+	margin: 0 auto;
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+}
+
+.loading-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	min-height: 400px;
+}
+...
+\end{lstlisting}
+
+\subsubsection{Serwisy}
+Do komunikacji z backendem i implementacji logiki biznesowej wykorzystywane są serwisy. Serwisy są podzielone zgodnie z ich przeznaczeniem, np.: serwis do obsługi pobierania, dodawania, edycji ptaków, serwis autoryzacji użytkowników i uprawnień, serwis obserwacji.
+Dodanie kolejnej funkcjonalności odbywa się przez dodanie kolejnego serwisu lub modyfikacji istniejącego i późniejszego wykorzystania go w komponentach. Fragment kody serwisu został przedstawiony w listingu \ref{lst:przykladTSService}.
+
+\subsubsection{Routing}
+Nawigacja między stronami została zrealizowana przy użyciu mechanizmów routingu wbudowanych w framework Angular.
+\begin{lstlisting}[style=tsstyle, caption={Fragment kodu routingu}]
+export const routes: Routes = [
+{ path: '', component: HomePageComponent },
+{
+	path: 'birds',
+	loadComponent: () => import('./pages/birds/birds.component').then(m => m.default)
+},
+{
+	path: 'observations',
+	loadComponent: () => import('./pages/observations/observations.component')
+			.then(m => m.default)
+},
+{
+	path: 'observations/add',
+	loadComponent: () => import('./pages/add-observation/add-observation
+			.component').then(m => m.default)
+},
+{
+	path: 'observations/:id',
+	loadComponent: () => import('./pages/observation-details/observation
+			-details.component').then(m => m.default)
+},
+{
+	path: 'observations/:id/edit',
+	loadComponent: () => import('./pages/edit-observation/edit-observation
+			.component').then(m => m.default)
+},
+...
+\end{lstlisting}
+
+\subsection{Implementacja komponentów głównych}
+
+\subsubsection{Pasek nawigacyjny}
+Pasek nawigacyjny jest stałym elementem na górze strony umożliwiającym nawigacje oraz logowanie i rejestracje. Responsywnie dostosowuje się do szerokości strony i na mniejszych ekranach przechodzi w tryb menu rozwijanego.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=1.0\textwidth]{/chapter4/navbar1.png}
+	\caption{Pasek nawigacyjny na dużym ekranie}
+	\label{fig:navbar1}
+\end{figure}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=1.0\textwidth]{/chapter4/navbar2.png}
+	\caption{Pasek nawigacyjny w trybie rozwijanym}
+	\label{fig:navbar2}
+\end{figure}
 
 \section{Implementacja backendu}
 \index{Implementacja backendu}

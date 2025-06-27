@@ -1,25 +1,35 @@
 <div class="home-container">
-  <div class="week-slider-container">
-    <mat-form-field appearance="fill" class="year-select">
-      <mat-label>Rok</mat-label>
-      <mat-select [(ngModel)]="selectedYear" (ngModelChange)="onYearChange($event)">
-        <mat-option *ngFor="let year of years" [value]="year">{{ year }}</mat-option>
-      </mat-select>
-    </mat-form-field>
-    <mat-button-toggle-group
-      class="week-toggle-group"
-      [value]="selectedWeekIndex"
-      (change)="onWeekChange($event.value)"
-      appearance="legacy">
-      <mat-button-toggle *ngFor="let week of weeks; let i = index" [value]="i">
-        {{ week.start | date:'dd.MM' }}-{{ week.end | date:'dd.MM' }}
-      </mat-button-toggle>
-    </mat-button-toggle-group>
-    <div class="week-label">
-      {{ weeks[selectedWeekIndex]?.start | date:'dd.MM.yyyy' }} - {{ weeks[selectedWeekIndex]?.end | date:'dd.MM.yyyy' }}
+  <div class="date-picker-container">
+    <!-- Przycisk rozwijania/zwijania -->
+    <button mat-icon-button class="date-picker-toggle" (click)="toggleDatePicker()" [class.expanded]="isDatePickerExpanded">
+      <mat-icon>{{ isDatePickerExpanded ? 'expand_less' : 'expand_more' }}</mat-icon>
+      <span class="toggle-label">{{ isDatePickerExpanded ? 'Ukryj datę' : 'Wybierz datę' }}</span>
+    </button>
+
+    <!-- Rozwijany kontener z opcjami daty -->
+    <div class="week-slider-container" [class.expanded]="isDatePickerExpanded">
+      <mat-form-field appearance="fill" class="year-select">
+        <mat-label>Rok</mat-label>
+        <mat-select [(ngModel)]="selectedYear" (ngModelChange)="onYearChange($event)">
+          <mat-option *ngFor="let year of years" [value]="year">{{ year }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-button-toggle-group
+        class="week-toggle-group"
+        [value]="selectedWeekIndex"
+        (change)="onWeekChange($event.value)"
+        appearance="legacy">
+        <mat-button-toggle *ngFor="let week of weeks; let i = index" [value]="i">
+          {{ week.start | date:'dd.MM' }}-{{ week.end | date:'dd.MM' }}
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+      <div class="week-label">
+        {{ weeks[selectedWeekIndex]?.start | date:'dd.MM.yyyy' }} - {{ weeks[selectedWeekIndex]?.end | date:'dd.MM.yyyy' }}
+      </div>
     </div>
   </div>
+
   <div class="map-wrapper">
-    <app-map [observations]="filteredObservations"></app-map>
+    <app-map [observations]="filteredObservations" mapType="home"></app-map>
   </div>
-</div> 
+</div>

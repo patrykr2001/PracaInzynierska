@@ -2,6 +2,9 @@
   max-width: 600px;
   margin: 2rem auto;
   padding: 0 1rem;
+  padding-top: calc(2rem + 64px);
+  min-height: calc(100vh - 64px);
+  overflow-y: auto;
 
   mat-card {
     padding: 2rem;
@@ -20,7 +23,7 @@
 
     button {
       flex: 1;
-      
+
       mat-spinner {
         display: inline-block;
         margin-right: 8px;

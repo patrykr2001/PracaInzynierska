@@ -13,3 +13,51 @@
   width: 100%;
   height: 100%;
 }
+
+// Responsywne style dla mapy
+@media (min-width: 1200px) {
+  .map-container {
+    min-height: 600px;
+  }
+}
+
+@media (min-width: 1600px) {
+  .map-container {
+    min-height: 800px;
+  }
+}
+
+@media (min-width: 1920px) {
+  .map-container {
+    min-height: 900px;
+  }
+}
+
+// Style dla mapy w formularzach (mniejsza wysokość)
+.map-container.form-map {
+  min-height: 300px;
+  max-height: 400px;
+}
+
+// Style dla mapy na stronie głównej (większa wysokość)
+.map-container.home-map {
+  min-height: 500px;
+}
+
+@media (min-width: 1200px) {
+  .map-container.home-map {
+    min-height: 700px;
+  }
+}
+
+@media (min-width: 1600px) {
+  .map-container.home-map {
+    min-height: 900px;
+  }
+}
+
+@media (min-width: 1920px) {
+  .map-container.home-map {
+    min-height: 1000px;
+  }
+}

@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatSelectModule } from '@angular/material/select';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 import { MapComponent } from '../../components/map/map.component';
 import { BirdObservationService } from '../../services/bird-observation.service';
 import { BirdObservation } from '../../models/bird-observation.model';
@@ -19,7 +21,7 @@ interface ObservationWeek {
 @Component({
   selector: 'app-home-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatSliderModule, MatButtonToggleModule, MatSelectModule, MapComponent],
+  imports: [CommonModule, FormsModule, MatSliderModule, MatButtonToggleModule, MatSelectModule, MatIconModule, MatButtonModule, MapComponent],
   templateUrl: './home-page.component.html',
   styleUrl: './home-page.component.scss'
 })
@@ -29,11 +31,16 @@ export class HomePageComponent implements OnInit {
   filteredObservations: BirdObservation[] = [];
   years: number[] = [];
   selectedYear: number | null = null;
+  isDatePickerExpanded: boolean = false;
 
   constructor(private http: HttpClient, private observationService: BirdObservationService) {}
 
   ngOnInit(): void {
     this.fetchAvailableYears();
+  }
+
+  toggleDatePicker(): void {
+    this.isDatePickerExpanded = !this.isDatePickerExpanded;
   }
 
   fetchAvailableYears() {
@@ -84,4 +91,4 @@ export class HomePageComponent implements OnInit {
       }
     });
   }
-} 
+}

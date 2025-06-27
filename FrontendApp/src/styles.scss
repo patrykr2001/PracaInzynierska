@@ -6,6 +6,7 @@ html, body {
   margin: 0;
   padding: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
+  overflow-x: hidden;
 }
 
 * {
@@ -14,11 +15,158 @@ html, body {
 
 .container {
   padding: 2rem;
+  padding-top: calc(2rem + 64px);
   max-width: 1200px;
   margin: 0 auto;
+  min-height: 100%;
 }
 
 h1 {
   margin-bottom: 1rem;
   color: #333;
+}
+
+/* Dodatkowe style dla poprawy scrollowania */
+.mat-mdc-card {
+  margin-bottom: 1rem;
+}
+
+.mat-mdc-toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Poprawka dla paginatora */
+.mat-mdc-paginator {
+  margin-top: 2rem;
+}
+
+/* Poprawka dla formularzy */
+.mat-mdc-form-field {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+/* Poprawka dla przycisków */
+.mat-mdc-button {
+  margin-right: 0.5rem;
+}
+
+/* Poprawka dla grid layout */
+.birds-grid {
+  margin-bottom: 2rem;
+}
+
+/* Dodatkowe style dla poprawy scrollowania */
+body {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Poprawka dla dialogów */
+.mat-mdc-dialog-container {
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+/* Poprawka dla kart z długą zawartością */
+.mat-mdc-card-content {
+  max-height: none;
+  overflow: visible;
+}
+
+/* Poprawka dla responsywności */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+    padding-top: calc(1rem + 56px);
+  }
+
+  .mat-mdc-toolbar {
+    padding: 0 1rem;
+  }
+
+  .observations-container,
+  .settings-container {
+    padding-top: calc(20px + 56px);
+  }
+
+  .home-container {
+    padding-top: 56px;
+  }
+
+  .login-container,
+  .register-container {
+    padding-top: calc(2rem + 56px);
+  }
+}
+
+/* Poprawka dla scrollowania na urządzeniach mobilnych */
+@media (max-width: 480px) {
+  html, body {
+    overflow-x: hidden;
+  }
+
+  .container {
+    padding: 0.5rem;
+    padding-top: calc(0.5rem + 48px);
+  }
+
+  .observations-container,
+  .settings-container {
+    padding-top: calc(20px + 48px);
+  }
+
+  .home-container {
+    padding-top: 48px;
+  }
+
+  .login-container,
+  .register-container {
+    padding-top: calc(2rem + 48px);
+  }
+}
+
+/* Dodatkowe style dla paska nawigacyjnego */
+.mat-mdc-toolbar {
+  min-height: 64px;
+  padding: 0 16px;
+}
+
+/* Poprawka dla przycisków w pasku nawigacyjnym */
+.mat-mdc-toolbar .mat-mdc-button {
+  margin-right: 0;
+  min-width: auto;
+}
+
+/* Poprawka dla ikon w pasku nawigacyjnym */
+.mat-mdc-toolbar mat-icon {
+  margin-right: 0.5rem;
+}
+
+/* Poprawka dla responsywności paska nawigacyjnego */
+@media (max-width: 768px) {
+  .mat-mdc-toolbar {
+    min-height: 56px;
+    padding: 0 8px;
+  }
+
+  .mat-mdc-toolbar .mat-mdc-button {
+    padding: 0 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .mat-mdc-toolbar {
+    min-height: 48px;
+    padding: 0 4px;
+  }
+
+  .mat-mdc-toolbar .mat-mdc-button {
+    padding: 0 4px;
+  }
 }

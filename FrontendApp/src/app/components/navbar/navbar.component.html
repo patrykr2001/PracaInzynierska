@@ -1,40 +1,97 @@
-<mat-toolbar color="primary">
+<mat-toolbar color="primary" class="navbar">
+  <!-- Logo -->
   <span class="logo">BirdWatcher</span>
-  
-  <div class="nav-links">
+
+  <!-- Desktop Navigation -->
+  <div class="nav-links desktop-nav">
     <a mat-button *ngFor="let item of navItems" [routerLink]="item.path" routerLinkActive="active">
       <mat-icon>{{item.icon}}</mat-icon>
-      {{item.label}}
+      <span class="nav-label">{{item.label}}</span>
     </a>
   </div>
 
   <div class="spacer"></div>
 
-  @if (userService.isLoggedIn()) {
-    <button mat-button [matMenuTriggerFor]="userMenu">
-      <mat-icon>account_circle</mat-icon>
-      {{ userService.getCurrentUser()?.username }}
-    </button>
-    <mat-menu #userMenu="matMenu">
-      <a mat-menu-item routerLink="/settings">
-        <mat-icon>settings</mat-icon>
-        <span>Ustawienia konta</span>
-      </a>
-      <button mat-menu-item (click)="logout()">
-        <mat-icon>exit_to_app</mat-icon>
-        <span>Wyloguj się</span>
+  <!-- Desktop User Menu -->
+  <div class="desktop-user-menu">
+    @if (userService.isLoggedIn()) {
+      <button mat-button [matMenuTriggerFor]="userMenu">
+        <mat-icon>account_circle</mat-icon>
+        <span class="username">{{ userService.getCurrentUser()?.username }}</span>
       </button>
-    </mat-menu>
-  } @else {
-    <div class="auth-buttons">
-      <a mat-button routerLink="/login">
-        <mat-icon>login</mat-icon>
-        Zaloguj się
-      </a>
-      <a mat-button routerLink="/register">
-        <mat-icon>person_add</mat-icon>
-        Zarejestruj się
+      <mat-menu #userMenu="matMenu">
+        <a mat-menu-item routerLink="/settings">
+          <mat-icon>settings</mat-icon>
+          <span>Ustawienia konta</span>
+        </a>
+        <button mat-menu-item (click)="logout()">
+          <mat-icon>exit_to_app</mat-icon>
+          <span>Wyloguj się</span>
+        </button>
+      </mat-menu>
+    } @else {
+      <div class="auth-buttons">
+        <a mat-button routerLink="/login">
+          <mat-icon>login</mat-icon>
+          <span class="auth-label">Zaloguj się</span>
+        </a>
+        <a mat-button routerLink="/register">
+          <mat-icon>person_add</mat-icon>
+          <span class="auth-label">Zarejestruj się</span>
+        </a>
+      </div>
+    }
+  </div>
+
+  <!-- Mobile Menu Button -->
+  <button mat-icon-button class="mobile-menu-button" (click)="toggleMobileMenu()" [class.active]="isMobileMenuOpen">
+    <mat-icon>{{ isMobileMenuOpen ? 'close' : 'menu' }}</mat-icon>
+  </button>
+</mat-toolbar>
+
+<!-- Mobile Navigation Menu -->
+<div class="mobile-nav" [class.open]="isMobileMenuOpen">
+  <div class="mobile-nav-content">
+    <!-- Mobile Navigation Links -->
+    <div class="mobile-nav-links">
+      <a mat-button *ngFor="let item of navItems"
+         [routerLink]="item.path"
+         routerLinkActive="active"
+         (click)="closeMobileMenu()">
+        <mat-icon>{{item.icon}}</mat-icon>
+        <span>{{item.label}}</span>
       </a>
     </div>
-  }
-</mat-toolbar>
+
+    <!-- Mobile User Section -->
+    <div class="mobile-user-section">
+      @if (userService.isLoggedIn()) {
+        <div class="mobile-user-info">
+          <mat-icon>account_circle</mat-icon>
+          <span>{{ userService.getCurrentUser()?.username }}</span>
+        </div>
+        <div class="mobile-user-actions">
+          <a mat-button routerLink="/settings" (click)="closeMobileMenu()">
+            <mat-icon>settings</mat-icon>
+            <span>Ustawienia konta</span>
+          </a>
+          <button mat-button (click)="logout(); closeMobileMenu()">
+            <mat-icon>exit_to_app</mat-icon>
+            <span>Wyloguj się</span>
+          </button>
+        </div>
+      } @else {
+        <div class="mobile-auth-buttons">
+          <a mat-button routerLink="/login" (click)="closeMobileMenu()">
+            <mat-icon>login</mat-icon>
+            <span>Zaloguj się</span>
+          </a>
+          <a mat-button routerLink="/register" (click)="closeMobileMenu()">
+            <mat-icon>person_add</mat-icon>
+            <span>Zarejestruj się</span>
+          </a>
+        </div>
+      }
+    </div>
+  </div>
+</div>

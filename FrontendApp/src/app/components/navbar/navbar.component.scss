@@ -1,12 +1,26 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
 .logo {
   font-size: 1.5rem;
   font-weight: 500;
   margin-right: 2rem;
+  white-space: nowrap;
 }
 
 .nav-links {
   display: flex;
   gap: 0.5rem;
+}
+
+.nav-label {
+  margin-left: 0.5rem;
 }
 
 .spacer {
@@ -18,10 +32,224 @@
   gap: 0.5rem;
 }
 
+.auth-label {
+  margin-left: 0.5rem;
+}
+
+.username {
+  margin-left: 0.5rem;
+}
+
 .active {
   background-color: rgba(255, 255, 255, 0.1);
 }
 
 mat-icon {
   margin-right: 0.5rem;
+}
+
+// Mobile menu button
+.mobile-menu-button {
+  display: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+
+  &.active {
+    opacity: 1;
+  }
+}
+
+// Desktop navigation
+.desktop-nav {
+  display: flex;
+}
+
+.desktop-user-menu {
+  display: flex;
+  align-items: center;
+}
+
+// Mobile navigation
+.mobile-nav {
+  position: fixed;
+  top: 64px; // Wysokość paska nawigacyjnego
+  left: 0;
+  right: 0;
+  background-color: #1976d2; // Kolor primary
+  transform: translateY(-100%);
+  transition: transform 0.3s ease-in-out;
+  z-index: 999;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  max-height: calc(100vh - 64px);
+  overflow-y: auto;
+  opacity: 0;
+  visibility: hidden;
+
+  &.open {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+.mobile-nav-content {
+  padding: 1rem;
+}
+
+.mobile-nav-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+
+  a {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border-radius: 4px;
+    text-decoration: none;
+    color: white;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    &.active {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    span {
+      margin-left: 1rem;
+    }
+  }
+}
+
+.mobile-user-section {
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  padding-top: 1rem;
+}
+
+.mobile-user-info {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+
+  span {
+    margin-left: 1rem;
+    font-weight: 500;
+  }
+}
+
+.mobile-user-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  a, button {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border-radius: 4px;
+    text-decoration: none;
+    color: white;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    span {
+      margin-left: 1rem;
+    }
+  }
+}
+
+.mobile-auth-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  a {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border-radius: 4px;
+    text-decoration: none;
+    color: white;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    span {
+      margin-left: 1rem;
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .logo {
+    font-size: 1.2rem;
+    margin-right: 1rem;
+  }
+
+  .desktop-nav {
+    display: none;
+  }
+
+  .desktop-user-menu {
+    display: none;
+  }
+
+  .mobile-menu-button {
+    display: block;
+    opacity: 1;
+  }
+
+  .spacer {
+    flex: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo {
+    font-size: 1rem;
+    margin-right: 0.5rem;
+  }
+
+  .mobile-nav {
+    top: 56px; // Mniejsza wysokość paska na małych ekranach
+  }
+
+  .mobile-nav-content {
+    padding: 0.5rem;
+  }
+
+  .mobile-nav-links a,
+  .mobile-user-actions a,
+  .mobile-user-actions button,
+  .mobile-auth-buttons a {
+    padding: 0.75rem;
+  }
+}
+
+// Animacja dla przycisku menu
+.mobile-menu-button.active {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+// Poprawka dla ikon w menu mobilnym
+.mobile-nav mat-icon {
+  margin-right: 0;
+  width: 24px;
+  height: 24px;
 }

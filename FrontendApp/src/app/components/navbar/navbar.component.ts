@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, RouterLink, RouterLinkActive } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -34,6 +34,8 @@ export class NavbarComponent implements OnDestroy {
     { path: '/statistics', label: 'Statystyki', icon: 'bar_chart' }
   ];
 
+  isMobileMenuOpen = false;
+
   private userSubscription: Subscription;
 
   constructor(
@@ -44,10 +46,26 @@ export class NavbarComponent implements OnDestroy {
     this.userSubscription = this.userService.currentUser$.subscribe();
   }
 
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.navbar') && !target.closest('.mobile-nav')) {
+      this.closeMobileMenu();
+    }
+  }
+
   ngOnDestroy(): void {
     if (this.userSubscription) {
       this.userSubscription.unsubscribe();
     }
+  }
+
+  toggleMobileMenu(): void {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+  }
+
+  closeMobileMenu(): void {
+    this.isMobileMenuOpen = false;
   }
 
   logout(): void {

@@ -1,11 +1,13 @@
 .observations-container {
   padding: 20px;
+  padding-top: calc(20px + 64px);
   max-width: 1200px;
   margin: 0 auto;
   min-height: calc(100vh - 64px);
   display: flex;
   flex-direction: column;
   position: relative;
+  overflow-y: auto;
 }
 
 .toolbar {
@@ -136,4 +138,4 @@ mat-paginator {
   &:hover {
     transform: scale(1.1);
   }
-} 
+}
