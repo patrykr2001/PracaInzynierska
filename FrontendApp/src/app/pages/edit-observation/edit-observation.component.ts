@@ -109,9 +109,15 @@ export default class EditObservationComponent implements OnInit {
       },
       error: (error) => {
         console.error('Błąd podczas ładowania obserwacji:', error);
-        this.snackBar.open('Wystąpił błąd podczas ładowania obserwacji', 'Zamknij', {
-          duration: 5000
-        });
+        if (error.status === 403) {
+          this.snackBar.open('Nie masz uprawnień do edycji tej obserwacji', 'Zamknij', {
+            duration: 5000
+          });
+        } else {
+          this.snackBar.open('Wystąpił błąd podczas ładowania obserwacji', 'Zamknij', {
+            duration: 5000
+          });
+        }
         this.isLoading = false;
         this.router.navigate(['/observations']);
       }
@@ -121,13 +127,13 @@ export default class EditObservationComponent implements OnInit {
   checkPermissions(observation: BirdObservation): void {
     const currentUser = this.userService.getCurrentUser();
     const isAdmin = this.userService.isAdmin();
-    
+
     if (isAdmin) {
       this.canEdit = true;
       return;
     }
 
-    if (currentUser && currentUser.id === observation.userId && !observation.isVerified) {
+    if (currentUser && currentUser.id === observation.userId) {
       this.canEdit = true;
       return;
     }
@@ -170,12 +176,12 @@ export default class EditObservationComponent implements OnInit {
   onLocationSelected(location: { lat: number; lng: number }): void {
     const lat = location.lat.toFixed(4);
     const lng = location.lng.toFixed(4);
-    
+
     this.selectedLocation = {
       lat: parseFloat(lat),
       lng: parseFloat(lng)
     };
-    
+
     this.observationForm.patchValue({
       latitude: lat,
       longitude: lng
@@ -187,7 +193,7 @@ export default class EditObservationComponent implements OnInit {
     if (input.files) {
       const files = Array.from(input.files);
       this.selectedImages = [...this.selectedImages, ...files];
-      
+
       files.forEach(file => {
         const reader = new FileReader();
         reader.onload = (e: ProgressEvent<FileReader>) => {
@@ -206,7 +212,7 @@ export default class EditObservationComponent implements OnInit {
       const imageUrl = this.existingImageUrls[index];
       const id = this.route.snapshot.paramMap.get('id');
       if (!id) return;
-      
+
       this.observationService.deleteObservationImage(parseInt(id), imageUrl).subscribe({
         next: () => {
           this.existingImageUrls.splice(index, 1);
@@ -217,9 +223,15 @@ export default class EditObservationComponent implements OnInit {
         },
         error: (error) => {
           console.error('Błąd podczas usuwania zdjęcia:', error);
-          this.snackBar.open('Wystąpił błąd podczas usuwania zdjęcia', 'Zamknij', {
-            duration: 5000
-          });
+          if (error.status === 403) {
+            this.snackBar.open('Nie masz uprawnień do usunięcia tego zdjęcia', 'Zamknij', {
+              duration: 5000
+            });
+          } else {
+            this.snackBar.open('Wystąpił błąd podczas usuwania zdjęcia', 'Zamknij', {
+              duration: 5000
+            });
+          }
         }
       });
     } else {
@@ -233,7 +245,7 @@ export default class EditObservationComponent implements OnInit {
   onSubmit(): void {
     if (this.observationForm.valid && this.selectedLocation) {
       this.isSubmitting = true;
-      
+
       const updateData: UpdateBirdObservation = {
         latitude: parseFloat(this.selectedLocation.lat.toFixed(4)),
         longitude: parseFloat(this.selectedLocation.lng.toFixed(4)),
@@ -269,9 +281,15 @@ export default class EditObservationComponent implements OnInit {
         },
         error: (error) => {
           console.error('Błąd podczas aktualizacji obserwacji:', error);
-          this.snackBar.open('Wystąpił błąd podczas aktualizacji obserwacji', 'Zamknij', {
-            duration: 5000
-          });
+          if (error.status === 403) {
+            this.snackBar.open('Nie masz uprawnień do edycji tej obserwacji', 'Zamknij', {
+              duration: 5000
+            });
+          } else {
+            this.snackBar.open('Wystąpił błąd podczas aktualizacji obserwacji', 'Zamknij', {
+              duration: 5000
+            });
+          }
           this.isSubmitting = false;
         }
       });

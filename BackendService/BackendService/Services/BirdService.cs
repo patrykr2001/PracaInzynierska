@@ -104,8 +104,18 @@ namespace BackendService.Services
             bird.CommonName = birdDto.CommonName;
             bird.ScientificName = birdDto.ScientificName;
             bird.Family = birdDto.Family;
+            bird.Order = birdDto.Order;
+            bird.Genus = birdDto.Genus;
+            bird.Species = birdDto.Species;
             bird.ConservationStatus = birdDto.ConservationStatus;
             bird.Description = birdDto.Description;
+            bird.Habitat = birdDto.Habitat;
+            bird.Diet = birdDto.Diet;
+            bird.Size = birdDto.Size;
+            bird.Weight = birdDto.Weight;
+            bird.Wingspan = birdDto.Wingspan;
+            bird.Lifespan = birdDto.Lifespan;
+            bird.BreedingSeason = birdDto.BreedingSeason;
 
             if (birdDto.Image != null)
             {

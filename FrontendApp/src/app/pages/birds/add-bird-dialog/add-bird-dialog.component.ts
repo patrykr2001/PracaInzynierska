@@ -76,7 +76,7 @@ export class AddBirdDialogComponent {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
       const file = input.files[0];
-      
+
       // Sprawdź typ pliku
       if (!file.type.startsWith('image/')) {
         this.errorMessage = 'Wybierz plik obrazu (jpg, png, gif)';
@@ -115,12 +115,12 @@ export class AddBirdDialogComponent {
     this.errorMessage = '';
 
     const formData = new FormData();
-    
+
     // Dodaj zdjęcie jeśli zostało wybrane
     if (this.selectedFile) {
-      formData.append('image', this.selectedFile);
+      formData.append('Image', this.selectedFile);
     }
-    
+
     // Dodaj pozostałe pola formularza
     Object.keys(this.birdForm.value).forEach(key => {
       if (this.birdForm.value[key] !== null && this.birdForm.value[key] !== undefined) {
@@ -142,4 +142,4 @@ export class AddBirdDialogComponent {
   onCancel(): void {
     this.dialogRef.close();
   }
-} 
+}

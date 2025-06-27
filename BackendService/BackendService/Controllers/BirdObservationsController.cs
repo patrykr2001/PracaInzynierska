@@ -78,12 +78,16 @@ namespace BackendService.Controllers
 
             try
             {
-                await _observationService.UpdateObservationAsync(id, observationDto);
+                await _observationService.UpdateObservationAsync(id, observationDto, userId);
                 return NoContent();
             }
             catch (KeyNotFoundException)
             {
                 return NotFound();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
             }
         }
 
@@ -125,16 +129,26 @@ namespace BackendService.Controllers
 
         [HttpDelete("{id}/images")]
         [Authorize]
-        public async Task<IActionResult> DeleteObservationImage(int id, [FromBody] string imageUrl)
+        public async Task<IActionResult> DeleteObservationImage(int id, [FromBody] DeleteObservationImageDto deleteImageDto)
         {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized();
+            }
+
             try
             {
-                await _observationService.DeleteObservationImageAsync(id, imageUrl);
+                await _observationService.DeleteObservationImageAsync(id, deleteImageDto.ImageUrl, userId);
                 return NoContent();
             }
             catch (KeyNotFoundException)
             {
                 return NotFound();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
             }
         }
 

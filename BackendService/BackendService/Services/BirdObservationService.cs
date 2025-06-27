@@ -2,8 +2,10 @@ using BackendService.Data;
 using BackendService.Interfaces;
 using BackendService.Models;
 using BackendService.Models.DTOs;
+using BackendService.Constants;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 
 namespace BackendService.Services
 {
@@ -141,11 +143,22 @@ namespace BackendService.Services
             return await GetObservationByIdAsync(observation.Id) ?? throw new Exception("Failed to create observation");
         }
 
-        public async Task UpdateObservationAsync(int id, UpdateBirdObservationDto observationDto)
+        public async Task UpdateObservationAsync(int id, UpdateBirdObservationDto observationDto, string userId)
         {
             var observation = await _context.BirdObservations.FindAsync(id);
             if (observation == null)
                 throw new KeyNotFoundException($"Observation with ID {id} not found");
+
+            // Sprawdź uprawnienia - tylko właściciel obserwacji lub admin może edytować
+            if (observation.UserId != userId)
+            {
+                // Sprawdź czy użytkownik jest adminem - używamy RoleId "1" dla admina
+                var user = await _context.Users.FindAsync(userId);
+                if (user == null || !await _context.UserRoles.AnyAsync(ur => ur.UserId == userId && ur.RoleId == "1"))
+                {
+                    throw new UnauthorizedAccessException("Nie masz uprawnień do edycji tej obserwacji");
+                }
+            }
 
             if (observationDto.Latitude != null)
             {
@@ -209,11 +222,22 @@ namespace BackendService.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteObservationImageAsync(int id, string imageUrl)
+        public async Task DeleteObservationImageAsync(int id, string imageUrl, string userId)
         {
             var observation = await _context.BirdObservations.FindAsync(id);
             if (observation == null)
                 throw new KeyNotFoundException($"Observation with ID {id} not found");
+
+            // Sprawdź uprawnienia - tylko właściciel obserwacji lub admin może usunąć zdjęcie
+            if (observation.UserId != userId)
+            {
+                // Sprawdź czy użytkownik jest adminem - używamy RoleId "1" dla admina
+                var user = await _context.Users.FindAsync(userId);
+                if (user == null || !await _context.UserRoles.AnyAsync(ur => ur.UserId == userId && ur.RoleId == "1"))
+                {
+                    throw new UnauthorizedAccessException("Nie masz uprawnień do usunięcia tego zdjęcia");
+                }
+            }
 
             if (observation.ImageUrls.Contains(imageUrl))
             {

@@ -109,12 +109,12 @@ export default class AddObservationComponent implements OnInit {
     // Formatowanie do 4 miejsc po przecinku
     const lat = location.lat.toFixed(4);
     const lng = location.lng.toFixed(4);
-    
+
     this.selectedLocation = {
       lat: parseFloat(lat),
       lng: parseFloat(lng)
     };
-    
+
     this.observationForm.patchValue({
       latitude: lat,
       longitude: lng
@@ -126,7 +126,7 @@ export default class AddObservationComponent implements OnInit {
     if (input.files) {
       const files = Array.from(input.files);
       this.selectedImages = [...this.selectedImages, ...files];
-      
+
       // Generuj podglądy dla nowych obrazów
       files.forEach(file => {
         const reader = new FileReader();
@@ -148,32 +148,32 @@ export default class AddObservationComponent implements OnInit {
   onSubmit(): void {
     if (this.observationForm.valid && this.selectedLocation) {
       this.isSubmitting = true;
-      
+
       const formData = new FormData();
       formData.append('birdId', this.observationForm.get('birdId')?.value);
-      
+
       // Formatowanie współrzędnych do 4 miejsc po przecinku
       const lat = this.selectedLocation.lat.toFixed(4);
       const lng = this.selectedLocation.lng.toFixed(4);
-      
+
       formData.append('latitude', lat);
       formData.append('longitude', lng);
-      
+
       formData.append('observationDate', this.observationForm.get('observationDate')?.value.toISOString());
       formData.append('description', this.observationForm.get('description')?.value);
       formData.append('numberOfBirds', this.observationForm.get('numberOfBirds')?.value);
-      
+
       if (this.observationForm.get('weatherConditions')?.value) {
         formData.append('weatherConditions', this.observationForm.get('weatherConditions')?.value);
       }
-      
+
       if (this.observationForm.get('habitat')?.value) {
         formData.append('habitat', this.observationForm.get('habitat')?.value);
       }
 
       if (this.selectedImages.length > 0) {
         this.selectedImages.forEach(image => {
-          formData.append('images', image);
+          formData.append('Images', image);
         });
       }
 

@@ -6,6 +6,7 @@ import { environment } from '../../environments/environment';
 import { BirdObservation, CreateBirdObservation, UpdateBirdObservation } from '../models/bird-observation.model';
 import { PaginatedResponse, PaginationParams } from '../models/pagination';
 import { Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Injectable({
   providedIn: 'root'
@@ -15,14 +16,15 @@ export class BirdObservationService {
 
   constructor(
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private snackBar: MatSnackBar
   ) { }
 
   private handleError(error: HttpErrorResponse) {
     if (error.status === 401 || error.status === 403) {
-      this.router.navigate(['/login'], { 
-        queryParams: { 
-          returnUrl: this.router.url 
+      this.router.navigate(['/login'], {
+        queryParams: {
+          returnUrl: this.router.url
         }
       });
     }
@@ -56,12 +58,12 @@ export class BirdObservationService {
 
   updateObservation(id: number, observation: UpdateBirdObservation): Observable<void> {
     const formData = new FormData();
-    
+
     // Dodaj podstawowe dane obserwacji
     Object.entries(observation).forEach(([key, value]) => {
       if (key === 'images' && value) {
         (value as File[]).forEach((image) => {
-          formData.append('images', image);
+          formData.append('Images', image);
         });
       } else if (key === 'observationDate' && value) {
         formData.append(key, (value as Date).toISOString());
@@ -87,6 +89,13 @@ export class BirdObservationService {
   deleteObservationImage(observationId: number, imageUrl: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}${environment.api.endpoints.observationsEndpoints.images(observationId)}`, {
       body: { imageUrl }
-    }).pipe(catchError(this.handleError.bind(this)));
+    }).pipe(catchError((error: HttpErrorResponse) => {
+      if (error.status === 403) {
+        this.snackBar.open('Nie masz uprawnień do usunięcia tego zdjęcia', 'Zamknij', {
+          duration: 5000
+        });
+      }
+      return this.handleError(error);
+    }));
   }
-} 
+}

@@ -8,10 +8,10 @@ namespace BackendService.Interfaces
         Task<PaginatedResponse<BirdObservationDto>> GetUserObservationsAsync(string userId, PaginationParams paginationParams);
         Task<BirdObservationDto?> GetObservationByIdAsync(int id);
         Task<BirdObservationDto> CreateObservationAsync(CreateBirdObservationDto observationDto, string userId);
-        Task UpdateObservationAsync(int id, UpdateBirdObservationDto observationDto);
+        Task UpdateObservationAsync(int id, UpdateBirdObservationDto observationDto, string userId);
         Task DeleteObservationAsync(int id);
         Task VerifyObservationAsync(int id);
-        Task DeleteObservationImageAsync(int id, string imageUrl);
+        Task DeleteObservationImageAsync(int id, string imageUrl, string userId);
         Task<List<object>> GetObservationWeeksAsync(int? year = null);
     }
 } 

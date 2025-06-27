@@ -29,6 +29,16 @@ namespace BackendService.Models.DTOs
 
     public class UpdateBirdDto : BirdDto
     {
+        public string? Order { get; set; }
+        public string? Genus { get; set; }
+        public string? Species { get; set; }
+        public string? Habitat { get; set; }
+        public string? Diet { get; set; }
+        public string? Size { get; set; }
+        public double? Weight { get; set; }
+        public double? Wingspan { get; set; }
+        public string? Lifespan { get; set; }
+        public string? BreedingSeason { get; set; }
         public IFormFile? Image { get; set; }
         public bool? IsVerified { get; set; }
     }
@@ -128,5 +138,11 @@ namespace BackendService.Models.DTOs
         public bool? IsVerified { get; set; }
 
         public List<IFormFile>? Images { get; set; }
+    }
+
+    public class DeleteObservationImageDto
+    {
+        [Required]
+        public string ImageUrl { get; set; } = string.Empty;
     }
 } 

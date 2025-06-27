@@ -90,7 +90,7 @@ namespace BackendService.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Roles = AuthorizationConstants.AdminRole)]
-        public async Task<IActionResult> UpdateBird(int id, [FromBody] UpdateBirdDto birdDto)
+        public async Task<IActionResult> UpdateBird(int id, [FromForm] UpdateBirdDto birdDto)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
