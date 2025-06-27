@@ -9,8 +9,7 @@ namespace BackendService.Data
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
-        {
-        }
+        {}
 
         public DbSet<Bird> Birds { get; set; }
         public DbSet<BirdObservation> BirdObservations { get; set; }
@@ -32,4 +31,4 @@ namespace BackendService.Data
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }
-} 
+}

@@ -433,14 +433,14 @@ export const routes: Routes = [
 \subsubsection{Pasek nawigacyjny}
 Pasek nawigacyjny jest stałym elementem na górze strony umożliwiającym nawigacje oraz logowanie i rejestracje. Responsywnie dostosowuje się do szerokości strony i na mniejszych ekranach przechodzi w tryb menu rozwijanego.
 
-\begin{figure}[h]
+\begin{figure}[!htb]
 	\centering
 	\includegraphics[width=1.0\textwidth]{/chapter4/navbar1.png}
 	\caption{Pasek nawigacyjny na dużym ekranie}
 	\label{fig:navbar1}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[!htb]
 	\centering
 	\includegraphics[width=0.6\textwidth]{/chapter4/navbar2.png}
 	\caption{Pasek nawigacyjny w trybie rozwijanym}
@@ -450,7 +450,7 @@ Pasek nawigacyjny jest stałym elementem na górze strony umożliwiającym nawig
 \subsubsection{Strona główna}
 Strona główna zawiera interaktywną mapę wyświetlająca obserwację zaznaczone pinezkami z podziałem na tygodnie w roku.
 
-\begin{figure}[h]
+\begin{figure}[!htb]
 	\centering
 	\includegraphics[width=0.6\textwidth]{/chapter4/mainpage1.png}
 	\caption{Strona główna z mapą interaktywną}
@@ -465,21 +465,21 @@ Zaimplementowane zostały następujące komponenty ptaków:
 	\item Strona szczegółów ptaka
 \end{itemize}
 
-\begin{figure}[h]
+\begin{figure}[!htb]
 	\centering
 	\includegraphics[width=0.6\textwidth]{/chapter4/ptaki1.png}
 	\caption{Strona listy ptaków}
 	\label{fig:ptaki1}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[!htb]
 	\centering
 	\includegraphics[width=0.4\textwidth]{/chapter4/ptaki2.png}
 	\caption{Formularz dodawania/edycji ptaka}
 	\label{fig:ptaki2}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[!htb]
 	\centering
 	\includegraphics[width=0.6\textwidth]{/chapter4/ptaki3.png}
 	\caption{Strona szczegółów ptaka}
@@ -494,21 +494,21 @@ Zaimplementowane zostały następujące komponenty związane z obserwacjami:
 	\item Strona szczegółów obserwacji wraz z galerią obrazów
 \end{itemize}
 
-\begin{figure}[h]
+\begin{figure}[!hb]
 	\centering
 	\includegraphics[width=0.6\textwidth]{/chapter4/obserwacje1.png}
 	\caption{Strona listy obserwacji}
 	\label{fig:obserwacje1}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[!hb]
 	\centering
 	\includegraphics[width=0.4\textwidth]{/chapter4/obserwacje2.png}
 	\caption{Formularz dodawania/edycji obserwacji}
 	\label{fig:obserwacje2}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[!htb]
 	\centering
 	\includegraphics[width=0.6\textwidth]{/chapter4/obserwacje3.png}
 	\caption{Strona szczegółów obserwacji}
@@ -523,29 +523,267 @@ Zaimplementowane zostały następujące komponenty związane z użytkownikami:
 	\item Formularz zmiany danych użytkownika
 \end{itemize}
 
-\begin{figure}[h]
+\begin{figure}[!htb]
 	\centering
 	\includegraphics[width=0.6\textwidth]{/chapter4/logowanie.png}
 	\caption{Formularz logowania}
 	\label{figlogowanie}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[!htb]
 	\centering
 	\includegraphics[width=0.6\textwidth]{/chapter4/rejestracja.png}
 	\caption{Formularz rejestracji}
 	\label{fig:rejestracja}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[!htb]
 	\centering
 	\includegraphics[width=0.6\textwidth]{/chapter4/konto.png}
 	\caption{Formularz konta użytkownika}
 	\label{fig:konto}
 \end{figure}
 
+\subsection{Podsumowanie implementacji frontendu}
+\index{Podsumowanie implementacji frontendu}
+
+Aplikacja frontendowa wykonana w technologii Angular została stworzona zgodnie z przyjętymi koncepcjami Angular oraz praktykując najlepsze techniki programowania obiektowego i wzorcami projektowymi. Wykorzystanie komponentów Material znacznie przyśpieszyło pracę nad systemem oraz zapewniło spójny wygląd aplikacji. Strona jest responsywna, dostosowuje się do różnych rozmiarów ekranów i ma przejrzysty interfejs. Dzięki zastosowaniu REST API, gdzie większość wymagających operacji na danyc odbywa się na backendzie i wykorzystaniu techniki paginacji aplikacja działa szybko i nie wymaga dużych zasobów mocy do działania po stronie klienta.
+
+\FloatBarrier
+
 \section{Implementacja backendu}
 \index{Implementacja backendu}
+
+\subsection{Architektura aplikacji backendowej}
+\index{Architektura aplikacji backendowej}
+Backend został stworzony przy użyciu frameworka ASP.NET Core 8.0. W aplikacji wykorzystane zostały wzorce projektowe Repository Pattern oraz Dependency Injection. REST Api zostało zaprojektowane zgodnie ze standardami co zapewnia spójny interfejs komunikacji z frontendem. Podejście projektowania bazy danych opiera się na Code First - najpierw tworzy się modele danych w kodzie a następnie na ich podstawię tworzone są migrację bazy danych zawierające odpowiednie polecenia SQL do tworzenia struktury.
+
+\subsection{Konfiguracja aplikacji}
+\index{Konfiguracja aplikacji}
+
+Główna aplikacja znajduje się w pliku Program.cs, w którym zostały skonfigurowane niezbędne komponenty dotyczące kontrolerów API, serwisów, bazy danych, bezpieczeństwa i autoryzacji.
+
+\begin{lstlisting}[style=csharp, caption={Fragment pliku Program.cs}]
+var builder = WebApplication.CreateBuilder(args);
+[...]
+// Add services to the container.
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+// Add DbContext
+builder.Services.AddDbContext<ApplicationDbContext>(
+	options =>options.UseSqlite(builder.Configuration
+		.GetConnectionString("DefaultConnection")));
+// Add Identity
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+{
+	// Password settings[...]
+	// Lockout settings[...]
+	// User settings[...]
+})
+.AddEntityFrameworkStores<ApplicationDbContext>()
+.AddDefaultTokenProviders();
+// Add Authorization Policies
+builder.Services.AddAuthorization(options =>
+{
+	options.AddPolicy("RequireAdminRole", policy =>
+	policy.RequireRole(AuthorizationConstants.AdminRole));
+	options.AddPolicy("RequireUserRole", policy =>
+	policy.RequireRole(AuthorizationConstants.UserRole));
+});
+// Add CORS
+builder.Services.AddCors(options => [...]
+// Add Authentication
+var jwtKey = builder.Configuration["Jwt:Key"];[...]
+builder.Services.AddAuthentication(options =>[...]
+.AddJwtBearer(options =>[...]
+// Add Services
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IBirdService, BirdService>();
+builder.Services.AddScoped<IBirdObservationService, BirdObservationService>();
+var app = builder.Build();
+// Automatyczne tworzenie bazy danych i inicjalizacja danych
+[...]
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+	app.UseSwagger();
+	app.UseSwaggerUI();
+}
+[...]
+app.UseHttpsRedirection();
+app.UseStaticFiles(); // Dodaj obsługę statycznych plików
+app.UseCors("AllowAngularDevServer");
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllers();
+app.Run();
+\end{lstlisting}
+
+\subsection{Model danych}
+\index{Model danych}
+
+\subsubsection{Kontekst bazy danych}
+System wykorzystuje ORM Entity Framework Core z bazą danych SQLite. Kontekst bazy danych \texttt{ApplicationDbContext} dziedziczy po \texttt{IdentityDbContext<ApplicationUser>} co umożliwia integrację z systemem autoryzacji ASP.NET Core Identity.
+
+\begin{lstlisting}[style=csharp, caption={Implementacja ApplicationDbContext}]
+namespace BackendService.Data
+{
+	public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+	{
+		public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+		: base(options)
+		{}
+		
+		public DbSet<Bird> Birds { get; set; }
+		public DbSet<BirdObservation> BirdObservations { get; set; }
+		
+		protected override void OnModelCreating(ModelBuilder modelBuilder)
+		{
+			base.OnModelCreating(modelBuilder);
+			
+			modelBuilder.Entity<Bird>()
+			.HasOne<ApplicationUser>()
+			.WithMany()
+			.HasForeignKey(b => b.UserId)
+			.OnDelete(DeleteBehavior.Restrict);
+			
+			modelBuilder.Entity<BirdObservation>()
+			.HasOne(b => b.Bird)
+			.WithMany(b => b.Observations)
+			.HasForeignKey(b => b.BirdId)
+			.OnDelete(DeleteBehavior.Cascade);
+		}
+	}
+}
+\end{lstlisting}
+
+\subsubsection{Modele domenowe}
+Aplikacja zawiera kilka klas zawierających modele domenowe:
+\begin{itemize}
+	\item \texttt{ApplicationUser} - rozszerzony model użytkownika z ASP.NET Core Identity
+	\item \texttt{Bird} - model danych ptaka
+	\item \texttt{BirdObservation} - model danych obserwacji
+\end{itemize}
+
+\begin{lstlisting}[style=csharp, caption={Implementacja ApplicationUser}]
+public class ApplicationUser : IdentityUser
+{
+	public string? RefreshToken { get; set; }
+	public DateTime? RefreshTokenExpiryTime { get; set; }
+	public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+	public ICollection<Bird> Birds { get; set; } = new List<Bird>();
+	public ICollection<BirdObservation> BirdObservations { get; set; } = new List<BirdObservation>();
+}
+\end{lstlisting}
+
+\begin{lstlisting}[style=csharp, caption={Fragment implementacji Bird}]
+public class Bird
+{
+	public int Id { get; set; }
+	
+	[Required]
+	public string CommonName { get; set; } = string.Empty;
+	
+	[Required]
+	public string ScientificName { get; set; } = string.Empty;
+	
+	[Required]
+	public string Family { get; set; } = string.Empty;
+	
+	public string? Order { get; set; }
+	public string? Genus { get; set; }
+	public string? Species { get; set; }
+...
+\end{lstlisting}
+
+\begin{lstlisting}[style=csharp, caption={Fragment implementacji BirdObservation}]
+public class BirdObservation
+{
+	public int Id { get; set; }
+	
+	[Required]
+	public int BirdId { get; set; }
+	public Bird Bird { get; set; } = null!;
+	
+	[Required]
+	public string UserId { get; set; } = string.Empty;
+	public ApplicationUser User { get; set; } = null!;
+	
+	[Required]
+	public double Latitude { get; set; }
+...
+\end{lstlisting}
+
+\subsection{Kontrolery API}
+\index{Kontrolery API}
+
+Architektura kontrolerów została zaprojektowana zgodnie z wzorcem REST API - każdy kontroler odpowiada za konkretną część domeny biznesowej. Wszystkie kontrolery dziedziczą po \texttt{ControllerBase} i są oznaczone atrybutami \texttt{[ApiController]} oraz \texttt{[Route("api/[controller]")]} co w ASP.NET Core automatycznie generuje ścieżki API na podstawie nazw kontrolerów oraz metod.
+
+\begin{lstlisting}[style=csharp, caption={Fragment implementacji BirdsObervationsController}]
+namespace BackendService.Controllers
+{
+	[ApiController]
+	[Route("api/[controller]")]
+	public class BirdObservationsController : ControllerBase
+	{
+		private readonly IBirdObservationService _observationService;
+		
+		public BirdObservationsController(IBirdObservationService observationService)
+		{
+			_observationService = observationService;
+		}
+		
+		[HttpGet]
+		public async Task<ActionResult<PaginatedResponse<
+			BirdObservationDto>>> GetObservations([FromQuery] PaginationParams paginationParams)
+		{
+			var observations = await _observationService.GetAllObservationsAsync(
+				paginationParams);
+			return Ok(observations);
+		}
+		
+		[HttpGet("user")]
+		[Authorize]
+		public async Task<ActionResult<PaginatedResponse<
+			BirdObservationDto>>> GetUserObservations([FromQuery] PaginationParams paginationParams)
+		{
+			var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+			if (string.IsNullOrEmpty(userId))
+			{
+				return Unauthorized();
+			}
+			
+			var observations = await _observationService.GetUserObservationsAsync(
+				userId, paginationParams);
+			return Ok(observations);
+		}
+...
+\end{lstlisting}
+
+\subsection{Warstwa serwisów}
+\index{Warstwa serwisów}
+System wykorzystuje wzorzec \texttt{Dependency Injection} do zarządzania zależnościami. Serwisy są rejestrowane w \texttt{kontenerze DI} w pliku \texttt{Program.cs}
+
+\begin{lstlisting}[style=csharp, caption={Fragment Program.cs z rejestrowaniem serwisów}]
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IBirdService, BirdService>();
+builder.Services.AddScoped<IBirdObservationService, BirdObservationService>();
+\end{lstlisting}
+
+\subsection{Obsługa plików}
+
+\subsection{Walidacja danych}
+
+\subsection{Paginacja}
+
+\subsection{Obsługa błędów}
+
+\subsection{Konfiguracja CORS}
+
+\subsection{Interfejs Swagger}
+\index{Interfejs Swagger}
+Lista \texttt{endpointów} oraz struktur wykorzystywanych w REST API jest przedstawiona w interfejsie Swagger zawartym w dodatku \ref{chapter:dodatek_A}. Dzięki interfejsowi Swagger z łatwością testuje się implementowane API oraz ułatwia on implementacje komunikacji po stronie frontendu.
 
 \section{Implementacja bazy danych}
 \index{Implementacja bazy danych}
