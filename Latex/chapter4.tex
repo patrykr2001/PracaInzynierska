@@ -16,6 +16,12 @@
 %----------------------------------------------------------------------------------------
 \sloppy
 
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codeblue}{rgb}{0.0,0.0,0.6}
+\definecolor{codegreen}{rgb}{0.0,0.5,0.0}
+\definecolor{codeorange}{rgb}{0.8,0.4,0.0}
+\definecolor{backgray}{rgb}{0.95,0.95,0.95}
+
 \lstdefinestyle{csharp}{
 	language=[Sharp]C,
 	basicstyle=\ttfamily\small,
@@ -53,6 +59,45 @@
 	showtabs=false,
 	showstringspaces=false
 }
+
+\lstdefinelanguage{HTML}{
+	sensitive=true,
+	morecomment=[s]{<!--}{-->},
+	morestring=[b]",
+	morekeywords={
+		html, head, body, title, meta, link, script, style, div, span, h1, h2, h3, p, a, img, ul, li, table, tr, td, form, input, button
+	},
+	tag=[s],
+	otherkeywords={<, >, /},
+	showtabs=false
+}
+
+\lstdefinelanguage{CSS}{
+	morekeywords={
+		color, background, font-size, font-family, margin, padding, border, display, position, top, left, right, bottom, width, height, float, clear, content
+	},
+	sensitive=true,
+	morecomment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	morestring=[b]",
+	showtabs=false
+}
+
+\lstdefinestyle{webstyle}{
+	backgroundcolor=\color{backgray},
+	basicstyle=\ttfamily\small,
+	keywordstyle=\color{codeblue}\bfseries,
+	commentstyle=\color{codegray}\itshape,
+	stringstyle=\color{codeorange},
+	showstringspaces=false,
+	breaklines=true,
+	frame=single,
+	tabsize=2,
+	captionpos=b,
+	numbers=left,
+	numberstyle=\tiny\color{gray}
+}
+
 
 \chapter{Implementacja}
 \label{rozdzial4}
@@ -306,7 +351,7 @@ export default class BirdDetailsComponent implements OnInit {
 ...
 \end{lstlisting}
 
-\begin{lstlisting}[language=html, caption={Fragment szablonu html komponentu}]
+\begin{lstlisting}[language=HTML, caption={Fragment szablonu html komponentu}]
 <div class="container">
 @if (isLoading) {
 	<div class="loading-container">
@@ -328,7 +373,7 @@ export default class BirdDetailsComponent implements OnInit {
 ...
 \end{lstlisting}
 
-\begin{lstlisting}[language=css, caption={Fragment styli css komponentu}]
+\begin{lstlisting}[language=CSS, caption={Fragment styli css komponentu}]
 .container {
 	padding: 20px;
 	max-width: 1200px;
@@ -397,12 +442,22 @@ Pasek nawigacyjny jest stałym elementem na górze strony umożliwiającym nawig
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.6\textwidth]{/chapter4/navbar2.png}
+	\includegraphics[width=0.8\textwidth]{/chapter4/navbar2.png}
 	\caption{Pasek nawigacyjny w trybie rozwijanym}
 	\label{fig:navbar2}
 \end{figure}
 
-\subsubsection{}
+\subsubsection{Strona główna}
+Strona główna zawiera interaktywną mapę wyświetlająca obserwację zaznaczone pinezkami z podziałem na tygodnie w roku.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.8\textwidth]{/chapter4/mainpage1.png}
+	\caption{Strona główna z mapą interaktywną}
+	\label{fig:mainpage1}
+\end{figure}
+
+\subsubsection{Komponenty ptaków}
 
 \section{Implementacja backendu}
 \index{Implementacja backendu}

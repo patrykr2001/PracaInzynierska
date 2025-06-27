@@ -2,6 +2,19 @@
   <mat-toolbar class="mb-4">
     <span>Lista ptaków</span>
     <span class="spacer"></span>
+
+    <!-- Pasek wyszukiwania -->
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Szukaj ptaków</mat-label>
+      <input matInput type="text" [(ngModel)]="searchTerm" (ngModelChange)="onSearchInput($event)" placeholder="Wpisz minimum 3 znaki">
+      <button mat-icon-button matSuffix (click)="onSearch()">
+        <mat-icon>search</mat-icon>
+      </button>
+      @if (searchTerm && searchTerm.length < 3) {
+        <mat-hint>Min. 3 znaki</mat-hint>
+      }
+    </mat-form-field>
+
     <button *ngIf="isAdmin()" mat-button color="primary" (click)="toggleUnverifiedOnly()">
       <mat-icon>{{ showUnverifiedOnly ? 'verified' : 'pending' }}</mat-icon>
       {{ showUnverifiedOnly ? 'Wszystkie ptaki' : 'Ptaki oczekujące na weryfikację' }}
@@ -11,17 +24,6 @@
       Dodaj ptaka
     </button>
   </mat-toolbar>
-
-  <mat-form-field appearance="outline" class="full-width mb-4">
-    <mat-label>Szukaj ptaków</mat-label>
-    <input matInput type="text" [(ngModel)]="searchTerm" (ngModelChange)="onSearchInput($event)" placeholder="Wpisz minimum 3 znaki aby rozpocząć wyszukiwanie">
-    <button mat-icon-button matSuffix (click)="onSearch()">
-      <mat-icon>search</mat-icon>
-    </button>
-    @if (searchTerm && searchTerm.length < 3) {
-      <mat-hint>Wpisz minimum 3 znaki aby rozpocząć wyszukiwanie</mat-hint>
-    }
-  </mat-form-field>
 
   <div *ngIf="loading" class="loading-container">
     <mat-spinner></mat-spinner>
