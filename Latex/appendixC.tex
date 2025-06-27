@@ -1,0 +1,211 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Szablon pracy dyplomowej
+% Wydział Informatyki 
+% Zachodniopomorski Uniwersytet Technologiczny w Szczecinie
+% autor Joanna Kołodziejczyk (jkolodziejczyk@zut.edu.pl)
+% Bardzo wczesnym pierwowzorem szablonu był
+% The Legrand Orange Book
+% Version 5.0 (29/05/2025)2023)
+%
+% Modifications to LOB assigned by %JK
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Komponent mapy}
+\label{chapter:dodatek_C}
+
+\textit{Poniżej przedstawiono fragmenty kodu dotyczące komponentu mapy.}
+
+\begin{lstlisting}[style=tsstyle, caption={Inicjalizacja},label={lst:inicjalizacjamapy}]
+	private initMap(): void {
+		// Sprawdzamy, czy mapa już istnieje
+		if (this.map) {
+			this.map.remove();
+		}
+		// Domyślna lokalizacja (centrum Polski)
+		const defaultLocation = { lat: 51.9194, lng: 19.1451 };
+		const initialLocation = this.initialLocation || defaultLocation;
+		// Inicjalizacja mapy
+		this.map = L.map('map', {
+			maxBounds: this.POLAND_BOUNDS,
+			maxBoundsViscosity: 1.0,
+			minZoom: 6,
+			maxZoom: 18
+		}).setView([initialLocation.lat, initialLocation.lng], this.initialZoom);
+		// Dodanie warstwy OpenStreetMap
+		L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+			attribution: '© OpenStreetMap contributors'
+		}).addTo(this.map);
+		// Ograniczenie widoku do granic Polski
+		this.map.setMaxBounds(this.POLAND_BOUNDS);
+		// Dodanie początkowego markera tylko jeśli przekazano initialLocation
+		if (this.initialLocation) {
+			this.marker = L.marker([this.initialLocation.lat, this.initialLocation.lng], { icon: this.defaultIcon }).addTo(this.map);
+		}
+		// Dodanie obsługi kliknięcia na mapę tylko jeśli allowSelection jest true
+		if (this.allowSelection) {
+			this.map.on('click', (e: L.LeafletMouseEvent) => {
+				const lat = e.latlng.lat;
+				const lng = e.latlng.lng;
+				// Usunięcie poprzedniego markera
+				if (this.marker) {
+					this.map?.removeLayer(this.marker);
+				}
+				// Dodanie nowego markera
+				this.marker = L.marker([lat, lng], { icon: this.defaultIcon }).addTo(this.map!);
+				// Emisja wybranej lokalizacji
+				this.locationSelected.emit({ lat, lng });
+			});
+		}
+		// Dodanie markerów obserwacji po inicjalizacji mapy
+		this.updateObservationMarkers();
+		// Odświeżenie mapy po załadowaniu
+		setTimeout(() => {
+			this.map?.invalidateSize();
+		}, 200);
+	}
+\end{lstlisting}
+
+\begin{lstlisting}[language=CSS, caption={Style CSS mapy},label={lst:cssmapy}]
+.map-container {
+	height: 100%;
+	min-height: 400px;
+	width: 100%;
+	position: relative;
+	border-radius: 4px;
+	overflow: hidden;
+	margin-bottom: 1rem;
+}
+
+:host {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+// Responsywne style dla mapy
+@media (min-width: 1200px) {
+	.map-container {
+		min-height: 600px;
+	}
+}
+
+@media (min-width: 1600px) {
+	.map-container {
+		min-height: 800px;
+	}
+}
+
+@media (min-width: 1920px) {
+	.map-container {
+		min-height: 900px;
+	}
+}
+
+// Style dla mapy w formularzach (mniejsza wysokość)
+.map-container.form-map {
+	min-height: 300px;
+	max-height: 400px;
+}
+
+// Style dla mapy na stronie głównej (większa wysokość)
+.map-container.home-map {
+	min-height: 500px;
+}
+\end{lstlisting}
+
+\begin{lstlisting}[style=csharp, caption={Przykład użycia walidacji danych geograficznych},label={lst:backendwalidacjageograficzna}]
+public async Task<BirdObservationDto> CreateObservationAsync(CreateBirdObservationDto observationDto, string userId)
+{
+	// Sprawdź czy ptak istnieje
+	var bird = await _context.Birds.FindAsync(observationDto.BirdId);
+	if (bird == null)
+	throw new ArgumentException($"Ptak o ID {observationDto.BirdId} nie istnieje.");
+	
+	// Sprawdź czy użytkownik istnieje
+	var user = await _context.Users.FindAsync(userId);
+	if (user == null)
+	throw new ArgumentException($"Użytkownik o ID {userId} nie istnieje.");
+	
+	var (isLatitudeValid, latitude) = ValidateAndParseCoordinate(observationDto.Latitude, true);
+	if (!isLatitudeValid)
+	throw new ArgumentException("Nieprawidłowa szerokość geograficzna. Wartość musi być liczbą z zakresu -90 do 90.");
+	
+	var (isLongitudeValid, longitude) = ValidateAndParseCoordinate(observationDto.Longitude, false);
+	if (!isLongitudeValid)
+	throw new ArgumentException("Nieprawidłowa długość geograficzna. Wartość musi być liczbą z zakresu -180 do 180.");
+	
+	var observation = new BirdObservation
+	{
+		BirdId = observationDto.BirdId,
+		UserId = userId,
+		Latitude = latitude.Value,
+		Longitude = longitude.Value,
+		ObservationDate = observationDto.ObservationDate,
+		Description = observationDto.Description,
+		NumberOfBirds = observationDto.NumberOfBirds,
+		WeatherConditions = observationDto.WeatherConditions,
+		Habitat = observationDto.Habitat,
+		IsVerified = false
+	};
+	
+	// Dodanie obrazów do obserwacji
+	if (observationDto.Images != null && observationDto.Images.Any())
+	{
+		foreach (var image in observationDto.Images)
+		{
+			var imageUrl = await SaveImageAsync(image);
+			observation.ImageUrls.Add(imageUrl);
+		}
+	}
+	
+	_context.BirdObservations.Add(observation);
+	await _context.SaveChangesAsync();
+	
+	return await GetObservationByIdAsync(observation.Id) ?? throw new Exception("Failed to create observation");
+}
+\end{lstlisting}
+
+\begin{lstlisting}[style=csharp, caption={Implementacja serwisu tygodni},label={lst:backendserwistygodni}]
+public async Task<List<object>> GetObservationWeeksAsync(int? year = null)
+{
+	var observations = await _context.BirdObservations.ToListAsync();
+	if (observations.Count == 0) return new List<object>();
+	
+	if (year.HasValue)
+	{
+		observations = observations.Where(o => o.ObservationDate.Year == year.Value).ToList();
+	}
+	
+	if (observations.Count == 0) return new List<object>();
+	
+	var dates = observations.Select(o => o.ObservationDate.Date).ToList();
+	var minDate = dates.Min();
+	var maxDate = dates.Max();
+	
+	var startOfWeek = new Func<DateTime, DateTime>(d => 
+	d.AddDays(-(d.DayOfWeek == DayOfWeek.Sunday ? 6 : ((int)d.DayOfWeek - 1))).Date);
+	
+	var current = startOfWeek(minDate);
+	var end = startOfWeek(maxDate);
+	var result = new List<object>();
+	
+	while (current <= end)
+	{
+		var weekStart = current;
+		var weekEnd = current.AddDays(6);
+		var count = observations.Count(o => 
+		o.ObservationDate.Date >= weekStart && o.ObservationDate.Date <= weekEnd);
+		
+		if (count > 0)
+		{
+			result.Add(new {
+				start = weekStart,
+				end = weekEnd,
+				count
+			});
+		}
+		current = current.AddDays(7);
+	}
+	return result;
+}
+\end{lstlisting}

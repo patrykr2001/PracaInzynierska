@@ -1398,3 +1398,339 @@ Przedstawiona implementacja systemu autoryzacji i autentykacji zapewnia bezpiecz
 
 \section{Implementacja funkcjonalności mapy i geolokalizacji}
 \index{Implementacja funkcjonalności mapy i geolokalizacji}
+W aplikacji system mapy i geolokalizacji został zaimplementowany z wykorzystaniem biblioteki \texttt{Leaflet.js} oraz mechanizmów walidacji danych geograficznych. Funkcjonalność ta umożliwia wizualizację obserwacji ptaków na mapie oraz precyzyjne określenie nowych obserwacji.
+
+\subsection{Architektura systemu mapy}
+\index{Architektura systemu mapy}
+System składa się z kilku kluczowych komponentów:
+
+\begin{itemize}
+	\item \textbf{Komponent mapy} - wielofunkcyjny komponent Angular oparty na Leaflet.js
+	\item \textbf{Walidacja współrzędnych} - backendowa walidacja danych
+	\item \textbf{Model danych} - struktura przechowująca informację o lokalizacji
+	\item \textbf{Integracja z formularzami} - wybór lokalizacji w formularzach obserwacji
+	\item \textbf{Wizualizacja danych} - wyświetlanie obserwacji na mapie
+\end{itemize}
+
+\subsection{Komponent mapy (MapComponent)}
+\index{Komponent mapy (MapComponent)}
+Komponent został zrealizowany jako wielofunkcyjne, reużywalny komponent Angular wykorzystujący biblioteke Leaflet.js:
+
+\begin{lstlisting}[style=tsstyle, caption={Komponent mapy w Angular}]
+@Component({
+	selector: 'app-map',
+	standalone: true,
+	imports: [CommonModule],
+	templateUrl: './map.component.html',
+	styleUrl: './map.component.scss'
+})
+export class MapComponent implements AfterViewInit, OnDestroy, OnChanges {
+	@Input() initialLocation?: { lat: number; lng: number };
+	@Input() initialZoom: number = 6;
+	@Input() allowSelection: boolean = false;
+	@Input() observations: BirdObservation[] = [];
+	@Input() mapType: 'default' | 'home' | 'form' = 'default';
+	@Output() locationSelected = new EventEmitter<{ lat: number; lng: number }>();
+	
+	private map: L.Map | undefined;
+	private marker: L.Marker | undefined;
+	private observationMarkers: L.Marker[] = [];
+	
+	// Granice Polski z 10% marginesem
+	private readonly POLAND_BOUNDS = L.latLngBounds(
+	L.latLng(48.1, 12.6), // Południowo-zachodni róg
+	L.latLng(55.0, 25.4)  // Północno-wschodni róg
+	);
+}
+\end{lstlisting}
+
+\subsubsection{Konfiguracja granic i ograniczeń}
+Mapa została skonfigurowana z ograniczeniami geograficznymi odpowiadającym przybliżonym współrzędnym Polski:
+
+\begin{lstlisting}[style=tsstyle, caption={Parametry mapy}]
+// Granice Polski z 10% marginesem
+private readonly POLAND_BOUNDS = L.latLngBounds(
+L.latLng(48.1, 12.6), // Południowo-zachodni róg
+L.latLng(55.0, 25.4)  // Północno-wschodni róg
+);
+
+// Domyślna ikona markera bez cienia
+private readonly defaultIcon = L.icon({
+	iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
+	iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
+	iconSize: [25, 41],
+	iconAnchor: [12, 41],
+	popupAnchor: [1, -34],
+	shadowUrl: undefined,
+	shadowSize: undefined,
+	shadowAnchor: undefined
+});
+\end{lstlisting}
+
+\subsubsection{Inicjalizacja mapy}
+Proces inicjalizacji mapy obejmuje konfigurację warstw, ograniczeń i obsługi zdarzeń.
+Kod został przedstawiony w listingu \ref{lst:inicjalizacjamapy}
+
+\subsubsection{Zarządzanie markerami obserwacji}
+System automatycznie aktualizuje markery na mapie:
+
+\begin{lstlisting}[style=tsstyle, caption={Parametry mapy}]
+private updateObservationMarkers(): void {
+	// Usuń stare markery
+	this.observationMarkers.forEach(marker => this.map?.removeLayer(marker));
+	this.observationMarkers = [];
+	
+	// Dodaj nowe markery
+	if (this.observations && this.observations.length > 0) {
+		this.observations.forEach(obs => {
+			const marker = L.marker([obs.latitude, obs.longitude], { icon: this.defaultIcon })
+			.bindPopup(`<b>${obs.birdCommonName}</b><br>${new Date(obs.observationDate).toLocaleDateString()}`);
+			marker.addTo(this.map!);
+			this.observationMarkers.push(marker);
+		});
+	}
+}
+\end{lstlisting}
+
+\subsection{Wielofunkcyjność komponentu, responsywność i style CSS}
+\index{Responsywność i style CSS}
+Komponent mapy został wyposażony w responsywne style CSS dostosowujące się do różnych rozmiarów ekranu. Kod CSS jest zawarty w listingu \ref{lst:cssmapy}
+
+Ponadto komponent obsługuje różne tryby działania:
+\begin{itemize}
+	\item \textbf{default} - standardowy tryb wyświetlania
+	\item \textbf{home} - mapa na stronie głównej z większa wysokością
+	\item \textbf{form} - mapa w formularzach z ograniczoną wysokością
+\end{itemize}
+
+Mapa automatycznie odświeża się po zmianie danych:
+
+\begin{lstlisting}[style=tsstyle, caption={Funkcja odświeżania mapy}]
+ngOnChanges(changes: SimpleChanges): void {
+	if (changes['observations'] && this.map) {
+		this.updateObservationMarkers();
+	}
+}
+\end{lstlisting}
+
+Oraz system automatycznie dostosowuje wysokość mapy do rozmiary ekranu:
+
+\begin{lstlisting}[language=CSS, caption={Styl CSS mapy do wysokości}]
+@media (min-width: 1200px) {
+	.map-container.home-map {
+		min-height: 700px;
+	}
+}
+
+@media (min-width: 1600px) {
+	.map-container.home-map {
+		min-height: 900px;
+	}
+}
+
+@media (min-width: 1920px) {
+	.map-container.home-map {
+		min-height: 1000px;
+	}
+}
+\end{lstlisting}
+
+\subsection{Walidacja współrzędnych geograficznych}
+\index{Walidacja współrzędnych geograficznych}
+Backend implementuje walidację współrzędnych geograficznych:
+
+\begin{lstlisting}[style=csharp, caption={Kod odpowiedzialny za walidacje współrzędnych}]
+private (bool isValid, double? value) ValidateAndParseCoordinate(string coordinate, bool isLatitude)
+{
+	coordinate = coordinate.Replace(".", ",");
+	
+	if (string.IsNullOrWhiteSpace(coordinate))
+	return (false, null);
+	
+	if (!double.TryParse(coordinate, out double value))
+	return (false, null);
+	
+	if (isLatitude)
+	{
+		if (value < -90 || value > 90)
+		return (false, null);
+	}
+	else
+	{
+		if (value < -180 || value > 180)
+		return (false, null);
+	}
+	
+	// Zaokrąglenie do 4 miejsc po przecinku
+	value = Math.Round(value, 4);
+	return (true, value);
+}
+\end{lstlisting}
+
+Walidacja jest stosowana podczas tworzenia i aktualizacji obserwacji. Przykład użycia jest przedstawiony w listingu \ref{lst:backendwalidacjageograficzna}.
+
+\subsection{Integracja w formularzach}
+\index{Integracja w formularzach}
+
+Komponent mapy jest zintegrowany z formularzami dodawania i edycji obserwacji:
+
+\begin{lstlisting}[style=tsstyle, caption={Implementacja mapy w formularzu}]
+export default class AddObservationComponent implements OnInit {
+	observationForm: FormGroup;
+	birds: Bird[] = [];
+	isLoading = true;
+	isSubmitting = false;
+	selectedLocation: { lat: number; lng: number } | undefined = undefined;
+	dateFormat: string;
+	today = new Date();
+	selectedImages: File[] = [];
+	previewUrls: string[] = [];
+	
+	constructor(
+	private fb: FormBuilder,
+	private birdService: BirdService,
+	private observationService: BirdObservationService,
+	private router: Router,
+	private snackBar: MatSnackBar,
+	private localeService: LocaleService
+	) {
+		this.dateFormat = this.localeService.getDateTimeFormat();
+		this.observationForm = this.fb.group({
+			birdId: ['', Validators.required],
+			latitude: ['', Validators.required],
+			longitude: ['', Validators.required],
+			observationDate: ['', Validators.required],
+			description: ['', Validators.required],
+			numberOfBirds: [1, [Validators.required, Validators.min(1)]],
+			weatherConditions: [''],
+			habitat: ['']
+		});
+	}
+}
+\end{lstlisting}
+
+\begin{lstlisting}[style=tsstyle, caption={Obsługa wyboru lokalizacji z mapy}]
+onLocationSelected(location: { lat: number; lng: number }): void {
+	// Formatowanie do 4 miejsc po przecinku
+	const lat = location.lat.toFixed(4);
+	const lng = location.lng.toFixed(4);
+	
+	this.selectedLocation = {
+		lat: parseFloat(lat),
+		lng: parseFloat(lng)
+	};
+	
+	this.observationForm.patchValue({
+		latitude: lat,
+		longitude: lng
+	});
+}
+\end{lstlisting}
+
+\subsection{Wizualizacja na stronie głównej}
+\index{Wizualizacja na stronie głównej}
+
+Strona główna wykorzystuje mapę do wyświetlania obserwacji z możliwością filtrowania według tygodni:
+
+\begin{lstlisting}[style=tsstyle, caption={Integracja ze stroną główną}]
+export class HomePageComponent implements OnInit {
+	weeks: ObservationWeek[] = [];
+	selectedWeekIndex: number = 0;
+	filteredObservations: BirdObservation[] = [];
+	years: number[] = [];
+	selectedYear: number | null = null;
+	isDatePickerExpanded: boolean = false;
+	
+	constructor(private http: HttpClient, private observationService: BirdObservationService) {}
+	
+	ngOnInit(): void {
+		this.fetchAvailableYears();
+	}
+	
+	loadObservationsForWeek() {
+		const week = this.weeks[this.selectedWeekIndex];
+		if (!week) {
+			this.filteredObservations = [];
+			return;
+		}
+		this.observationService.getAllObservations({
+			pageNumber: 1,
+			pageSize: 1000,
+		}).subscribe({
+			next: (response) => {
+				this.filteredObservations = response.items.filter(o => {
+					const date = new Date(o.observationDate);
+					return date >= new Date(week.start) && date <= new Date(week.end);
+				});
+			}
+		});
+	}
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=HTML, caption={Szablon html strony głównej z wyborem daty}]
+<div class="home-container">
+<div class="date-picker-container">
+<!-- Przycisk rozwijania/zwijania -->
+<button mat-icon-button class="date-picker-toggle" (click)="toggleDatePicker()" [class.expanded]="isDatePickerExpanded">
+<mat-icon>{{ isDatePickerExpanded ? 'expand_less' : 'expand_more' }}</mat-icon>
+<span class="toggle-label">{{ isDatePickerExpanded ? 'Ukryj datę' : 'Wybierz datę' }}</span>
+</button>
+
+<!-- Rozwijany kontener z opcjami daty -->
+<div class="week-slider-container" [class.expanded]="isDatePickerExpanded">
+<mat-form-field appearance="fill" class="year-select">
+<mat-label>Rok</mat-label>
+<mat-select [(ngModel)]="selectedYear" (ngModelChange)="onYearChange($event)">
+<mat-option *ngFor="let year of years" [value]="year">{{ year }}</mat-option>
+</mat-select>
+</mat-form-field>
+<mat-button-toggle-group
+class="week-toggle-group"
+[value]="selectedWeekIndex"
+(change)="onWeekChange($event.value)"
+appearance="legacy">
+<mat-button-toggle *ngFor="let week of weeks; let i = index" [value]="i">
+{{ week.start | date:'dd.MM' }}-{{ week.end | date:'dd.MM' }}
+</mat-button-toggle>
+</mat-button-toggle-group>
+<div class="week-label">
+{{ weeks[selectedWeekIndex]?.start | date:'dd.MM.yyyy' }} - {{ weeks[selectedWeekIndex]?.end | date:'dd.MM.yyyy' }}
+</div>
+</div>
+</div>
+
+<div class="map-wrapper">
+<app-map [observations]="filteredObservations" mapType="home"></app-map>
+</div>
+</div>
+\end{lstlisting}
+
+\subsection{API dla tygodni obserwacji}
+\index{API dla tygodni obserwacji}
+Backend udostępnia endpoint do pobierania tygodni z obserwacjami:
+
+\begin{lstlisting}[style=csharp, caption={Kod kontrolera tygodni}]
+[HttpGet("weeks")]
+public async Task<ActionResult<List<object>>> GetObservationWeeks([FromQuery] int? year = null)
+{
+	var weeks = await _observationService.GetObservationWeeksAsync(year);
+	return Ok(weeks);
+}
+\end{lstlisting}
+
+Implementacja w serwisie została przedstawiona w listingu \ref{lst:backendserwistygodni}.
+
+\subsection{Podsumowanie}
+\index{Podsumowanie}
+Przedstawiony zaimplementowany system mapy i geolokalizacji zapewnia w systemie:
+
+\begin{itemize}
+	\item \textbf{Precyzyjną lokalizację} - walidacja współrzędnych z dokładnością do 4 miejsc po przecinku
+	\item \textbf{Ograniczenia geograficzne} - mapa ograniczona do przybliżonych granic Polski
+	\item \textbf{Iteraktywność} - możliwość wyboru lokalizacji poprzez kliknięcie
+	\item \textbf{Wizualizacja danych} - wyświetlanie obserwacji z popupami zawierającymi informacje
+	\item \textbf{Responsywność} - komponent dostosowuje się do różnych ekranów
+	\item \textbf{Filtrowanie czasowe} - wyświetlanie obserwacji z określonych tygodni
+	\item \textbf{Wielofunkcyjność} - różne tryby działania do wykorzystania w wielu miejscach systemu
+\end{itemize}
