@@ -21,6 +21,108 @@
 
 \section{Architektura systemu}
 \index{Architektura systemu}
+Na podstawię przeprowadzonej analizie dostępnych technologii oraz wymagań funkcjonalnych i niefunkcjonalnych, aplikacja do tworzenia interaktywnego atlasu ptaków w Polsce została zaprojektowana w architekturze 3-warstwowej (3-tier architecture). Wybór ten został podyktowany potrzebą zapewnienia separacji odpowiedzialności i funkcjonalności systemu pomiędzy poszczególnymi warstwami oraz możliwości niezależnego rozwoju każdej z nich i testowanie poszczególnych komponentów.
+
+
+Projektowana architektura jest następująca:
+\begin{itemize}
+	\item \textbf{Warstwa prezentacji (Presentation Layer)} - aplikacja kliencka napisana w Angular 17
+	\item \textbf{Warstwa logiki biznesowej (Business Logic Layer)} - API REST napisane w ASP.NET Core 8
+	\item \textbf{Warstwa danych (Data Layer)} - baza danych SQLite
+\end{itemize}
+
+\subsection{Projektowana architektura backendu}
+\index{Projektowana architektura backendu}
+Backend aplikacji będzie zaimplementowany w technologii \texttt{ASP.NET Core 8}, wykorzystująć wzorzec architektoniczny Model-View-Controller (MVC) w kontekście API REST, wraz z wzorem \texttt{Dependency Injection} oraz \texttt{Repository Pattern}. Projektowana struktura obejmuje niżej wymienione komponenty zgodnie z przyjętą strukturą projektów ASP.NET Core.
+
+\subsubsection{Kontrolery (Controllers)}
+Planowane jest utworzenie następujących kontrolerów odpowiedzialnych za obsługę żądań HTTP REST API:
+\begin{itemize}
+	\item \texttt{AuthController} - zarządzanie uwierzytelnianiem i autoryzacją użytkowników
+	\item \texttt{BirdsController} - zarządzanie danymi o ptakach
+	\item \texttt{BirdObservationsController} - zarządzanie obserwacjami ptaków
+	\item \texttt{UserManagementController} - zarządzanie użytkownikami
+	\item \texttt{UserSettingsController} - zarządzanie ustawieniami użytkowników
+\end{itemize}
+
+\subsubsection{Serwisy (Services)}
+Logika biznesowa zostanie wydzielona do dedykowanych serwisów implementując wzorzec \texttt{Dependency Injection}
+\begin{itemize}
+	\item \texttt{AuthService} - obsługa uwierzytelniania JWT, zarządzanie tokenami
+	\item \texttt{BirdService} - operacje na danych o ptakach
+	\item \texttt{BirdObservationService} - operacje na obserwacjach ptaków
+	\item \texttt{UserManagementService} - operacje na  użytkownikach
+	\item \texttt{UserSettingsService} - operacje związane z ustawieniami użytkowników
+\end{itemize}
+
+\subsubsection{Modele danych}
+System będzie wykorzystywał Entity Framework Core jako ORM z następującymi głównymi encjami:
+\begin{itemize}
+	\item \texttt{ApplicationUser} - model użytkownika rozszerzający IdentityUser
+	\item \texttt{Bird} - model ptaka zawierający dane taksonomiczne i opisowe
+	\item \texttt{BirdObservation} - model obserwacji zawierający lokalizację, datę i dodatkowe informacje
+\end{itemize}
+
+\subsubsection{Kontekts bazy danych}
+\texttt{ApplicationDbContext} będzie dziedziczyć po \texttt{IdentityDbContext<ApplicationUser>} i definiować relacje między encjami:
+\begin{itemize}
+	\item Relacja jeden-do-wielu między użytkownikiem a ptakami
+	\item Relacja jeden-do-wielu między ptakiem a obserwacjami
+	\item Relacja jeden do wielu między użytkownikiem a obserwacjami
+\end{itemize}
+
+\subsection{Projektowana architektura frontendu}
+\index{Projektowana architektura frontendu}
+Część frontendowa aplikacji zostanie zbudowana w technologii Angular 17 z wykorzystaniem Angular Material Design jako biblioteki komponentów UI. Projektowana architektura opiera się na niżej wymienionych założeniach.
+
+\subsubsection{Struktura komponentów}
+Aplikacja zostanie podzielona na moduły funkcjonalne:
+\begin{itemize}
+	\item \textbf{Komponenty stron (Pages)} - główne widoki
+	\item \textbf{Komponenty współdzielone (Shared Components)} - komponenty wielokrotnego użytku
+	\item \textbf{Komponenty nawigacyjne} - pasek nawigacyjny i routing
+\end{itemize}
+
+\subsubsection{Routing i nawigacja}
+System routingu będzie wykorzystywał Angular Router z lazy loading dla optymalizacji wydajności:
+\begin{itemize}
+	\item Strona główna \texttt{(/)}
+	\item Zarządzanie ptakami \texttt{(/birds, /birds/:id)}
+	\item Obserwacje \texttt{(/observations, /observations/add, /observations/:id)}
+	\item Statystyki \texttt{(/statistics)}
+	\item Uwierzytelnianie \texttt{(/login, /register, /logout)}
+	\item Ustawienia \texttt{(/settings)}
+\end{itemize}
+
+\subsubsection{Serwisy aplikacji}
+Logika biznesowa frontendu zostanie wydzielona do dedykowanych serwisów:
+\begin{itemize}
+	\item \texttt{AuthService} - zarządzanie sesją użytkownika i tokenami JWT
+	\item \texttt{BirdService} - komunikacja z API ptaków
+	\item \texttt{BirdObservationService} - komunikacja z API obserwacji
+	\item \texttt{UserService} - zarządzanie danymi użytkownika
+\end{itemize}
+
+\subsection{Projektowane bezpieczeństwo systemu}
+\index{Projektowane bezpieczeństwo systemu}
+Projektowany system będzie wdrażał kilka mechanizmów by zapewnić bezpieczeństwo wymiany informacji oraz danych użytkowników.
+
+\subsubsection{Uwierzytelnianie i autoryzacja}
+System będzie wykorzystywał \texttt{JWT} do uwierzytelniania użytkowników:
+\begin{itemize}
+	\item Tokeny dostępu z czasem życia 15 minut
+	\item Tokeny odświeżające z dłuższym czasem życia
+	\item Automatyczne odświeżanie tokenów w tle
+	\item Role użytkowników: \texttt{Admin} i \texttt{User}
+\end{itemize}
+
+\subsubsection{Polityki bezpieczeństwa}
+Planowane są następujące polityk autoryzacji:
+\begin{itemize}
+	\item \texttt{RequireAdminRole} - dostęp tylko dla administratorów
+	\item \texttt{RequireUserRole} - dostęp dla zalogowanych użytkowników
+	\item Polityki \texttt{CORS} ograniczające dostęp do określonych domen
+\end{itemize}
 
 \section{Model danych}
 \index{Model danych}
