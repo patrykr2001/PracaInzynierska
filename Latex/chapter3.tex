@@ -166,12 +166,182 @@ W systemie będą wdrożone i wykorzystane następujące wzorce projektowe:
 
 \section{Model danych}
 \index{Model danych}
+Model danych aplikacji został zaprojektowany w oparciu o wykorzystanie ORM Entity Framework Core. System będzie składał się z 3 głównych encji oraz dodatkowych obiektów DTO (Data Transfer Objects) służących do komunikacji między warstwami aplikacji.
+
+\subsection{Główne encje}
+\index{Główne encje}
+
+\subsubsection{Encja ApplicationUser}
+Encja \texttt{ApplicationUser} dziedziczy po \texttt{IdentityUser} z ASP.NET Core Identity, rozszerzając tym podstawową funkcjonalność o pola specyficzne dla projektowanego systemu.
+
+Pola podstawowe:
+\begin{itemize}
+	\item \texttt{Id} - unikalny identyfikator użytkownika
+	\item \texttt{UserName} - nazwa użytkownika
+	\item \texttt{Email} - adres email użytkownika
+	\item \texttt{PhoneNumer} - numer telefonu
+	\item \texttt{PhoneNumberConfirmed} - potwierdzenie numeru telefonu
+	\item \texttt{TwoFactorEnabled} - włączenie uwierzytelniania dwuskładnikowego
+	\item \texttt{LockoutEnd} - data końca blokady konta
+	\item \texttt{LockoutEnabled} - włączenie blokady konta
+	\item \texttt{AccessFailedCount} - liczba nieudanych prób logowania
+\end{itemize}
+Pola rozszerzające:
+\begin{itemize}
+	\item \texttt{RefreshToken} - token odświeżania dla JWT
+	\item \texttt{RefreshTokenExpiryTime} - czas wygaśnięcia tokenu odświeżania
+	\item \texttt{CreatedAt} - data utworzenia konta
+\end{itemize}
+
+\subsubsection{Encja Bird}
+Encja \texttt{Bird} reprezentuje informacje o gatunkach ptaków występujących w Polsce.
+
+Pola identyfikacyjne:
+\begin{itemize}
+	\item \texttt{Id} - unikalny identyfikator ptaka
+	\item \texttt{UserId} - identyfikator użytkownika, który dodał ptaka
+\end{itemize}
+
+Pola taksonomiczne:
+\begin{itemize}
+	\item \texttt{CommonName} - polska nazwa zwyczajowa ptaka
+	\item \texttt{ScientificName} - nazwa naukowa (łacińska)
+	\item \texttt{Family} - rodzina ptaka
+	\item \texttt{Order} - rząd ptaka
+	\item \texttt{Genus} - rodzaj
+	\item \texttt{Species} - gatunek
+\end{itemize}
+
+Pola opisowe:
+\begin{itemize}
+	\item \texttt{ConservationStatus} - status ochronny gatunku
+	\item \texttt{Description} - opis ptaka
+	\item \texttt{Habitat} - preferowane siedlisko
+	\item \texttt{Diet} - dieta ptaka
+	\item \texttt{Size} - rozmiar ptaka
+	\item \texttt{Weight} - waga w gramach
+	\item \texttt{Wingspan} - rozpiętość skrzydeł w centymetrach
+	\item \texttt{Lifespan} - długość życia
+	\item \texttt{BreedingSeason} - sezon lęgowy
+\end{itemize}
+
+Pola techniczne:
+\begin{itemize}
+	\item \texttt{ImageUrl} - URL do zdjęć ptaka
+	\item \texttt{IsVerified} - status weryfikacji przez administratora
+	\item \texttt{CreatedAt} - data dodania ptaka do systemu
+\end{itemize}
+
+\subsubsection{Encja BirdObservation}
+Encja \texttt{BirdObservation} reprezentuje pojedynczą obserwacje ptaka w terenie.
+
+Pola identyfikacyjne:
+\begin{itemize}
+	\item \texttt{Id} - unikalny identyfikator obserwacji
+	\item \texttt{BirdId} - identyfikator obserwowanego ptaka
+	\item \texttt{UserId} - identyfikator użytkownika wykonującego obserwację
+\end{itemize}
+
+Pola lokalizacyjne:
+\begin{itemize}
+	\item \texttt{Latitude} - szerokość geograficzna miejsca obserwacji
+	\item \texttt{Longitude} - długość geograficzna miejsc obserwacji
+\end{itemize}
+
+Pola czasowe:
+\begin{itemize}
+	\item \texttt{Description} - opis obserwacji
+	\item \texttt{NumberOfBirds} - liczba zaobserwowanych ptaków
+	\item \texttt{WeatherConditions} - warunki pogodowe podczas obserwacji
+	\item \texttt{Habitat} - typ siedliska w miejscu obserwacji
+\end{itemize}
+
+Pola techniczne:
+\begin{itemize}
+	\item \texttt{IsVerified} - status weryfikacji obserwacji
+	\item \texttt{ImageUrls} - lista URL-i do zdjęć z obserwacji
+\end{itemize}
+
+\subsection{Obiekty DTO}
+\index{Obiekty DTO}
+
+\subsubsection{AuthDtos}
+\begin{itemize}
+	\item \texttt{LoginDto} - dane logowania (email, password)
+	\item \texttt{RegisterDto} - dane rejestracji (email, password, confirmPassword)
+	\item \texttt{AuthResponseDto} - odpowiedź uwierzytelniająca (accessToken, refreshToken, user)
+	\item \texttt{RefreshTokenDto} - token odświeżenia
+\end{itemize}
+
+\subsubsection{UserDtos}
+\begin{itemize}
+	\item \texttt{UserDto} - podstawowe informację o użytkowniku (id, username, email, roles)
+	\item \texttt{UserDetailsDto} - rozszerzone informację o użytkowniku (z datą utworzenia)
+	\item \texttt{UpdateUserDto} - dane do aktualizacji profilu użytkownika
+\end{itemize}
+
+\subsubsection{BirdDtos}
+\begin{itemize}
+	\item \texttt{BirdDto} - podstawowe informacje o ptaku
+	\item \texttt{CreateBridDto} - dane tworzenia nowego ptaka (z obsługą plików)
+	\item \texttt{UpdateBirdDto} - dane aktualizacji ptaka
+	\item \texttt{BirdObservationDto} - inforamcje o obserwacji z danymi ptaka
+	\item \texttt{CreateBirdObservationDto} - dane do tworzenia obserwacji
+	\item \texttt{UpdateBirdObservationDto} - dane do aktualizacji obserwacji
+	\item \texttt{DeleteObservationImageDto} - dane do usuwanie zjęć obserwacji
+	\item \texttt{PaginatedResponse} - odpowiedź z paginacją
+	\item \texttt{PaginationParams} - parametry paginacji 
+\end{itemize}
+
+\subsection{Relacje między encjami}
+\index{Relacje między encjami}
+
+\subsubsection{Relacja Applicationuser - Bird (1:N)}
+\begin{itemize}
+	\item Jeden użytkownik może dodać wiele ptaków do systemu
+	\item Każdy ptak musi mieć przypisanego użytkownika, który go dodał
+	\item Usunięcie użytkownika nie powoduje usunięcia dodanych przez niego ptaków
+\end{itemize}
+
+\subsubsection{Relacja Bird - BirdObservation (1:N)}
+\begin{itemize}
+	\item Jeden ptak może mieć wiele obserwacji
+	\item Każda obserwacja musi być przypisana do konkretnego ptaka
+	\item Usunięcie ptaka powoduje usunięcie wszystkich jego obserwacji
+\end{itemize}
+
+\subsubsection{Relacja ApplicationUser - BirdObservation (1:N)}
+\begin{itemize}
+	\item Jeden użytkownik może wykonać wiele obserwacji
+	\item Każda obserwacja musi być przypisana do konkretnego użytkownika
+\end{itemize}
+
+\subsection{Walidacja danych}
+\index{Walidacja danych}
+System będzie wykorzystywał atrybuty modelu danych korzystając z Entity Framework Core do zapewnienia walidacji i integralności danych:
+\begin{itemize}
+	\item \texttt{[Required]} - pola obowiązkowe
+	\item \texttt{[EmailAddress]} - walidacja formatu email
+	\item \texttt{[MinLength], [MaxLenght]} - ograniczenia długości tekstu
+	\item \texttt{[Range]} - ograniczenie wartości numerycznych
+	\item \texttt{Compare} - porównanie pól (np. hasło i potwierdzenie hasła)
+\end{itemize}
+
+\subsection{Indeksy i optymalizacja}
+\index{Indeksy i optymalizacja}
+W bazie danych zostaną utworzone indeksy do optymalizacji wyszukiwania na następujących polach:
+\begin{itemize}
+	\item \texttt{ApplicationUser.Email} - dla szybkiego wyszukiwania użytkowników
+	\item \texttt{Bird.CommonName} - dla wyszukiwania ptaków po nazwie
+	\item \texttt{BirdObservation.ObservationDate} - do filtrowania obserwacji po dacie
+	\item \texttt{BirdObservation.Latitude, BirdObservation.Longitude} - dla wyszukiwania geograficznego
+\end{itemize}
 
 \section{Diagramy UML}
 \index{Diagramy UML}
 
-\section{Projekt interfejsu użytkownika}
-\index{Projekt interfejsu użytkownika}
+% \section{Projekt interfejsu użytkownika}
+% \index{Projekt interfejsu użytkownika}
 
 \section{Projekt API}
 \index{Projekt API}
