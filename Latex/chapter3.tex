@@ -124,6 +124,46 @@ Planowane są następujące polityk autoryzacji:
 	\item Polityki \texttt{CORS} ograniczające dostęp do określonych domen
 \end{itemize}
 
+\subsection{Projektowana baza danych}
+\index{Projektowana baza danych}
+System będzie wykorzystywał bazę danych SQLite, która zapewnia łatwość wdrożenia i konfiguracji, wygodne kopię i przywracanie danych oraz odpowiednia wydajność przy niskim zużyciu zasobów.
+
+\subsubsection{Główne tabele systemu}
+\begin{itemize}
+	\item \texttt{AspNetUsers} - użytkownicy systemu
+	\item \texttt{Birds} - katalog ptaków
+	\item \texttt{BirdObservations} - obserwacje ptaków
+	\item \texttt{AspNetRoles} - role użytkowników
+	\item \texttt{AspNetUserRoles} - przypisanie ról do użytkowników
+\end{itemize}
+
+\subsection{Projektowana komunikacja między warstwami}
+\index{Projektowana komunikacja między warstwami}
+Komunikacja między 3 warstwami projektowanego systemu będzie wyglądać jak zostało to opisane poniżej.
+
+\subsubsection{Komunikacja między frontendem i backendem}
+Będzie odbywać się za pośrednictwem REST API:
+\begin{itemize}
+	\item Endpointy HTTP dla operacji CRUD
+	\item Obsługa plików (zdjęcia ptaków i obserwacji)
+	\item Walidacja danych po stronie serwera
+	\item Obsługa błędów i kodów odpowiedzi HTTP
+\end{itemize}
+
+\subsubsection{Komunikacja backendu z bazą danych}
+Na backendzie zostanie wykorzystany ORM Entity Framework Core do mapowania obiektowo-relacyjnego i komunikacji z bazą danych. Dzięki wykorzystaniu tej technologii niewymagane jest pisanie surowych zapytań SQL, tylko można wygodnie posługiwać się klasami modelu domenowego, kontekstem bazodanowym i wyrażeń LINQ do przetwarzania danych.
+
+\subsection{Wzorce projektowe}
+\index{Wzorce projektowe}
+W systemie będą wdrożone i wykorzystane następujące wzorce projektowe:
+\begin{itemize}
+	\item \textbf{Dependecy Injection} - zarządzanie zależnościami
+	\item \textbf{Repository Pattern} - abstrakcja dostępu do danych
+	\item \textbf{Service Layer Pattern} - separacja logiki biznesowej
+	\item \textbf{DTO Pattern} - tranfer obiektów danych
+	\item \textbf{Observer Pattern} - reaktywne programowanie w Angular
+\end{itemize}
+
 \section{Model danych}
 \index{Model danych}
 
