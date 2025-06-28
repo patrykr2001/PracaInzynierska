@@ -16,7 +16,20 @@
 \noindent {{\color{blueZUT}\Large\sffamily  {Streszczenie}}}\\[1cm] 
 \end{center}
 
-W tym miejscu trzeba napisać streszczenie pracy w języku polskim. Zawiera krótką charakterystykę dziedziny, przedmiotu i wyników zaprezentowanych w pracy. Maksymalnie 1/2 strony.
+W niniejszej pracy inżynierskiej przedstawiono projekt, implementację oraz wdrożenie kompleksowej aplikacji webowej do tworzenia interaktywnego atlasu ptaków występujących w Polsce. Celem systemu jest wspieranie zarówno profesjonalnych ornitologów, jak i pasjonatów oraz studentów kierunków przyrodniczych w dokumentowaniu i analizie występowania ptaków w terenie. Projektowany system odpowiada na rosnące potrzeby cyfryzacji obserwacji przyrodniczych oraz zapewnia intuicyjne narzędzia do zarządzania danymi biologicznymi.
+
+System został opracowany w architekturze trójwarstwowej, obejmującej frontend w technologii Angular 17, backend oparty na ASP.NET Core 8 oraz relacyjną bazę danych SQLite. Zastosowano nowoczesne wzorce projektowe, takie jak Dependency Injection, Repository Pattern oraz MVC, co zapewnia skalowalność i przejrzystość rozwiązania. Kluczowym elementem interfejsu użytkownika jest mapa interaktywna (Leaflet.js), umożliwiająca geolokalizację obserwacji oraz ich wizualizację w czasie i przestrzeni.
+Wśród głównych funkcjonalności aplikacji znajdują się:
+\begin{itemize}
+	\item system uwierzytelniania i autoryzacji z wykorzystaniem JWT oraz ról użytkowników (administrator, moderator, użytkownik),
+	\item możliwość dodawania, edytowania i weryfikacji obserwacji ptaków z uwzględnieniem danych środowiskowych, fotograficznych i lokalizacyjnych,
+	\item katalog gatunków ptaków z filtrami taksonomicznymi oraz szczegółowymi informacjami biologicznymi,
+	\item panel statystyk i analiz przestrzenno-czasowych obserwacji (m.in. wykresy, mapa cieplna, dane agregowane),
+	\item responsywny interfejs graficzny dostosowany do różnych typów urządzeń.
+\end{itemize}
+
+Realizacja projektu była równocześnie praktycznym zastosowaniem wiedzy zdobytej w trakcie studiów z zakresu inżynierii oprogramowania oraz doświadczenia zawodowego w branży IT. Praca potwierdza, że przy odpowiednim doborze nowoczesnych narzędzi i technologii możliwe jest stworzenie funkcjonalnego, bezpiecznego i wydajnego narzędzia wspierającego nauki przyrodnicze. Aplikacja może służyć jako fundament dla dalszego rozwoju rozwiązań z zakresu cyfrowej ornitologii oraz analityki ekologicznej.
+
 
 \vspace{10pt}
 \noindent{\bf słowa kluczowe:} ASP.NET Core, Angular, SQLite, geolokalizacja, ornitologia, aplikacja webowa
@@ -26,7 +39,20 @@ W tym miejscu trzeba napisać streszczenie pracy w języku polskim. Zawiera kró
 \begin{center}
 \noindent {{\color{blueZUT}\Large\sffamily {Abstract}}}\\[1cm] 
 \end{center}
-The abstract's purpose, which should not exceed 150 words, is to provide sufficient information to allow potential readers to decide on the thesis's relevance—a maximum of half the page.
+This engineering thesis presents the design, implementation, and deployment of a modern web-based application for creating an interactive atlas of bird species found in Poland. The system supports both professional ornithologists and enthusiasts, as well as students in natural sciences, in documenting and analyzing bird sightings in the field. The solution addresses the growing demand for digital tools in wildlife observation and provides intuitive means for managing biological data.
+
+The system is built upon a three-tier architecture comprising a frontend written in Angular 17, a backend powered by ASP.NET Core 8, and a lightweight relational SQLite database. Modern architectural patterns are applied, including Dependency Injection, Repository Pattern, and MVC, ensuring scalability, maintainability, and modularity. One of the key UI features is an interactive map (Leaflet.js) that allows users to geolocate and visualize bird observations across time and space.
+Core functionalities of the application include:
+\begin{itemize}
+	\item authentication and role-based authorization (Admin, Moderator, User) using JWT,
+	\item creation, editing, and moderation of bird observations with environmental, photographic, and geolocation metadata,
+	\item a detailed bird catalog with taxonomic filters and biological descriptors,
+	\item analytics dashboards with temporal and spatial visualizations (e.g. charts, heatmaps, and summary indicators),
+	\item a fully responsive interface optimized for both desktop and mobile devices.
+\end{itemize}
+
+The project serves as a practical application of the academic knowledge in software engineering and professional experience in the IT sector. It demonstrates that modern web technologies can be effectively applied to develop robust, efficient, and secure systems supporting environmental research. The developed application provides a valuable foundation for future systems in digital ornithology and ecological analytics.
+
 
 \vspace{10pt}
 \noindent{\bf keywords:} ASP.NET Core, Angular, SQLite, geolocation, ornithology, web application
