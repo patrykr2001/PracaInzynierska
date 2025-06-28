@@ -16,12 +16,59 @@
 
 \section*{Podsumowanie pracy}
 \index{Podsumowanie pracy}
+Praca inżynierska przedstawwia projekt i implementacje systemu informatyczznego do śledzenia występowania ptaków w Polsce. Głównym celem pracy było zaprojektowanie i stworzenie aplikacji webowej do tworzenia interaktywnego atlasu ptaków występujących w Polsce dostępna dla szerokiej gamy użytkowników, na różnych urządzeniach oraz zawierającą niezbędne funkcję. 
 
-\section*{Wnioski}
-\index{Wnioski}
+Po przeanalizowaniu dostępnych rozwiązań ustalono oczekiwaną charakterystykę oprogramowania i opisano wymagania. Po przeglądzie ogromu nowoczesnych technologii, których używa się dzisiejszych czasach, do tworzenia aplikacji web wybrane zostały frameworki i baza danych odpowiadające wymaganiom stawianym przed projektowanym systemem oraz znanych mi personalnie.
+
+Osiągnięte zostały liczne cele założone w projekcie - w tym cel główny stworzenia kompleksowego systemu w trój-wartstwowej architekturze.
+System udostępnia następujące funkcjonalności:
+\begin{itemize}
+	\item Rejestracje i zarządzanie użytkownikami wraz z systemem ról
+	\item Dodawanie nowych gatunków ptaków do katalogu
+	\item Rejestrowanie obserwacji ptaków z lokalizacją geograficzną
+	\item Przeglądanie i wyszukiwanie danych o ptakach i obserwacjach
+	\item Analizę statystyczną w ujęciu czasowym i przestrzennym
+\end{itemize}
+
+Wykorzystane technologie w projekcie są sprawdzone i nowoczesne:
+\begin{itemize}
+	\item \textbf{Backend} - ASP.NET Core 8 z Entity Framework Core, JWT Authentication i SQLite
+	\item \textbf{Frontend} - Angular 17 z Angular Material Design, TypeScript, RxJS
+	\item \textbf{Architektura} - REST API, wzorzec MVC, Dependecy Injection
+	\item \textbf{Bezpieczeństwo}  Role-based access control, walidacja danych, CORS
+\end{itemize}
+
+Zaimplementowane funkcjonalności systemu obejmują wymienione w wymaganiach oraz udokumentowane w implementacji następujące:
+\begin{itemize}
+	\item \textbf{Zarządzanie użytkownikami} - rejestracja, logowanie, zarządzanie profilami
+	\item \textbf{Katalog ptaków} - dodawanie, edycja, wyszukiwanie i weryfikacja gatunków
+	\item \textbf{Obserwacje} - rejestrowanie z geolokalizacją, zarządzanie zdjęciami, statystyki
+	\item \textbf{Administracja} - panel administratora z funkcjami moderacji i zarządzania
+	\item \textbf{Interfejs użytkownika} - responsywny design, mapy, galerie zdjęć
+\end{itemize}
+
+Stworzona aplikacja dostarcza znaczną wartość praktyczna dla grup docelowych użytkowników:
+\begin{itemize}
+	\item \textbf{Ornitologów i badaczy} - umożliwia gromadzenie i analizę danych o występowaniu ptaków
+	\item \textbf{Miłośników ptaków} - dostarcza narzędzie do dokumentowania obserwacji
+	\item \textbf{Organizacji przyrodniczych} - wspiera monitoring gatunków i ich siedlisk
+	\item \textbf{Edukacji} - służy jako platforma edukacyjna o ptakach Polski
+\end{itemize}
 
 \section*{Plany rozwoju aplikacji}
 \index{Plany rozwoju aplikacji}
+
+Po wykonanych praca można zidentyfikować kilka dróg rozwoju utworzonej aplikacji. Przede wszystkim rozwinięcie systemu statystyk który w aktualnym stanie jest niewystarczający i ubogi. Rozwój o podmapy dla konkretnych gatunków, wykresy, analizy, większy wachlarz filtrów i wyszukiwań czy heatmapy występowania oprócz pinezek obserwacji.
+
+Ponadto system zyskał by na integracjach z zewnętrznymi bazami danych ornitologicznymi - można by polegać nie tylko na wprowadzanych danych przez użytkowników ale o sprawdzone dane z innych systemów. Oprócz tego integracja z systemami GIS mogła by umożliwić zaawansowane analizy przestrzenne.
+
+Rozwój aplikacji o funkcję społecznościowe takie jak forum, komentarze, komunikator mogłyby przyczynić się do zwiększenia atrakcyjności systemu i budowania bazy użytkowników. Konkurencyjne systemy zawierają takie funkcję i są intensywnie wykorzystywane przez użytkowników platform.
+
+\section*{Wnioski}
+\index{Wnioski}
+Projekt udowodnił, że nowoczesne technologie webowe są odpowiednim narzędziem do tworzenia skomplikowanych, wielowarstwowych, wydajnych systemów informatycznych. Przy doborze odpowiednich narzędzi oraz odpowiednim projekcie można wykonać aplikacje wspierające działanie badaczy przyrodniczych i organizacji. Zastosowana architektura zapewnia skalowalność, bezpieczeństwo i łatwość utrzymania systemu.
+
+Praca przyczynia się do rozwoju dziedziczny informatyki stosowanej w naukach przyrodniczych, demonstrując praktyczne zastosowanie technologii, wiedzy oraz doświadczenia. Opracowane rozwiązanie może stanowić podstawę dla podobnych systemów w innych dziedzinach nauk przyrodniczych.
 
 % Podsumowanie pracy powinno na maksymalnie dwóch stronach przedstawić główne wyniki pracy dyplomowej. Struktura zakończenia to:
 % \begin{enumerate}
