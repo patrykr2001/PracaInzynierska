@@ -359,3 +359,51 @@ W bazie danych zostaną utworzone indeksy do optymalizacji wyszukiwania na nast�
 
 \section{Projekt API}
 \index{Projekt API}
+API systemu zostało zaprojektowane zgodnie z zasadami REST i składa się z 5 głównych kontrolerów obsługujących różne aspekty funkcjonalności systemu.
+
+\subsection{AuthController}
+\begin{itemize}
+	\item \texttt{POST /api/auth/login} - logowanie użytkownika
+	\item \texttt{POST /api/auth/register} - rejestracja nowego użytkownika
+	\item \texttt{POSt /api/auth/refresh-token} - odświeżanie tokenu JWT
+	\item \texttt{POST /api/auth/logout} - wylogowanie użytkownika
+\end{itemize}
+
+\subsection{BirdsController}
+\begin{itemize}
+	\item \texttt{GET /api/birds} - pobieranie zweryfikowanych ptaków z paginacją
+	\item \texttt{GET /api/birds/all} - pobieranie wszystkich ptaków
+	\item \texttt{GET /api/birds/unverified} - pobieranie niezweryfikowanych ptaków
+	\item \texttt{GET /api/birds/\{id\}} - pobieranie szczegółów ptaka
+	\item \texttt{POST /api/birds} - dodawanie nowego ptaka
+	\item \texttt{PUT /api/birds/\{id\}} - aktualizacja danych ptaka
+	\item \texttt{DELETE /api/birds/\{id\}} - usuwanie ptaka
+	\item \texttt{POST /api/birds/\{id\}/verify} - weryfikacja ptaka
+	\item \texttt{GET /api/birds/search} - wyszukiwanie ptaków po nazwie
+\end{itemize}
+
+\subsection{BirdObservationsController}
+\begin{itemize}
+	\item \texttt{GET /api/birdobservations} - pobieranie wszystkich obserwacji z paginacją
+	\item \texttt{GET /api/birdobservations/user} - pobieranie obserwacji użytkownika
+	\item \texttt{GET /api/birdobservations/\{id\}} - pobieranie szczegółów obserwacji
+	\item \texttt{POST /api/birdobservations/} - dodawanie nowej obserwacji
+	\item \texttt{PUT /api/birdobservations/\{id\}} - aktualizacja obserwacji
+	\item \texttt{DELETE /api/birdobservations/\{id\}} - usuwanie obserwacji
+	\item \texttt{POST /api/birdobservations/\{id\}/verify} - weryfikacja obserwacji
+	\item \texttt{DELETE /api/birdobservations/\{id\}/images} - usuwanie zdjęć z obserwacji
+	\item \texttt{GET /api/birdsobservations/weeks} - pobieranie obserwacji w podziale na tygodnie
+\end{itemize}
+
+\subsection{UserManagementController}
+\begin{itemize}
+	\item \texttt{GET /api/usermanagement} - pobieranie listy użytkowników
+	\item \texttt{GET /api/usermanagement/\{id\}} - pobieranie szczegółów użytkownika
+	\item \texttt{DELETE /api/usermanagement/\{id\}} - usuwanie użytkownika 
+\end{itemize}
+
+\subsection{UserSettingsController}
+\begin{itemize}
+	\item \texttt{GET /api/usersettings} - pobieranie ustawień użytkownika
+	\item \texttt{PUT /api/usersettings} - aktualizacja ustawień użytkownika
+\end{itemize}
