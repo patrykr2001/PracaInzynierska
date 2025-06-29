@@ -32,7 +32,8 @@
 			maxZoom: 18
 		}).setView([initialLocation.lat, initialLocation.lng], this.initialZoom);
 		// Dodanie warstwy OpenStreetMap
-		L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+		L.tileLayer('https://{s}.tile.openstreetmap.org/
+			{z}/{x}/{y}.png', {
 			attribution: '© OpenStreetMap contributors'
 		}).addTo(this.map);
 		// Ograniczenie widoku do granic Polski
@@ -165,19 +166,18 @@ public async Task<BirdObservationDto> CreateObservationAsync(CreateBirdObservati
 }
 \end{lstlisting}
 
+\pagebreak
+
 \begin{lstlisting}[style=csharp, caption={Implementacja serwisu tygodni},label={lst:backendserwistygodni}]
 public async Task<List<object>> GetObservationWeeksAsync(int? year = null)
 {
 	var observations = await _context.BirdObservations.ToListAsync();
 	if (observations.Count == 0) return new List<object>();
-	
 	if (year.HasValue)
 	{
 		observations = observations.Where(o => o.ObservationDate.Year == year.Value).ToList();
 	}
-	
 	if (observations.Count == 0) return new List<object>();
-	
 	var dates = observations.Select(o => o.ObservationDate.Date).ToList();
 	var minDate = dates.Min();
 	var maxDate = dates.Max();

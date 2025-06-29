@@ -255,6 +255,8 @@ namespace BackendService.Controllers
 ...
 \end{lstlisting}
 
+\pagebreak
+
 \begin{lstlisting}[style=tsstyle, caption={Fragment serwisu po stronie frontendu}, label={lst:przykladTSService}]
 @Injectable({
 	providedIn: 'root'
@@ -1213,12 +1215,10 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 	options.Password.RequireUppercase = true;
 	options.Password.RequireNonAlphanumeric = true;
 	options.Password.RequiredLength = 8;
-	
 	// Ustawienia blokady konta
 	options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
 	options.Lockout.MaxFailedAccessAttempts = 5;
 	options.Lockout.AllowedForNewUsers = true;
-	
 	// Ustawienia użytkownika
 	options.User.RequireUniqueEmail = true;
 	options.SignIn.RequireConfirmedEmail = false;
@@ -1246,7 +1246,8 @@ builder.Services.AddAuthentication(options =>
 		ValidateIssuerSigningKey = true,
 		ValidIssuer = builder.Configuration["Jwt:Issuer"],
 		ValidAudience = builder.Configuration["Jwt:Audience"],
-		IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+		IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8
+			.GetBytes(jwtKey))
 	};
 });
 \end{lstlisting}
@@ -1262,6 +1263,8 @@ public static class AuthorizationConstants
 	public const string UserRole = "User";
 }
 \end{lstlisting}
+
+\pagebreak
 
 Odpowiednie polityki pozwalają na kontrolę dostępu użytkowników do zasobów:
 
@@ -1317,12 +1320,10 @@ private string GenerateAccessToken(ApplicationUser user, IList<string> roles)
 		new Claim(ClaimTypes.Name, user.UserName!),
 		new Claim(ClaimTypes.Email, user.Email!)
 	};
-	
 	foreach (var role in roles)
 	{
 		claims.Add(new Claim(ClaimTypes.Role, role));
 	}
-	
 	var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
 		_configuration["Jwt:Key"]!));
 	var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -1336,7 +1337,6 @@ private string GenerateAccessToken(ApplicationUser user, IList<string> roles)
 	expires: expires,
 	signingCredentials: creds
 	);
-	
 	return new JwtSecurityTokenHandler().WriteToken(token);
 }
 \end{lstlisting}
@@ -1456,8 +1456,10 @@ L.latLng(55.0, 25.4)  // Północno-wschodni róg
 
 // Domyślna ikona markera bez cienia
 private readonly defaultIcon = L.icon({
-	iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
-	iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
+	iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/
+		marker-icon.png',
+	iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/
+		marker-icon-2x.png',
 	iconSize: [25, 41],
 	iconAnchor: [12, 41],
 	popupAnchor: [1, -34],
@@ -1484,7 +1486,8 @@ private updateObservationMarkers(): void {
 	if (this.observations && this.observations.length > 0) {
 		this.observations.forEach(obs => {
 			const marker = L.marker([obs.latitude, obs.longitude], { icon: this.defaultIcon })
-			.bindPopup(`<b>${obs.birdCommonName}</b><br>${new Date(obs.observationDate).toLocaleDateString()}`);
+			.bindPopup(`<b>${obs.birdCommonName}</b><br>${new Date(obs.observationDate)
+					.toLocaleDateString()}`);
 			marker.addTo(this.map!);
 			this.observationMarkers.push(marker);
 		});
